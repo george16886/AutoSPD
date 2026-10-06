@@ -17,6 +17,11 @@ AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、
 .
 ├── extension/
 │   ├── background.js     # 擴充功能背景服務工作者與分類邏輯
+│   ├── content.js        # YouTube 影片偵測與播放速度套用
+│   ├── content.css       # 播放頁提示樣式
+│   ├── popup.html        # 擴充功能操作介面
+│   ├── popup.css
+│   ├── popup.js
 │   └── manifest.json     # Chrome Manifest V3 設定
 ├── webapp/
 │   ├── index.html        # 設定網站與儀表板介面
@@ -53,19 +58,18 @@ AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、
 
 Firebase Web 設定值會出現在用戶端，不能取代資料庫安全規則。請勿把服務帳戶私鑰或其他伺服器端憑證放入前端程式碼或提交到 Git。
 
-## Chrome 擴充功能狀態
+## Chrome 擴充功能
 
-[`extension/manifest.json`](./extension/manifest.json) 目前宣告使用下列檔案，但這些檔案尚未包含在本專案中：
+目前擴充功能提供依影片標題／頻道關鍵字比對分類、自動調速、調速開關、未分類影片預設速度，以及只套用到目前影片的手動速度。分類與設定透過 Chrome Storage Sync 儲存，套用速度直接作用在目前 YouTube 頁面的影片播放器上。
 
-- `popup.html`
-- `content.js`
-- `content.css`
-- `icons/icon16.png`
-- `icons/icon32.png`
-- `icons/icon48.png`
-- `icons/icon128.png`
+### 載入未封裝項目
 
-因此目前不能直接從 Chrome「載入未封裝項目」安裝此擴充功能。完成上述檔案及其 YouTube 播放器整合後，才可進行安裝和端到端測試。`background.js` 是背景邏輯原型，尚不足以單獨控制 YouTube 播放器。
+1. 使用 Chrome 開啟 `chrome://extensions`。
+2. 開啟右上角的「開發人員模式」。
+3. 選擇「載入未封裝項目」，並選取專案的 `extension/` 資料夾。
+4. 開啟或重新整理 YouTube 影片頁面，再按工具列上的 AutoSPD 圖示操作。
+
+擴充功能目前尚未提供自訂分類管理介面、Google 登入／跨產品帳號同步或 Safari 封裝。Chrome Storage Sync 可在使用者已登入並啟用同步的 Chrome 設定檔之間同步瀏覽器資料，但不等同於 AutoSPD Google 登入。
 
 ## 行動 App 與 YouTube 資料
 
@@ -80,7 +84,13 @@ Firebase Web 設定值會出現在用戶端，不能取代資料庫安全規則�
 
 ## 測試
 
-本專案目前沒有設定自動化測試、建置流程或套件管理設定。完成 Firebase 設定後，請手動驗證登入、登出、資料儲存、分類編輯及錯誤情境。擴充功能測試需待缺少的入口檔案補齊後進行。
+擴充功能的分類邏輯測試使用 Node.js 內建測試執行器，不需要安裝套件：
+
+```sh
+node --test extension/tests/background.test.cjs extension/tests/content.test.cjs
+```
+
+另外請在 Chrome 手動驗證 YouTube 影片導覽、自動調速、設定開關、預設速度、影片手動調速，以及非 YouTube 分頁的提示。網站端仍需設定 Firebase 後手動驗證登入、登出及資料儲存。
 
 ## 隱私與 YouTube 體驗
 

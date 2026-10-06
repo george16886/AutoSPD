@@ -43,57 +43,56 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 // Handle messages from content script and popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    handleMessage(message, sender, sendResponse);
+    handleMessage(message, sender)
+        .then(sendResponse)
+        .catch(error => {
+            console.error('[AutoSPD] Request failed:', error);
+            sendResponse({ error: error.message || 'Request failed' });
+        });
     return true; // Keep the message channel open for async responses
 });
 
-async function handleMessage(message, sender, sendResponse) {
+async function handleMessage(message, sender) {
     switch (message.type) {
         case 'get-categories':
             const catData = await chrome.storage.sync.get('categories');
-            sendResponse({ categories: catData.categories || DEFAULT_CATEGORIES });
-            break;
+            return { categories: catData.categories || DEFAULT_CATEGORIES };
 
         case 'get-settings':
             const setData = await chrome.storage.sync.get('settings');
-            sendResponse({ settings: setData.settings || DEFAULT_SETTINGS });
-            break;
+            return { settings: { ...DEFAULT_SETTINGS, ...setData.settings } };
 
         case 'save-categories':
+            if (!Array.isArray(message.categories)) {
+                throw new Error('Categories must be an array');
+            }
             await chrome.storage.sync.set({ categories: message.categories });
-            // Notify all YouTube tabs
-            notifyAllYouTubeTabs('categories-updated', message.categories);
-            sendResponse({ success: true });
-            break;
+            return { success: true };
 
         case 'save-settings':
+            if (!message.settings || typeof message.settings !== 'object') {
+                throw new Error('Settings must be an object');
+            }
             await chrome.storage.sync.set({ settings: message.settings });
-            notifyAllYouTubeTabs('settings-updated', message.settings);
-            sendResponse({ success: true });
-            break;
+            return { success: true };
 
         case 'match-video':
-            const result = await matchVideoToCategory(message.videoInfo);
-            sendResponse(result);
-            break;
+            return await matchVideoToCategory(message.videoInfo);
 
         case 'log-history':
             await logHistory(message.entry);
-            sendResponse({ success: true });
-            break;
+            return { success: true };
 
         case 'get-history':
             const histData = await chrome.storage.local.get('history');
-            sendResponse({ history: histData.history || [] });
-            break;
+            return { history: histData.history || [] };
 
         case 'clear-history':
             await chrome.storage.local.set({ history: [] });
-            sendResponse({ success: true });
-            break;
+            return { success: true };
 
         default:
-            sendResponse({ error: 'Unknown message type' });
+            throw new Error(`Unknown message type: ${message.type}`);
     }
 }
 
@@ -101,9 +100,10 @@ async function handleMessage(message, sender, sendResponse) {
  * Match a video to a category based on title, tags, and YouTube category ID
  */
 async function matchVideoToCategory(videoInfo) {
+    videoInfo = videoInfo || {};
     const data = await chrome.storage.sync.get(['categories', 'settings']);
     const categories = data.categories || DEFAULT_CATEGORIES;
-    const settings = data.settings || DEFAULT_SETTINGS;
+    const settings = { ...DEFAULT_SETTINGS, ...data.settings };
 
     if (!settings.autoSpeed) {
         return { speed: null, category: null, autoDisabled: true };
@@ -112,15 +112,17 @@ async function matchVideoToCategory(videoInfo) {
     let bestMatch = null;
     let bestScore = 0;
 
-    const searchText = (
-        (videoInfo.title || '') + ' ' +
-        (videoInfo.description || '') + ' ' +
-        (videoInfo.tags || []).join(' ') + ' ' +
-        (videoInfo.channelName || '')
-    ).toLowerCase();
+    const title = String(videoInfo.title || '').toLowerCase();
+    const searchText = [
+        videoInfo.title,
+        videoInfo.description,
+        Array.isArray(videoInfo.tags) ? videoInfo.tags.join(' ') : '',
+        videoInfo.channelName
+    ].filter(Boolean).join(' ').toLowerCase();
 
     for (const cat of categories) {
-        if (!cat.enabled) continue;
+        const categorySpeed = Number(cat.speed);
+        if (!cat.enabled || !Number.isFinite(categorySpeed) || categorySpeed < 0.25 || categorySpeed > 2) continue;
         let score = 0;
 
         // YouTube category ID match (highest priority)
@@ -129,11 +131,11 @@ async function matchVideoToCategory(videoInfo) {
         }
 
         // Keyword matching
-        for (const keyword of (cat.keywords || [])) {
-            const kw = keyword.toLowerCase();
+        for (const keyword of (Array.isArray(cat.keywords) ? cat.keywords : [])) {
+            const kw = String(keyword).toLowerCase().trim();
+            if (!kw) continue;
             if (searchText.includes(kw)) {
-                // Title match is worth more
-                if ((videoInfo.title || '').toLowerCase().includes(kw)) {
+                if (title.includes(kw)) {
                     score += 5;
                 } else {
                     score += 2;
@@ -155,8 +157,9 @@ async function matchVideoToCategory(videoInfo) {
         };
     }
 
+    const defaultSpeed = Number(settings.defaultSpeed);
     return {
-        speed: settings.defaultSpeed,
+        speed: Number.isFinite(defaultSpeed) && defaultSpeed >= 0.25 && defaultSpeed <= 2 ? defaultSpeed : 1,
         category: null,
         score: 0
     };
@@ -180,18 +183,4 @@ async function logHistory(entry) {
     }
 
     await chrome.storage.local.set({ history });
-}
-
-/**
- * Notify all open YouTube tabs of a data change
- */
-async function notifyAllYouTubeTabs(type, data) {
-    const tabs = await chrome.tabs.query({ url: ['https://www.youtube.com/*', 'https://youtube.com/*'] });
-    for (const tab of tabs) {
-        try {
-            await chrome.tabs.sendMessage(tab.id, { type, data });
-        } catch (e) {
-            // Tab might not have content script loaded
-        }
-    }
 }

@@ -1,0 +1,21 @@
+#autospd-toast {
+    position: fixed;
+    z-index: 2147483647;
+    right: 24px;
+    bottom: 88px;
+    padding: 11px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    background: rgba(24, 24, 32, 0.94);
+    color: #fff;
+    font: 500 14px/1.4 Arial, sans-serif;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+
+#autospd-toast.autospd-toast-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
