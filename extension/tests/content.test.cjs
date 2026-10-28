@@ -9,7 +9,7 @@ const contentSource = fs.readFileSync(
     'utf8'
 );
 
-function createContentScript() {
+function createContentScript({ playerInfo = null } = {}) {
     const video = { playbackRate: 1 };
     const documentListeners = new Map();
     const runtimeListeners = [];
@@ -33,8 +33,20 @@ function createContentScript() {
         },
         addEventListener(name, listener) {
             documentListeners.set(name, listener);
+        },
+        removeEventListener(name) {
+            documentListeners.delete(name);
+        },
+        dispatchEvent(event) {
+            // Stand-in for page-bridge.js answering from the main world
+            if (event.type === 'autospd-request-video-info') {
+                documentListeners.get('autospd-video-info')?.({
+                    detail: JSON.stringify(playerInfo)
+                });
+            }
         }
     };
+    const matchRequests = [];
     const settings = { autoSpeed: true, notifications: false, recordHistory: false };
     const chrome = {
         runtime: {
@@ -44,6 +56,7 @@ function createContentScript() {
             async sendMessage(message) {
                 if (message.type === 'get-settings') return { settings: { ...settings } };
                 if (message.type === 'match-video') {
+                    matchRequests.push(message.videoInfo);
                     return {
                         speed: 1.5,
                         category: { id: 'stories', name: '說故事' }
@@ -63,6 +76,9 @@ function createContentScript() {
         document,
         location: currentLocation,
         URL,
+        CustomEvent: class {
+            constructor(type) { this.type = type; }
+        },
         window: { addEventListener() {} },
         console,
         setTimeout,
@@ -77,7 +93,8 @@ function createContentScript() {
         runtimeListeners,
         storageListeners,
         documentListeners,
-        currentLocation
+        currentLocation,
+        matchRequests
     };
 }
 
@@ -112,4 +129,34 @@ test('supports a manual speed override for the current video', async () => {
     assert.equal(response.success, true);
     assert.equal(harness.video.playbackRate, 1.75);
     assert.equal(response.state.mode, 'manual');
+});
+
+test('sends the player response metadata and YouTube category ID for matching', async () => {
+    const harness = createContentScript({
+        playerInfo: {
+            videoId: 'test-video',
+            title: 'Black hole explained',
+            description: 'A short science explainer',
+            tags: ['physics'],
+            channelName: 'Science Channel',
+            ytCategory: 'Science & Technology'
+        }
+    });
+    await new Promise(resolve => setImmediate(resolve));
+
+    const videoInfo = harness.matchRequests[0];
+    assert.equal(videoInfo.title, 'Black hole explained');
+    assert.deepEqual([...videoInfo.tags], ['physics']);
+    assert.equal(videoInfo.ytCategoryId, '28');
+});
+
+test('ignores player metadata that belongs to a different video', async () => {
+    const harness = createContentScript({
+        playerInfo: { videoId: 'previous-video', title: 'Old title', ytCategory: 'Music' }
+    });
+    await new Promise(resolve => setImmediate(resolve));
+
+    const videoInfo = harness.matchRequests[0];
+    assert.equal(videoInfo.title, '都市傳說：深夜的訪客');
+    assert.equal(videoInfo.ytCategoryId, undefined);
 });

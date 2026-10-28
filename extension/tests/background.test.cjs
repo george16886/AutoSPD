@@ -107,3 +107,46 @@ test('does not match categories with out-of-range playback speeds', async () => 
     assert.equal(result.category, null);
     assert.equal(result.speed, 1);
 });
+
+test('matches Latin keywords only as whole words', async () => {
+    const matchVideo = loadMatcher({
+        categories: [
+            { id: 'science', name: '科普知識', speed: 1.25, keywords: ['TED'], enabled: true },
+            { id: 'stories', name: '說故事', speed: 1.5, keywords: ['story'], enabled: true }
+        ],
+        settings: { autoSpeed: true, defaultSpeed: 1 }
+    });
+
+    const missed = await matchVideo({ title: 'I tested the history of every phone' });
+    assert.equal(missed.category, null);
+
+    const matched = await matchVideo({ title: 'TED Talk: a short story' });
+    assert.ok(matched.category);
+});
+
+test('keeps substring matching for CJK keywords next to Latin text', async () => {
+    const matchVideo = loadMatcher({
+        categories: [
+            { id: 'unboxing', name: '開箱影片', speed: 1.5, keywords: ['3C', '開箱'], enabled: true }
+        ],
+        settings: { autoSpeed: true, defaultSpeed: 1 }
+    });
+
+    const result = await matchVideo({ title: '3C產品手機開箱' });
+
+    assert.equal(result.category.id, 'unboxing');
+});
+
+test('YouTube category ID outweighs a single keyword match', async () => {
+    const matchVideo = loadMatcher({
+        categories: [
+            { id: 'sports', name: '球賽 / 體育', speed: 1.0, keywords: ['match'], ytCategoryIds: ['17'], enabled: true },
+            { id: 'gaming', name: '遊戲實況', speed: 1.25, keywords: ['gaming'], ytCategoryIds: ['20'], enabled: true }
+        ],
+        settings: { autoSpeed: true, defaultSpeed: 1 }
+    });
+
+    const result = await matchVideo({ title: 'Ranked match highlights', ytCategoryId: '20' });
+
+    assert.equal(result.category.id, 'gaming');
+});

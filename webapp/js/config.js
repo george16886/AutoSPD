@@ -39,7 +39,7 @@ const DEFAULT_CATEGORIES = [
         name: '球賽 / 體育',
         emoji: '⚽',
         speed: 1.0,
-        keywords: ['足球', '籃球', 'NBA', 'MLB', '世界盃', '比賽', '賽事', '球賽', 'World Cup', 'Premier League', '中華職棒', 'sports', 'game', 'match'],
+        keywords: ['足球', '籃球', 'NBA', 'MLB', '世界盃', '比賽', '賽事', '球賽', 'World Cup', 'Premier League', '中華職棒', 'sports', 'match'],
         ytCategoryIds: ['17'],
         enabled: true,
         order: 0
@@ -139,7 +139,7 @@ const DEFAULT_CATEGORIES = [
         name: '電影評論',
         emoji: '🎬',
         speed: 1.25,
-        keywords: ['電影', 'movie', 'film', '影評', 'review', '推薦', '預告', 'trailer', '觀後感'],
+        keywords: ['電影', 'movie', 'film', '影評', '推薦', '預告', 'trailer', '觀後感'],
         ytCategoryIds: ['1'],
         enabled: true,
         order: 10
@@ -149,7 +149,7 @@ const DEFAULT_CATEGORIES = [
         name: '旅遊 Vlog',
         emoji: '✈️',
         speed: 1.25,
-        keywords: ['旅遊', 'travel', 'vlog', '旅行', '景點', '攻略', '自由行', '出國', 'trip'],
+        keywords: ['旅遊', 'travel', 'vlog', '旅行', '景點', '自由行', '出國', 'trip'],
         ytCategoryIds: ['19'],
         enabled: true,
         order: 11

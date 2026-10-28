@@ -18,6 +18,7 @@ AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、
 ├── extension/
 │   ├── background.js     # 擴充功能背景服務工作者與分類邏輯
 │   ├── content.js        # YouTube 影片偵測與播放速度套用
+│   ├── page-bridge.js    # 在頁面環境讀取播放器資料（標題、標籤、YouTube 分類）
 │   ├── content.css       # 播放頁提示樣式
 │   ├── popup.html        # 擴充功能操作介面
 │   ├── popup.css

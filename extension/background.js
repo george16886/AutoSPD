@@ -5,7 +5,7 @@
 
 // Default categories (same as webapp)
 const DEFAULT_CATEGORIES = [
-    { id: 'sports', name: '球賽 / 體育', emoji: '⚽', speed: 1.0, keywords: ['足球', '籃球', 'NBA', 'MLB', '世界盃', '比賽', '賽事', '球賽', 'sports', 'game', 'match'], ytCategoryIds: ['17'], enabled: true },
+    { id: 'sports', name: '球賽 / 體育', emoji: '⚽', speed: 1.0, keywords: ['足球', '籃球', 'NBA', 'MLB', '世界盃', '比賽', '賽事', '球賽', 'sports', 'match'], ytCategoryIds: ['17'], enabled: true },
     { id: 'music', name: '音樂 / MV', emoji: '🎵', speed: 1.0, keywords: ['MV', '音樂', 'Music Video', '演唱會', 'concert', '歌曲', 'song', 'lyrics'], ytCategoryIds: ['10'], enabled: true },
     { id: 'science', name: '科普知識', emoji: '🔬', speed: 1.25, keywords: ['科普', '科學', 'science', '知識', '物理', '化學', 'TED', '冷知識'], ytCategoryIds: ['28'], enabled: true },
     { id: 'storytelling', name: '說故事', emoji: '📖', speed: 1.5, keywords: ['說故事', '故事', 'story', 'storytime', '都市傳說', '說書'], ytCategoryIds: [], enabled: true },
@@ -15,8 +15,8 @@ const DEFAULT_CATEGORIES = [
     { id: 'cooking', name: '料理烹飪', emoji: '🍳', speed: 1.5, keywords: ['料理', '烹飪', 'cooking', 'recipe', '食譜', '美食'], ytCategoryIds: [], enabled: true },
     { id: 'fitness', name: '健身運動', emoji: '💪', speed: 1.0, keywords: ['健身', '運動', 'workout', 'fitness', 'exercise', '瑜珈'], ytCategoryIds: [], enabled: true },
     { id: 'news', name: '新聞時事', emoji: '📰', speed: 1.5, keywords: ['新聞', 'news', '時事', '政治', '經濟', '國際'], ytCategoryIds: ['25'], enabled: true },
-    { id: 'movie_review', name: '電影評論', emoji: '🎬', speed: 1.25, keywords: ['電影', 'movie', 'film', '影評', 'review', '預告'], ytCategoryIds: ['1'], enabled: true },
-    { id: 'travel', name: '旅遊 Vlog', emoji: '✈️', speed: 1.25, keywords: ['旅遊', 'travel', 'vlog', '旅行', '景點', '攻略'], ytCategoryIds: ['19'], enabled: true }
+    { id: 'movie_review', name: '電影評論', emoji: '🎬', speed: 1.25, keywords: ['電影', 'movie', 'film', '影評', '預告'], ytCategoryIds: ['1'], enabled: true },
+    { id: 'travel', name: '旅遊 Vlog', emoji: '✈️', speed: 1.25, keywords: ['旅遊', 'travel', 'vlog', '旅行', '景點'], ytCategoryIds: ['19'], enabled: true }
 ];
 
 const DEFAULT_SETTINGS = {
@@ -97,6 +97,16 @@ async function handleMessage(message, sender) {
 }
 
 /**
+ * Latin keywords must match whole words so "ted" does not hit "tested";
+ * CJK text has no word boundaries, so those keywords keep substring matching.
+ */
+function keywordMatches(text, keyword) {
+    if (!/^[\x00-\x7f]+$/.test(keyword)) return text.includes(keyword);
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(?<![a-z0-9])${escaped}(?![a-z0-9])`).test(text);
+}
+
+/**
  * Match a video to a category based on title, tags, and YouTube category ID
  */
 async function matchVideoToCategory(videoInfo) {
@@ -134,8 +144,8 @@ async function matchVideoToCategory(videoInfo) {
         for (const keyword of (Array.isArray(cat.keywords) ? cat.keywords : [])) {
             const kw = String(keyword).toLowerCase().trim();
             if (!kw) continue;
-            if (searchText.includes(kw)) {
-                if (title.includes(kw)) {
+            if (keywordMatches(searchText, kw)) {
+                if (keywordMatches(title, kw)) {
                     score += 5;
                 } else {
                     score += 2;

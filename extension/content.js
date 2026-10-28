@@ -26,7 +26,54 @@
             || document.querySelector('video');
     }
 
+    // playerMicroformatRenderer.category is the English category name
+    const YT_CATEGORY_IDS = {
+        'Film & Animation': '1',
+        'Autos & Vehicles': '2',
+        'Music': '10',
+        'Pets & Animals': '15',
+        'Sports': '17',
+        'Travel & Events': '19',
+        'Gaming': '20',
+        'People & Blogs': '22',
+        'Comedy': '23',
+        'Entertainment': '24',
+        'News & Politics': '25',
+        'Howto & Style': '26',
+        'Education': '27',
+        'Science & Technology': '28',
+        'Nonprofits & Activism': '29'
+    };
+
+    // Ask page-bridge.js (main world) for the player response; dispatch is synchronous
+    function readPlayerInfo(videoId) {
+        let info = null;
+        const onInfo = event => {
+            try {
+                info = JSON.parse(event.detail);
+            } catch {
+                info = null;
+            }
+        };
+        document.addEventListener('autospd-video-info', onInfo);
+        document.dispatchEvent(new CustomEvent('autospd-request-video-info'));
+        document.removeEventListener('autospd-video-info', onInfo);
+        return info?.videoId === videoId ? info : null;
+    }
+
     function getVideoInfo(videoId) {
+        const playerInfo = readPlayerInfo(videoId);
+        if (playerInfo) {
+            return {
+                videoId,
+                title: playerInfo.title,
+                description: playerInfo.description,
+                tags: playerInfo.tags,
+                channelName: playerInfo.channelName,
+                ytCategoryId: YT_CATEGORY_IDS[playerInfo.ytCategory] || null
+            };
+        }
+
         const title = document.querySelector('h1.ytd-watch-metadata yt-formatted-string')
             ?.textContent?.trim()
             || document.querySelector('meta[property="og:title"]')?.content
