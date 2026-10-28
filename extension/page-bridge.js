@@ -139,7 +139,9 @@
                     ytCategory: response.microformat?.playerMicroformatRenderer?.category || '',
                     // Live right now; finished streams (replays) are false
                     isLive: details.isLive === true
-                        || response.microformat?.playerMicroformatRenderer?.liveBroadcastDetails?.isLiveNow === true
+                        || response.microformat?.playerMicroformatRenderer?.liveBroadcastDetails?.isLiveNow === true,
+                    // Streamed live at some point: true for both live streams and their replays
+                    isLiveContent: details.isLiveContent === true
                 };
             }
         } catch (error) {

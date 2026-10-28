@@ -66,21 +66,32 @@
         </section>
 
         <section class="channel-section">
-            <h2>固定使用 1x</h2>
-            <p class="section-hint">優先於所有分類與頻道規則。你仍然可以自己手動調整速度。</p>
+            <h2>直播與音樂</h2>
+            <p class="section-hint">「固定 1x」優先於所有分類與頻道規則。你仍然可以自己手動調整速度。</p>
             <div class="fixed-list">
                 <label class="fixed-row">
                     <input id="fixed-live" type="checkbox">
                     <span>
-                        <strong>直播</strong>
+                        <strong>直播固定 1x</strong>
                         <small>正在直播的影片。直播結束後的重播不受影響。</small>
                     </span>
                 </label>
                 <label class="fixed-row">
                     <input id="fixed-music" type="checkbox">
                     <span>
-                        <strong>音樂 / MV</strong>
+                        <strong>音樂 / MV 固定 1x</strong>
                         <small>YouTube 分類為音樂、YouTube 自動產生的「- Topic」音樂頻道，或標題含 MV、Official Video、Official Audio、Lyric Video、歌詞、演唱會等字樣。</small>
+                    </span>
+                </label>
+                <label class="fixed-row">
+                    <input id="replay-enabled" type="checkbox">
+                    <span>
+                        <strong>直播重播加速</strong>
+                        <small>直播結束後的重播通常很長。沒有符合任何分類時，用這個速度取代「未分類影片的預設速度」。頻道規則和分類仍然優先。</small>
+                    </span>
+                    <span class="speed fixed-speed">
+                        <input id="replay-speed" type="number" min="0.25" max="2" step="0.05" aria-label="直播重播速度">
+                        <span>x</span>
                     </span>
                 </label>
             </div>
@@ -88,7 +99,7 @@
 
         <section class="channel-section">
             <h2>頻道規則</h2>
-            <p class="section-hint">頻道規則優先於所有分類（「固定使用 1x」除外）。在 YouTube 影片頁打開 AutoSPD 彈出視窗，就能為目前影片的頻道設定速度。</p>
+            <p class="section-hint">頻道規則優先於所有分類（直播、音樂的「固定 1x」除外）。在 YouTube 影片頁打開 AutoSPD 彈出視窗，就能為目前影片的頻道設定速度。</p>
             <div id="channel-list" class="channel-list"></div>
             <p id="channel-empty" class="section-hint" hidden>還沒有頻道規則。</p>
         </section>

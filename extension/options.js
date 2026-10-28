@@ -87,6 +87,8 @@ function initOptionsPage() {
     const aiDownload = document.getElementById('ai-download');
     const fixedLive = document.getElementById('fixed-live');
     const fixedMusic = document.getElementById('fixed-music');
+    const replayEnabled = document.getElementById('replay-enabled');
+    const replaySpeed = document.getElementById('replay-speed');
 
     function showMessage(text, isError = false) {
         message.textContent = text;
@@ -275,8 +277,9 @@ function initOptionsPage() {
         });
     }
 
-    for (const input of [fixedLive, fixedMusic]) {
+    for (const input of [fixedLive, fixedMusic, replayEnabled, replaySpeed]) {
         input.addEventListener('change', () => setDirty(true));
+        input.addEventListener('input', () => setDirty(true));
     }
 
     for (const container of [list, channelList, ytSpeedList]) {
@@ -306,9 +309,14 @@ function initOptionsPage() {
         const categories = readCategories();
         const channelRules = readChannelRules();
         const classifyMode = readMode();
+        const liveReplaySpeed = Math.round(Number(replaySpeed.value) * 100) / 100;
+        const replayError = !Number.isFinite(liveReplaySpeed) || liveReplaySpeed < MIN_SPEED || liveReplaySpeed > MAX_SPEED
+            ? `直播重播的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`
+            : null;
         const ytCategorySpeeds = readYouTubeSpeeds();
         const ytNames = Object.fromEntries(YT_CATEGORIES.map(cat => [cat.id, cat.zh]));
-        const error = validateYouTubeSpeeds(ytCategorySpeeds, ytNames)
+        const error = replayError
+            || validateYouTubeSpeeds(ytCategorySpeeds, ytNames)
             || validateChannelRules(channelRules)
             || (classifyMode !== 'youtube'
                 ? validateCategories(categories, { requireMatchers: classifyMode === 'keywords' })
@@ -327,7 +335,9 @@ function initOptionsPage() {
                     classifyMode,
                     ytCategorySpeeds,
                     fixedNormalForLive: fixedLive.checked,
-                    fixedNormalForMusic: fixedMusic.checked
+                    fixedNormalForMusic: fixedMusic.checked,
+                    liveReplayEnabled: replayEnabled.checked,
+                    liveReplaySpeed
                 }
             });
             await send({ type: 'save-categories', categories });
@@ -352,6 +362,8 @@ function initOptionsPage() {
             renderYouTubeSpeeds(settings.ytCategorySpeeds);
             fixedLive.checked = settings.fixedNormalForLive !== false;
             fixedMusic.checked = settings.fixedNormalForMusic !== false;
+            replayEnabled.checked = settings.liveReplayEnabled !== false;
+            replaySpeed.value = String(settings.liveReplaySpeed ?? 1.5);
             showMode(['youtube', 'ai'].includes(settings.classifyMode) ? settings.classifyMode : 'keywords');
         })
         .catch(error => showMessage(error.message || '無法載入設定', true));

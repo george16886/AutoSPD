@@ -30,6 +30,10 @@ const DEFAULT_SETTINGS = {
     // classification mode; the user can still change the speed by hand
     fixedNormalForLive: true,
     fixedNormalForMusic: true,
+    // Finished live streams are long; when no category matches, they use this
+    // speed instead of defaultSpeed. Channel rules and categories still win.
+    liveReplayEnabled: true,
+    liveReplaySpeed: 1.5,
     // [{ channel, speed }]; a channel rule wins over every category
     channelRules: [],
     // 'keywords' matches the categories below; 'youtube' uses the uploader's
@@ -185,16 +189,26 @@ function isValidSpeed(speed) {
     return Number.isFinite(speed) && speed >= 0.25 && speed <= 2;
 }
 
-function defaultMatch(settings) {
+function isLiveReplay(videoInfo) {
+    return videoInfo?.isLiveContent === true && videoInfo.isLive !== true;
+}
+
+// Used whenever no category applies
+function defaultMatch(settings, videoInfo) {
+    const replaySpeed = Number(settings.liveReplaySpeed);
+    if (settings.liveReplayEnabled && isLiveReplay(videoInfo) && isValidSpeed(replaySpeed)) {
+        return { speed: replaySpeed, category: { id: 'live_replay', name: '直播重播' }, score: 0 };
+    }
     const speed = Number(settings.defaultSpeed);
     return { speed: isValidSpeed(speed) ? speed : 1, category: null, score: 0 };
 }
 
-function matchByYouTubeCategory(ytCategoryId, settings) {
+function matchByYouTubeCategory(videoInfo, settings) {
+    const ytCategoryId = videoInfo.ytCategoryId;
     const ytCategory = YT_CATEGORIES.find(cat => cat.id === String(ytCategoryId));
-    if (!ytCategory) return defaultMatch(settings);
+    if (!ytCategory) return defaultMatch(settings, videoInfo);
     const speed = Number(settings.ytCategorySpeeds?.[ytCategory.id] ?? ytCategory.speed);
-    if (!isValidSpeed(speed)) return defaultMatch(settings);
+    if (!isValidSpeed(speed)) return defaultMatch(settings, videoInfo);
     return {
         speed,
         category: { id: `yt_${ytCategory.id}`, name: `YouTube：${ytCategory.zh}` },
@@ -257,13 +271,13 @@ async function matchVideoToCategory(videoInfo) {
     }
 
     if (settings.classifyMode === 'youtube') {
-        return matchByYouTubeCategory(videoInfo.ytCategoryId, settings);
+        return matchByYouTubeCategory(videoInfo, settings);
     }
 
     // The model's pick wins when it names a usable category; otherwise fall
     // through to keyword matching ('none' means the model found no fit)
     if (settings.classifyMode === 'ai' && videoInfo.aiCategoryId) {
-        if (videoInfo.aiCategoryId === 'none') return defaultMatch(settings);
+        if (videoInfo.aiCategoryId === 'none') return defaultMatch(settings, videoInfo);
         const cat = categories.find(item => item.id === videoInfo.aiCategoryId);
         const speed = Number(cat?.speed);
         if (cat && cat.enabled !== false && isValidSpeed(speed)) {
@@ -322,7 +336,7 @@ async function matchVideoToCategory(videoInfo) {
         };
     }
 
-    return defaultMatch(settings);
+    return defaultMatch(settings, videoInfo);
 }
 
 const MAX_AI_LABELS = 2000;

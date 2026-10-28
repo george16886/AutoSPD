@@ -438,3 +438,45 @@ test('the fixed 1x rules can be turned off', async () => {
 
     assert.equal((await matchVideo({ title: '故事 Official MV', isLive: true, ytCategoryId: '10' })).category.id, 'stories');
 });
+
+test('unclassified live replays use the replay speed instead of the default', async () => {
+    const matchVideo = loadFixedMatcher({ liveReplayEnabled: true, liveReplaySpeed: 1.5 });
+
+    const replay = await matchVideo({ title: '週五雜談', isLiveContent: true, isLive: false });
+    assert.equal(replay.speed, 1.5);
+    assert.equal(replay.category.id, 'live_replay');
+
+    const upload = await matchVideo({ title: '週五雜談', isLiveContent: false });
+    assert.equal(upload.speed, 1.25);
+    assert.equal(upload.category, null);
+});
+
+test('categories, channel rules and the music rule win over the replay speed', async () => {
+    const matchVideo = loadFixedMatcher({
+        liveReplayEnabled: true,
+        liveReplaySpeed: 1.75,
+        channelRules: [{ channel: '實況主', speed: 1.1 }]
+    });
+    const replay = { isLiveContent: true, isLive: false };
+
+    assert.equal((await matchVideo({ ...replay, title: '深夜故事' })).category.id, 'stories');
+    assert.equal((await matchVideo({ ...replay, title: '雜談', channelName: '實況主' })).speed, 1.1);
+    assert.equal((await matchVideo({ ...replay, title: '跨年演唱會' })).category.id, 'fixed_music');
+    assert.equal((await matchVideo({ ...replay, title: '雜談', isLive: true })).category.id, 'fixed_live');
+});
+
+test('the replay speed applies in YouTube-category and AI modes when nothing matches', async () => {
+    const replay = { title: '雜談', isLiveContent: true, isLive: false };
+
+    const youtube = loadFixedMatcher({ classifyMode: 'youtube', liveReplayEnabled: true, liveReplaySpeed: 1.5 });
+    assert.equal((await youtube(replay)).category.id, 'live_replay');
+
+    const ai = loadFixedMatcher({ classifyMode: 'ai', liveReplayEnabled: true, liveReplaySpeed: 1.5 });
+    assert.equal((await ai({ ...replay, aiCategoryId: 'none' })).category.id, 'live_replay');
+});
+
+test('the replay speed can be turned off', async () => {
+    const matchVideo = loadFixedMatcher({ liveReplayEnabled: false, liveReplaySpeed: 1.5 });
+
+    assert.equal((await matchVideo({ title: '雜談', isLiveContent: true, isLive: false })).speed, 1.25);
+});

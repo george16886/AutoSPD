@@ -366,6 +366,14 @@ h2 {
     font-size: 13px;
 }
 
+.fixed-row .fixed-speed {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
 .fixed-row small {
     color: #77758a;
     font-size: 12px;

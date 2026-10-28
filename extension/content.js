@@ -106,6 +106,7 @@
                 channelName: playerInfo.channelName,
                 ytCategory: playerInfo.ytCategory || '',
                 isLive: playerInfo.isLive === true,
+                isLiveContent: playerInfo.isLiveContent === true,
                 ytCategoryId: YT_CATEGORIES.find(cat => cat.en === playerInfo.ytCategory)?.id || null
             };
         }
