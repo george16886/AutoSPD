@@ -92,13 +92,11 @@ AI 內容分析需要 Chrome 138 以上版本，並符合 Chrome 內建 AI 的�
 
 **隱私權政策網址**
 
-repo 目前是 private，GitHub 上的 `PRIVACY.md` 外人打不開。上架前需要擇一：
-
-- 把 repo 改成 public，使用 `https://github.com/george16886/AutoSPD/blob/main/PRIVACY.md`
-- 或把 `PRIVACY.md` 的內容放到其他公開網址（例如 GitHub Pages、Google 協作平台）
+```
+https://github.com/george16886/AutoSPD/blob/main/PRIVACY.md
+```
 
 ## 送審前檢查
 
 - [ ] `python tools/package.py` 產生最新的 ZIP
 - [ ] 在 Chrome 實測：一般影片、廣告前後、YouTube 選單手動調速、AI 模式、直播固定 1x、MV 固定 1x、直播重播、自動關閉字幕
-- [ ] 隱私權政策已有公開網址，且 `PRIVACY.md` 的聯絡方式可公開存取
