@@ -26,18 +26,51 @@ const DEFAULT_SETTINGS = {
     defaultSpeed: 1.0
 };
 
-// Initialize storage on install
-chrome.runtime.onInstalled.addListener(async () => {
-    const data = await chrome.storage.sync.get(['categories', 'settings']);
-    
-    if (!data.categories) {
-        await chrome.storage.sync.set({ categories: DEFAULT_CATEGORIES });
+// Bump when DEFAULT_CATEGORIES changes and add the matching migration below.
+// Migrations are targeted edits so categories the user customized survive.
+const DEFAULTS_VERSION = 2;
+const DEFAULT_MIGRATIONS = {
+    2: [
+        { id: 'sports', removeKeywords: ['game'] },
+        { id: 'movie_review', removeKeywords: ['review'] },
+        { id: 'travel', removeKeywords: ['攻略'] }
+    ]
+};
+
+function migrateCategories(categories, fromVersion) {
+    let migrated = categories;
+    for (let version = fromVersion + 1; version <= DEFAULTS_VERSION; version++) {
+        for (const change of DEFAULT_MIGRATIONS[version] || []) {
+            migrated = migrated.map(cat => {
+                if (cat.id !== change.id || !Array.isArray(cat.keywords)) return cat;
+                const removed = change.removeKeywords.map(kw => kw.toLowerCase());
+                return {
+                    ...cat,
+                    keywords: cat.keywords.filter(kw => !removed.includes(String(kw).toLowerCase()))
+                };
+            });
+        }
     }
-    
+    return migrated;
+}
+
+// Initialize storage on install and migrate default categories on update
+chrome.runtime.onInstalled.addListener(async () => {
+    const data = await chrome.storage.sync.get(['categories', 'settings', 'defaultsVersion']);
+
+    if (!data.categories) {
+        await chrome.storage.sync.set({ categories: DEFAULT_CATEGORIES, defaultsVersion: DEFAULTS_VERSION });
+    } else if ((data.defaultsVersion || 1) < DEFAULTS_VERSION) {
+        await chrome.storage.sync.set({
+            categories: migrateCategories(data.categories, data.defaultsVersion || 1),
+            defaultsVersion: DEFAULTS_VERSION
+        });
+    }
+
     if (!data.settings) {
         await chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
     }
-    
+
     console.log('[AutoSPD] Extension installed/updated');
 });
 
@@ -68,6 +101,10 @@ async function handleMessage(message, sender) {
             }
             await chrome.storage.sync.set({ categories: message.categories });
             return { success: true };
+
+        case 'reset-categories':
+            await chrome.storage.sync.set({ categories: DEFAULT_CATEGORIES, defaultsVersion: DEFAULTS_VERSION });
+            return { categories: DEFAULT_CATEGORIES };
 
         case 'save-settings':
             if (!message.settings || typeof message.settings !== 'object') {

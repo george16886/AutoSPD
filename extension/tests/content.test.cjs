@@ -9,14 +9,34 @@ const contentSource = fs.readFileSync(
     'utf8'
 );
 
+function createVideo() {
+    const listeners = new Map();
+    return {
+        playbackRate: 1,
+        addEventListener(name, listener) {
+            listeners.set(name, [...(listeners.get(name) || []), listener]);
+        },
+        fire(name) {
+            for (const listener of listeners.get(name) || []) listener();
+        }
+    };
+}
+
+function getState(harness) {
+    let state;
+    harness.runtimeListeners[0]({ type: 'get-video-state' }, {}, response => { state = response; });
+    return state;
+}
+
 function createContentScript({
     playerInfo = null,
     url = 'https://www.youtube.com/watch?v=test-video',
     staleWatchPlayer = false
 } = {}) {
-    const video = { playbackRate: 1 };
+    const video = createVideo();
     // Hidden watch-page player left in the DOM after navigating to Shorts
-    const staleWatchVideo = { playbackRate: 1 };
+    const staleWatchVideo = createVideo();
+    const page = { adShowing: false };
     const documentListeners = new Map();
     const runtimeListeners = [];
     const storageListeners = [];
@@ -27,6 +47,7 @@ function createContentScript({
         title: '都市傳說：深夜的訪客 - YouTube',
         documentElement: { append() {} },
         querySelector(selector) {
+            if (selector.includes('.ad-showing')) return page.adShowing ? {} : null;
             if (staleWatchPlayer && selector.startsWith('#movie_player')) return staleWatchVideo;
             if (selector.includes('video')) return video;
             if (selector === 'h1.ytd-watch-metadata yt-formatted-string') return titleElement;
@@ -98,6 +119,7 @@ function createContentScript({
     return {
         video,
         staleWatchVideo,
+        page,
         settings,
         runtimeListeners,
         storageListeners,
@@ -179,4 +201,46 @@ test('applies the speed to the Shorts player, not a leftover watch player', asyn
 
     assert.equal(harness.video.playbackRate, 1.5);
     assert.equal(harness.staleWatchVideo.playbackRate, 1);
+});
+
+test('restores the category speed when YouTube resets it while loading a source', async () => {
+    const harness = createContentScript();
+    await new Promise(resolve => setImmediate(resolve));
+
+    harness.video.fire('loadeddata');
+    harness.video.playbackRate = 1;
+    harness.video.fire('ratechange');
+
+    assert.equal(harness.video.playbackRate, 1.5);
+    assert.equal(getState(harness).mode, 'auto');
+});
+
+test('keeps a speed the user picks in the YouTube player as a manual override', async () => {
+    const harness = createContentScript();
+    await new Promise(resolve => setImmediate(resolve));
+
+    harness.video.playbackRate = 2;
+    harness.video.fire('ratechange');
+    harness.video.fire('playing');
+
+    assert.equal(harness.video.playbackRate, 2);
+    const state = getState(harness);
+    assert.equal(state.mode, 'manual');
+    assert.equal(state.speed, 2);
+});
+
+test('leaves ads alone and reapplies the speed once the video resumes', async () => {
+    const harness = createContentScript();
+    await new Promise(resolve => setImmediate(resolve));
+
+    harness.page.adShowing = true;
+    harness.video.playbackRate = 1;
+    harness.video.fire('loadeddata');
+    harness.video.fire('ratechange');
+    assert.equal(harness.video.playbackRate, 1);
+    assert.equal(getState(harness).mode, 'auto');
+
+    harness.page.adShowing = false;
+    harness.video.fire('loadeddata');
+    assert.equal(harness.video.playbackRate, 1.5);
 });

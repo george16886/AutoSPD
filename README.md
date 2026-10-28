@@ -2,13 +2,13 @@
 
 AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、Chrome 擴充功能背景程式碼，以及產品系統設計提案。產品目標是依影片類型套用播放速度，並讓使用者自訂分類和規則。
 
-> **目前狀態：原型／開發中。** 網站需要先設定自己的 Firebase 專案才能使用 Google 登入與 Firestore；瀏覽器擴充功能也尚未包含 manifest 所引用的部分必要檔案，尚不能直接安裝使用。
+> **目前狀態：原型／開發中。** Chrome 擴充功能可以用「載入未封裝項目」直接安裝使用。網站需要先設定自己的 Firebase 專案才能使用 Google 登入與 Firestore，而且目前尚未與擴充功能串接，兩邊的設定各自獨立。
 
 ## 功能概覽
 
 - 管理影片分類、分類關鍵字及預設播放速度。
 - 網站提供 Google 登入、設定介面、觀看紀錄與統計儀表板原型。
-- 擴充功能背景程式碼包含分類比對、Chrome Storage 設定同步及本機歷史紀錄處理。
+- 擴充功能依影片標題、說明、標籤、頻道名稱與 YouTube 分類自動套用速度，並提供分類設定頁、手動調速與本機觀看紀錄。
 - 產品架構、影片分類策略、行動 App 方案與風險評估詳見 [`youtube-speed-controller-proposal.md`](./youtube-speed-controller-proposal.md)。
 
 ## 專案結構
@@ -23,6 +23,10 @@ AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、
 │   ├── popup.html        # 擴充功能操作介面
 │   ├── popup.css
 │   ├── popup.js
+│   ├── options.html      # 分類設定頁（新增、編輯、刪除分類與關鍵字）
+│   ├── options.css
+│   ├── options.js
+│   ├── tests/            # Node.js 單元測試
 │   └── manifest.json     # Chrome Manifest V3 設定
 ├── webapp/
 │   ├── index.html        # 設定網站與儀表板介面
@@ -61,7 +65,15 @@ Firebase Web 設定值會出現在用戶端，不能取代資料庫安全規則�
 
 ## Chrome 擴充功能
 
-目前擴充功能提供依影片標題／頻道關鍵字比對分類、自動調速、調速開關、未分類影片預設速度，以及只套用到目前影片的手動速度。分類與設定透過 Chrome Storage Sync 儲存，套用速度直接作用在目前 YouTube 頁面的影片播放器上。
+目前擴充功能提供：
+
+- **自動分類調速**：依影片標題、說明、標籤、頻道名稱的關鍵字，以及 YouTube 官方分類比對出分類並套用速度。英文關鍵字以整個單字比對，中文以字串比對。
+- **速度防護**：影片重新載入或廣告結束時，YouTube 會把速度重設回去，擴充功能會自動補設。廣告播放期間不調整速度。
+- **手動調速**：在 YouTube 播放器的速度選單或用快捷鍵改速度，或在擴充功能的彈出視窗設定速度，都只套用到目前影片，換到下一支影片會恢復自動調速。
+- **分類設定頁**：在彈出視窗點「管理分類與關鍵字」，或在 `chrome://extensions` 的擴充功能「詳細資料 → 擴充功能選項」開啟。
+- **調速開關**與**未分類影片的預設速度**。
+
+分類與設定透過 Chrome Storage Sync 儲存。
 
 ### 載入未封裝項目
 
@@ -70,7 +82,7 @@ Firebase Web 設定值會出現在用戶端，不能取代資料庫安全規則�
 3. 選擇「載入未封裝項目」，並選取專案的 `extension/` 資料夾。
 4. 開啟或重新整理 YouTube 影片頁面，再按工具列上的 AutoSPD 圖示操作。
 
-擴充功能目前尚未提供自訂分類管理介面、Google 登入／跨產品帳號同步或 Safari 封裝。Chrome Storage Sync 可在使用者已登入並啟用同步的 Chrome 設定檔之間同步瀏覽器資料，但不等同於 AutoSPD Google 登入。
+擴充功能目前尚未提供 Google 登入／跨產品帳號同步或 Safari 封裝，YouTube Shorts 的自動調速也尚未完整驗證。Chrome Storage Sync 可在使用者已登入並啟用同步的 Chrome 設定檔之間同步瀏覽器資料，但不等同於 AutoSPD Google 登入。
 
 ## 行動 App 與 YouTube 資料
 
@@ -85,13 +97,13 @@ Firebase Web 設定值會出現在用戶端，不能取代資料庫安全規則�
 
 ## 測試
 
-擴充功能的分類邏輯測試使用 Node.js 內建測試執行器，不需要安裝套件：
+擴充功能的單元測試使用 Node.js 內建測試執行器，不需要安裝套件：
 
 ```sh
 node --test extension/tests/*.test.cjs
 ```
 
-另外請在 Chrome 手動驗證 YouTube 影片導覽、自動調速、設定開關、預設速度、影片手動調速，以及非 YouTube 分頁的提示。網站端仍需設定 Firebase 後手動驗證登入、登出及資料儲存。
+另外請在 Chrome 手動驗證 YouTube 影片導覽、自動調速、廣告前後的速度、在 YouTube 速度選單手動調速、設定開關、預設速度、分類設定頁，以及非 YouTube 分頁的提示。網站端仍需設定 Firebase 後手動驗證登入、登出及資料儲存。
 
 ## 隱私與 YouTube 體驗
 

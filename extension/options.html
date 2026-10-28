@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AutoSPD 分類設定</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <main class="page">
+        <header class="header">
+            <div class="brand-mark" aria-hidden="true">▶</div>
+            <div>
+                <h1>分類設定</h1>
+                <p>影片標題、說明、標籤或頻道名稱含有關鍵字，或 YouTube 分類相符時，就套用該分類的速度。</p>
+            </div>
+        </header>
+
+        <section class="hint">
+            <p>英文關鍵字以整個單字比對（例如 <code>TED</code> 不會比對到 tested），中文以字串比對。多個關鍵字用逗號、頓號或換行分隔。</p>
+        </section>
+
+        <div id="category-list" class="category-list"></div>
+
+        <div class="actions">
+            <button id="add-category" class="button button-secondary" type="button">＋ 新增分類</button>
+            <button id="reset-categories" class="button button-ghost" type="button">還原預設分類</button>
+            <span class="spacer"></span>
+            <span id="dirty" class="dirty" hidden>有未儲存的變更</span>
+            <button id="save" class="button" type="button">儲存</button>
+        </div>
+        <p id="message" class="message" role="status"></p>
+    </main>
+
+    <template id="category-template">
+        <article class="category">
+            <div class="category-head">
+                <label class="switch" title="啟用這個分類">
+                    <input class="field-enabled" type="checkbox">
+                    <span class="toggle" aria-hidden="true"></span>
+                    <span class="visually-hidden">啟用</span>
+                </label>
+                <input class="field-emoji" type="text" maxlength="4" aria-label="圖示">
+                <input class="field-name" type="text" maxlength="40" placeholder="分類名稱" aria-label="分類名稱">
+                <label class="speed">
+                    <input class="field-speed" type="number" min="0.25" max="2" step="0.05" aria-label="播放速度">
+                    <span>x</span>
+                </label>
+                <button class="delete button button-ghost" type="button" aria-label="刪除分類">刪除</button>
+            </div>
+            <div class="category-body">
+                <label>
+                    <span>關鍵字</span>
+                    <textarea class="field-keywords" rows="2" placeholder="例如：開箱, unboxing, 評測"></textarea>
+                </label>
+                <label>
+                    <span>YouTube 分類（選填）</span>
+                    <select class="field-yt-category"></select>
+                </label>
+            </div>
+        </article>
+    </template>
+
+    <script src="options.js"></script>
+</body>
+</html>

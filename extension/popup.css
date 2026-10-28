@@ -220,6 +220,23 @@ footer {
     background: #f1eff9;
 }
 
+.link-button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 9px 0;
+    border: 0;
+    border-radius: 7px;
+    color: #5747d2;
+    background: #efedfa;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.link-button:hover {
+    background: #e4e0f8;
+}
+
 .message {
     min-height: 15px;
     margin: 10px 0 0;

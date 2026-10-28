@@ -43,6 +43,21 @@ function loadMatcher(storedData = {}) {
     return context.matchVideoToCategory;
 }
 
+function loadBackground() {
+    const context = {
+        console,
+        chrome: {
+            runtime: { onInstalled: { addListener() {} }, onMessage: { addListener() {} } },
+            storage: { sync: {}, local: {} }
+        }
+    };
+    vm.createContext(context);
+    vm.runInContext(backgroundSource, context);
+    // Top-level consts are not exposed as context properties
+    context.DEFAULT_CATEGORIES = vm.runInContext('DEFAULT_CATEGORIES', context);
+    return context;
+}
+
 test('matches a category using a title keyword', async () => {
     const matchVideo = loadMatcher({
         categories: [
@@ -149,4 +164,27 @@ test('YouTube category ID outweighs a single keyword match', async () => {
     const result = await matchVideo({ title: 'Ranked match highlights', ytCategoryId: '20' });
 
     assert.equal(result.category.id, 'gaming');
+});
+
+test('migration removes retired default keywords but keeps user edits', () => {
+    const { migrateCategories } = loadBackground();
+    const stored = [
+        { id: 'sports', keywords: ['足球', 'Game', '我的關鍵字'] },
+        { id: 'travel', keywords: ['旅遊', '攻略'], speed: 1.75 },
+        { id: 'custom_1', keywords: ['game'] }
+    ];
+
+    const migrated = migrateCategories(stored, 1);
+
+    assert.deepEqual([...migrated[0].keywords], ['足球', '我的關鍵字']);
+    assert.deepEqual([...migrated[1].keywords], ['旅遊']);
+    assert.equal(migrated[1].speed, 1.75);
+    assert.deepEqual([...migrated[2].keywords], ['game']);
+});
+
+test('migration is a no-op for categories already on the latest defaults', () => {
+    const { migrateCategories, DEFAULT_CATEGORIES } = loadBackground();
+    const latest = migrateCategories(DEFAULT_CATEGORIES, 1);
+
+    assert.deepEqual(JSON.parse(JSON.stringify(latest)), JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)));
 });

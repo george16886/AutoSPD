@@ -13,6 +13,12 @@
     let retryTimer = null;
     let retryCount = 0;
 
+    // A rate change this soon after the player loads a source (new video, ad
+    // ending) is YouTube restoring its own rate, not the user picking one
+    const RESET_WINDOW_MS = 1500;
+    const guardedVideos = new WeakSet();
+    let resetWindowUntil = 0;
+
     function getVideoId() {
         const url = new URL(location.href);
         if (url.pathname === '/watch') return url.searchParams.get('v');
@@ -120,6 +126,44 @@
         }).catch(error => console.error('[AutoSPD] Notification failed:', error));
     }
 
+    function isAdShowing() {
+        return Boolean(document.querySelector('#movie_player.ad-showing, #shorts-player.ad-showing'));
+    }
+
+    function hasAppliedSpeed() {
+        return (state.mode === 'auto' || state.mode === 'manual') && Number.isFinite(state.speed);
+    }
+
+    function enforceSpeed(video) {
+        if (!hasAppliedSpeed() || state.videoId !== getVideoId() || isAdShowing()) return;
+        if (video.playbackRate !== state.speed) video.playbackRate = state.speed;
+    }
+
+    function onRateChange(video) {
+        if (!hasAppliedSpeed() || video.playbackRate === state.speed || isAdShowing()) return;
+        if (Date.now() < resetWindowUntil) {
+            enforceSpeed(video);
+            return;
+        }
+        // Changed outside a source load: the user chose it in YouTube's menu or via shortcut
+        state.speed = video.playbackRate;
+        state.category = null;
+        state.mode = 'manual';
+    }
+
+    function guardVideo(video) {
+        if (guardedVideos.has(video)) return;
+        guardedVideos.add(video);
+        const onSourceLoad = () => {
+            resetWindowUntil = Date.now() + RESET_WINDOW_MS;
+            enforceSpeed(video);
+        };
+        video.addEventListener('loadedmetadata', onSourceLoad);
+        video.addEventListener('loadeddata', onSourceLoad);
+        video.addEventListener('playing', () => enforceSpeed(video));
+        video.addEventListener('ratechange', () => onRateChange(video));
+    }
+
     async function processVideo(force = false) {
         const videoId = getVideoId();
         if (!videoId) {
@@ -171,10 +215,11 @@
                 return;
             }
 
-            activeVideo.playbackRate = speed;
+            guardVideo(activeVideo);
             state.category = result.category || null;
             state.speed = speed;
             state.mode = 'auto';
+            if (!isAdShowing()) activeVideo.playbackRate = speed;
 
             if (settings.recordHistory && state.lastLoggedVideoId !== videoId) {
                 state.lastLoggedVideoId = videoId;
@@ -244,12 +289,13 @@
                 return false;
             }
 
-            video.playbackRate = speed;
+            guardVideo(video);
             state.videoId = getVideoId();
             state.title = getVideoInfo(state.videoId).title;
             state.category = null;
             state.speed = speed;
             state.mode = 'manual';
+            video.playbackRate = speed;
             showToast(`AutoSPD：已手動設定為 ${speed}x`);
             sendResponse({ success: true, state: getPublicState() });
             return false;
