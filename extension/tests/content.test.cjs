@@ -68,6 +68,10 @@ function createContentScript({
         },
         dispatchEvent(event) {
             // Stand-in for page-bridge.js answering from the main world
+            if (event.type === 'autospd-set-rate') {
+                rateRequests.push(JSON.parse(event.detail));
+                return;
+            }
             if (event.type === 'autospd-request-video-info') {
                 documentListeners.get('autospd-video-info')?.({
                     detail: JSON.stringify(playerInfo)
@@ -76,6 +80,7 @@ function createContentScript({
         }
     };
     const matchRequests = [];
+    const rateRequests = [];
     const settings = { autoSpeed: true, notifications: false, recordHistory: false };
     const chrome = {
         runtime: {
@@ -106,7 +111,10 @@ function createContentScript({
         location: currentLocation,
         URL,
         CustomEvent: class {
-            constructor(type) { this.type = type; }
+            constructor(type, options = {}) {
+                this.type = type;
+                this.detail = options.detail;
+            }
         },
         window: { addEventListener() {} },
         console,
@@ -125,7 +133,8 @@ function createContentScript({
         storageListeners,
         documentListeners,
         currentLocation,
-        matchRequests
+        matchRequests,
+        rateRequests
     };
 }
 
@@ -243,4 +252,14 @@ test('leaves ads alone and reapplies the speed once the video resumes', async ()
     harness.page.adShowing = false;
     harness.video.fire('loadeddata');
     assert.equal(harness.video.playbackRate, 1.5);
+});
+
+test('asks the YouTube player to change speed so its menu stays in sync', async () => {
+    const harness = createContentScript();
+    await new Promise(resolve => setImmediate(resolve));
+
+    assert.deepEqual(harness.rateRequests.at(-1), { videoId: 'test-video', speed: 1.5 });
+
+    harness.runtimeListeners[0]({ type: 'set-manual-speed', speed: 1.75 }, {}, () => {});
+    assert.deepEqual(harness.rateRequests.at(-1), { videoId: 'test-video', speed: 1.75 });
 });

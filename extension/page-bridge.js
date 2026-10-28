@@ -11,16 +11,34 @@
     // exist at once after SPA navigation, so pick the one playing videoId
     const PLAYER_IDS = ['movie_player', 'shorts-player'];
 
-    function getPlayerResponse(videoId) {
+    function findPlayer(videoId) {
         for (const id of PLAYER_IDS) {
             const player = document.getElementById(id);
             if (typeof player?.getPlayerResponse !== 'function') continue;
             const response = player.getPlayerResponse();
-            if (response?.videoDetails?.videoId === videoId) return response;
+            if (response?.videoDetails?.videoId === videoId) return { player, response };
         }
+        return null;
+    }
+
+    function getPlayerResponse(videoId) {
+        const found = findPlayer(videoId);
+        if (found) return found.response;
         const initial = window.ytInitialPlayerResponse;
         return initial?.videoDetails?.videoId === videoId ? initial : null;
     }
+
+    // Setting video.playbackRate alone leaves YouTube's speed menu showing the
+    // old rate, so go through the player API when it is available
+    document.addEventListener('autospd-set-rate', event => {
+        try {
+            const { videoId, speed } = JSON.parse(event.detail);
+            const player = findPlayer(videoId)?.player;
+            if (typeof player?.setPlaybackRate === 'function') player.setPlaybackRate(speed);
+        } catch (error) {
+            console.error('[AutoSPD] Could not set player rate:', error);
+        }
+    });
 
     document.addEventListener('autospd-request-video-info', event => {
         let info = null;

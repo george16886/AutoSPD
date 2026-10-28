@@ -134,9 +134,18 @@
         return (state.mode === 'auto' || state.mode === 'manual') && Number.isFinite(state.speed);
     }
 
+    // Ask page-bridge.js to set the rate through the player API so YouTube's
+    // speed menu stays in sync, then set the element too in case it is unavailable
+    function setVideoSpeed(video, speed) {
+        document.dispatchEvent(new CustomEvent('autospd-set-rate', {
+            detail: JSON.stringify({ videoId: state.videoId, speed })
+        }));
+        if (video.playbackRate !== speed) video.playbackRate = speed;
+    }
+
     function enforceSpeed(video) {
         if (!hasAppliedSpeed() || state.videoId !== getVideoId() || isAdShowing()) return;
-        if (video.playbackRate !== state.speed) video.playbackRate = state.speed;
+        if (video.playbackRate !== state.speed) setVideoSpeed(video, state.speed);
     }
 
     function onRateChange(video) {
@@ -219,7 +228,7 @@
             state.category = result.category || null;
             state.speed = speed;
             state.mode = 'auto';
-            if (!isAdShowing()) activeVideo.playbackRate = speed;
+            if (!isAdShowing()) setVideoSpeed(activeVideo, speed);
 
             if (settings.recordHistory && state.lastLoggedVideoId !== videoId) {
                 state.lastLoggedVideoId = videoId;
@@ -295,7 +304,7 @@
             state.category = null;
             state.speed = speed;
             state.mode = 'manual';
-            video.playbackRate = speed;
+            setVideoSpeed(video, speed);
             showToast(`AutoSPD：已手動設定為 ${speed}x`);
             sendResponse({ success: true, state: getPublicState() });
             return false;
