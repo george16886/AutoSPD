@@ -188,3 +188,54 @@ test('migration is a no-op for categories already on the latest defaults', () =>
 
     assert.deepEqual(JSON.parse(JSON.stringify(latest)), JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)));
 });
+
+async function runInstall(stored) {
+    let onInstalled;
+    const writes = {};
+    const context = {
+        console,
+        chrome: {
+            runtime: {
+                onInstalled: { addListener(listener) { onInstalled = listener; } },
+                onMessage: { addListener() {} }
+            },
+            storage: {
+                sync: {
+                    async get(keys) { return Object.fromEntries(keys.map(key => [key, stored[key]])); },
+                    async set(values) { Object.assign(writes, values); }
+                },
+                local: {}
+            }
+        }
+    };
+    vm.runInNewContext(backgroundSource, context);
+    await onInstalled();
+    return JSON.parse(JSON.stringify(writes));
+}
+
+test('new installs start with the speed toast off', async () => {
+    const writes = await runInstall({});
+
+    assert.equal(writes.settings.notifications, false);
+    assert.equal(writes.defaultsVersion, 3);
+});
+
+test('updating from v2 turns the speed toast off but keeps other settings', async () => {
+    const writes = await runInstall({
+        categories: [],
+        defaultsVersion: 2,
+        settings: { autoSpeed: false, notifications: true, defaultSpeed: 1.25 }
+    });
+
+    assert.deepEqual(writes.settings, { autoSpeed: false, notifications: false, defaultSpeed: 1.25 });
+});
+
+test('a toast the user re-enabled on v3 stays on after later updates', async () => {
+    const writes = await runInstall({
+        categories: [],
+        defaultsVersion: 3,
+        settings: { notifications: true }
+    });
+
+    assert.equal(writes.settings, undefined);
+});

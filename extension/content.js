@@ -7,7 +7,9 @@
         category: null,
         speed: null,
         mode: 'loading',
-        lastLoggedVideoId: null
+        lastLoggedVideoId: null,
+        ytCategory: '',
+        channelName: ''
     };
     let requestVersion = 0;
     let retryTimer = null;
@@ -79,6 +81,7 @@
                 description: playerInfo.description,
                 tags: playerInfo.tags,
                 channelName: playerInfo.channelName,
+                ytCategory: playerInfo.ytCategory || '',
                 ytCategoryId: YT_CATEGORY_IDS[playerInfo.ytCategory] || null
             };
         }
@@ -181,6 +184,8 @@
             state.category = null;
             state.speed = null;
             state.mode = 'not-video';
+            state.ytCategory = '';
+            state.channelName = '';
             requestVersion += 1;
             return;
         }
@@ -197,6 +202,8 @@
         const videoInfo = getVideoInfo(videoId);
         state.videoId = videoId;
         state.title = videoInfo.title;
+        state.ytCategory = videoInfo.ytCategory || '';
+        state.channelName = videoInfo.channelName || '';
         state.category = null;
         state.speed = null;
         state.mode = 'loading';
@@ -280,7 +287,9 @@
             title: state.title,
             categoryName: state.category?.name || (state.mode === 'disabled' ? '自動調速已關閉' : ''),
             speed: state.speed,
-            mode: state.mode
+            mode: state.mode,
+            ytCategory: state.ytCategory,
+            channelName: state.channelName
         };
     }
 

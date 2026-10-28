@@ -21,14 +21,14 @@ const DEFAULT_CATEGORIES = [
 
 const DEFAULT_SETTINGS = {
     autoSpeed: true,
-    notifications: true,
+    notifications: false,
     recordHistory: true,
     defaultSpeed: 1.0
 };
 
 // Bump when DEFAULT_CATEGORIES changes and add the matching migration below.
 // Migrations are targeted edits so categories the user customized survive.
-const DEFAULTS_VERSION = 2;
+const DEFAULTS_VERSION = 3;
 const DEFAULT_MIGRATIONS = {
     2: [
         { id: 'sports', removeKeywords: ['game'] },
@@ -69,6 +69,9 @@ chrome.runtime.onInstalled.addListener(async () => {
 
     if (!data.settings) {
         await chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
+    } else if ((data.defaultsVersion || 1) < 3) {
+        // The speed toast used to be on with no way to turn it off; v3 defaults it off
+        await chrome.storage.sync.set({ settings: { ...data.settings, notifications: false } });
     }
 
     console.log('[AutoSPD] Extension installed/updated');

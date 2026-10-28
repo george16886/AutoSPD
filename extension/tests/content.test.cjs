@@ -186,6 +186,9 @@ test('sends the player response metadata and YouTube category ID for matching', 
 
     const videoInfo = harness.matchRequests[0];
     assert.equal(videoInfo.title, 'Black hole explained');
+    const state = getState(harness);
+    assert.equal(state.ytCategory, 'Science & Technology');
+    assert.equal(state.channelName, 'Science Channel');
     assert.deepEqual([...videoInfo.tags], ['physics']);
     assert.equal(videoInfo.ytCategoryId, '28');
 });

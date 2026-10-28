@@ -96,6 +96,15 @@ footer {
     font-size: 11px;
 }
 
+.video-meta {
+    margin-top: 6px !important;
+    padding-top: 6px;
+    border-top: 1px dashed #e9e7f2;
+    color: #77758a;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
 .toggle-row,
 .setting {
     display: flex;

@@ -2,6 +2,8 @@
     'use strict';
 
     const autoSpeed = document.getElementById('auto-speed');
+    const notifications = document.getElementById('notifications');
+    const videoMeta = document.getElementById('video-meta');
     const defaultSpeed = document.getElementById('default-speed');
     const manualSpeed = document.getElementById('manual-speed');
     const videoTitle = document.getElementById('video-title');
@@ -46,6 +48,7 @@
                 getYouTubeTab()
             ]);
             autoSpeed.checked = settings.autoSpeed !== false;
+            notifications.checked = settings.notifications === true;
             defaultSpeed.value = String(settings.defaultSpeed ?? 1);
 
             if (!tab) return;
@@ -53,12 +56,22 @@
             const state = await sendToTab({ type: 'get-video-state' });
             videoTitle.textContent = state.title || '正在載入影片資訊…';
             videoStatus.textContent = formatStatus(state);
+            renderMeta(state);
             if (Number.isFinite(state.speed)) manualSpeed.value = String(state.speed);
         } catch (error) {
             videoTitle.textContent = '無法連線至 YouTube 播放器';
             videoStatus.textContent = '請重新整理 YouTube 分頁後再試';
             showMessage(error.message || '載入失敗', true);
         }
+    }
+
+    // Shows what the matcher saw, so it is clear why a video went unclassified
+    function renderMeta(state) {
+        const parts = [];
+        if (state.ytCategory) parts.push(`YouTube 分類：${state.ytCategory}`);
+        if (state.channelName) parts.push(`頻道：${state.channelName}`);
+        videoMeta.textContent = parts.join(' · ');
+        videoMeta.hidden = parts.length === 0;
     }
 
     function formatStatus(state) {
@@ -84,6 +97,21 @@
             await load();
         } catch (error) {
             autoSpeed.checked = !autoSpeed.checked;
+            showMessage(error.message || '設定儲存失敗', true);
+        }
+    });
+
+    notifications.addEventListener('change', async () => {
+        try {
+            const { settings } = await chrome.runtime.sendMessage({ type: 'get-settings' });
+            const response = await chrome.runtime.sendMessage({
+                type: 'save-settings',
+                settings: { ...settings, notifications: notifications.checked }
+            });
+            if (response?.error) throw new Error(response.error);
+            showMessage(notifications.checked ? '速度提示已開啟' : '速度提示已關閉');
+        } catch (error) {
+            notifications.checked = !notifications.checked;
             showMessage(error.message || '設定儲存失敗', true);
         }
     });
