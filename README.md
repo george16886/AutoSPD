@@ -1,6 +1,12 @@
+<p align="center"><img src="assets/logo.png" width="160" alt="AutoSPD logo"></p>
+
 # AutoSPD — YouTube 智慧播放速度控制器
 
-AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、Chrome 擴充功能背景程式碼，以及產品系統設計提案。產品目標是依影片類型套用播放速度，並讓使用者自訂分類和規則。
+AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的播放速度：說書、案件解說這類談話影片自動加速，直播、音樂與 MV 維持 1x，不必每支影片都手動調。
+
+分類方式可以選關鍵字規則、YouTube 官方分類，或在你電腦上執行的 Chrome 內建 AI（資料不會上傳）；常看的頻道也能直接指定速度。另外會在換頁、廣告結束後保持速度，並可自動關閉 YouTube 自動開啟的 CC 字幕。
+
+這個 repo 另外包含一個尚未串接的設定網站原型，以及產品系統設計提案。
 
 > **目前狀態：原型／開發中。** Chrome 擴充功能可以用「載入未封裝項目」直接安裝使用。網站需要先設定自己的 Firebase 專案才能使用 Google 登入與 Firestore，而且目前尚未與擴充功能串接，兩邊的設定各自獨立。
 
@@ -15,7 +21,10 @@ AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、
 
 ```text
 .
+├── assets/
+│   └── logo.png          # README 用的 logo
 ├── extension/
+│   ├── icons/            # 擴充功能圖示（16、32、48、128 px）
 │   ├── background.js     # 擴充功能背景服務工作者與分類邏輯
 │   ├── content.js        # YouTube 影片偵測與播放速度套用
 │   ├── page-bridge.js    # 在頁面環境讀取播放器資料（標題、標籤、YouTube 分類）
@@ -33,6 +42,8 @@ AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、
 │   ├── index.html        # 設定網站與儀表板介面
 │   ├── css/              # 網站樣式
 │   └── js/               # Firebase、登入、狀態、UI 與應用程式邏輯
+├── tools/
+│   └── make-icons.py     # 由 16×16 像素圖產生圖示與 logo（需要 Pillow）
 ├── goal.md               # 原始產品需求與設計提示
 └── youtube-speed-controller-proposal.md
                           # 系統設計與開發提案

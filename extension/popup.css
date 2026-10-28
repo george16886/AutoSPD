@@ -32,14 +32,10 @@ input {
 }
 
 .brand-mark {
-    display: grid;
-    width: 40px;
-    height: 40px;
-    place-items: center;
-    border-radius: 12px;
-    color: #fff;
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-    font-size: 17px;
+    width: 32px;
+    height: 32px;
+    /* Keep the pixel art crisp when scaled */
+    image-rendering: pixelated;
 }
 
 h1,
