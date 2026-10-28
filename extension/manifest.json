@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "AutoSPD for YouTube — AI 智慧播放速度",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "minimum_chrome_version": "111",
     "description": "依影片內容自動調整 YouTube 播放速度：用關鍵字、YouTube 分類或本機 AI 判斷，支援頻道規則，直播與音樂固定 1x。",
     "icons": {
