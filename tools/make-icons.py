@@ -1,9 +1,10 @@
 """Generate AutoSPD's pixel-art icons.
 
 The icon is drawn on a 16x16 grid and scaled by whole numbers, so every size
-stays crisp: Chrome shows the 16px icon in the toolbar, 32/48 in the
-extensions page, and 128 in the store and install dialog. assets/logo.png is a
-larger copy with a soft glow for the README.
+stays crisp: Chrome shows the 16px icon in the toolbar and 32/48 in the
+extensions page. The 128px icon is the Chrome Web Store icon, which must be
+96x96 artwork (16 x 6) with 16px of transparent padding on each side.
+assets/logo.png is a larger copy with a soft glow for the README.
 
 Run from the repository root:  python tools/make-icons.py
 """
@@ -74,8 +75,11 @@ def main():
     icon = draw(GRID)
     icons_dir = ROOT / "extension" / "icons"
     icons_dir.mkdir(exist_ok=True)
-    for size in (16, 32, 48, 128):
+    for size in (16, 32, 48):
         icon.resize((size, size), Image.NEAREST).save(icons_dir / f"icon{size}.png")
+    store_icon = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+    store_icon.paste(icon.resize((96, 96), Image.NEAREST), (16, 16))
+    store_icon.save(icons_dir / "icon128.png")
     assets_dir = ROOT / "assets"
     assets_dir.mkdir(exist_ok=True)
     make_logo(icon).convert("RGB").save(assets_dir / "logo.png")

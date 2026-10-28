@@ -10,6 +10,11 @@
     box-sizing: border-box;
 }
 
+/* Classes that set display (flex, grid) would otherwise override the hidden attribute */
+[hidden] {
+    display: none !important;
+}
+
 body {
     width: 340px;
     margin: 0;

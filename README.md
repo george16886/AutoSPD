@@ -42,8 +42,12 @@ AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的�
 │   ├── index.html        # 設定網站與儀表板介面
 │   ├── css/              # 網站樣式
 │   └── js/               # Firebase、登入、狀態、UI 與應用程式邏輯
+├── store/                # Chrome 線上應用程式商店的上架文案、截圖與宣傳圖
 ├── tools/
-│   └── make-icons.py     # 由 16×16 像素圖產生圖示與 logo（需要 Pillow）
+│   ├── make-icons.py     # 由 16×16 像素圖產生圖示與 logo（需要 Pillow）
+│   ├── make-store-images.py  # 產生商店截圖與宣傳圖（需要 Pillow 與 Chrome）
+│   └── package.py        # 打包上傳用的 ZIP 到 dist/（不含測試）
+├── PRIVACY.md            # 隱私權政策
 ├── goal.md               # 原始產品需求與設計提示
 └── youtube-speed-controller-proposal.md
                           # 系統設計與開發提案
@@ -131,7 +135,16 @@ node --test extension/tests/*.test.cjs
 
 產品設計目標是透過瀏覽器擴充功能在使用者原本的 YouTube 網頁調整播放速度，不讀取或寫入 YouTube 觀看紀錄。但 YouTube 的推薦結果仍由 YouTube 自身系統決定，不能保證觀看行為對推薦結果完全沒有影響。請在正式發布前補齊隱私政策、資料保留／刪除方式及必要的第三方服務揭露。
 
+## 打包上架
+
+```sh
+python tools/package.py
+```
+
+會產生 `dist/autospd-<版本>.zip`，只包含擴充功能執行需要的檔案。上架時要填的文案、截圖與注意事項見 [`store/listing.md`](./store/listing.md)。
+
 ## 文件
 
+- [隱私權政策](./PRIVACY.md)
 - [系統設計與開發提案](./youtube-speed-controller-proposal.md)
 - [原始需求與設計提示](./goal.md)
