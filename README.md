@@ -39,6 +39,8 @@ AutoSPD 是一個 YouTube 播放速度控制產品原型，包含設定網站、
 
 ## 網站本機預覽
 
+> 網站目前是暫時擱置的原型，尚未與擴充功能串接：網站上的分類設定不會影響擴充功能，擴充功能請使用自己的分類設定頁。
+
 網站是靜態 HTML、CSS 與 JavaScript，使用 Firebase JavaScript SDK。建議透過本機 HTTP 靜態伺服器開啟 `webapp/`，不要直接以 `file://` 開啟；可使用 VS Code Live Server 等工具。
 
 ### 設定 Firebase
