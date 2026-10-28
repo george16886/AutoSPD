@@ -37,7 +37,8 @@ function createContentScript({
     hideCaptions = true,
     classifyMode = 'keywords',
     aiAnswer = null,
-    aiLabels = {}
+    aiLabels = {},
+    notifications = false
 } = {}) {
     const video = createVideo();
     // Hidden watch-page player left in the DOM after navigating to Shorts
@@ -68,10 +69,12 @@ function createContentScript({
         },
         getElementById() { return null; },
         createElement() {
-            return {
+            const toast = {
                 classList: { add() {}, remove() {} },
-                setAttribute() {}
+                setAttribute() {},
+                set textContent(text) { toasts.push(text); }
             };
+            return toast;
         },
         addEventListener(name, listener) {
             documentListeners.set(name, listener);
@@ -106,10 +109,12 @@ function createContentScript({
     const aiRequests = [];
     const savedLabels = [];
     let matchOverride = null;
-    const settings = { autoSpeed: true, notifications: false, hideCaptions, classifyMode };
+    const settings = { autoSpeed: true, notifications, hideCaptions, classifyMode };
+    const toasts = [];
     const categories = [
         { id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事'], enabled: true },
         { id: 'investigation', name: '案件 / 調查解說', speed: 1.75, keywords: ['命案'], enabled: true },
+        { id: 'news', name: '新聞時事', speed: 1.5, keywords: ['新聞'], enabled: true },
         { id: 'off', name: '停用', speed: 2, keywords: [], enabled: false }
     ];
     const chrome = {
@@ -176,6 +181,7 @@ function createContentScript({
         rateRequests,
         aiRequests,
         savedLabels,
+        toasts,
         setMatchResult(result) { matchOverride = result; }
     };
 }
@@ -350,7 +356,7 @@ test('AI mode starts with the keyword match, then switches to the model pick', a
     assert.equal(getState(harness).categoryName, '案件 / 調查解說（AI）');
     assert.deepEqual(harness.savedLabels, [['test-video', 'investigation']]);
     const offered = harness.aiRequests[0].categories.map(cat => cat.id);
-    assert.deepEqual(offered, ['stories', 'investigation']);
+    assert.deepEqual(offered, ['stories', 'investigation', 'news']);
 });
 
 test('AI mode reuses a cached pick without asking the model again', async () => {
@@ -401,4 +407,17 @@ test('AI mode does not ask the model when a fixed 1x rule decided', async () => 
     assert.equal(harness.aiRequests.length, 0);
     assert.equal(harness.matchRequests[0].ytCategoryId, '10');
     assert.equal(harness.matchRequests[0].isLive, false);
+});
+
+test('AI mode announces again only when the model changes the speed', async () => {
+    // Keyword match: 說故事 1.5x; the model picks 案件 at 1.75x
+    const faster = createContentScript({ classifyMode: 'ai', notifications: true, aiAnswer: { categoryId: 'investigation' } });
+    await wait(30);
+    assert.deepEqual(faster.toasts, ['AutoSPD：說故事 · 1.5x', 'AutoSPD：案件 / 調查解說（AI） · 1.75x']);
+
+    // The model picks a different category at the same speed: category updates quietly
+    const same = createContentScript({ classifyMode: 'ai', notifications: true, aiAnswer: { categoryId: 'news' } });
+    await wait(30);
+    assert.deepEqual(same.toasts, ['AutoSPD：說故事 · 1.5x']);
+    assert.equal(getState(same).categoryName, '新聞時事（AI）');
 });

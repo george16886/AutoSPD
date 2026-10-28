@@ -334,14 +334,15 @@
 
             const speed = Number(match.speed);
             if (!Number.isFinite(speed) || speed < 0.25 || speed > 2) return;
-            const changed = speed !== state.speed || match.category?.id !== state.category?.id;
+            // The keyword match's speed was already announced; only announce again if it changes
+            const speedChanged = speed !== state.speed;
             state.category = match.category || null;
             state.speed = speed;
             state.aiStatus = 'ok';
             const video = getVideoElement();
             if (video && !isAdShowing()) setVideoSpeed(video, speed);
 
-            if (changed && settings.notifications) {
+            if (speedChanged && settings.notifications) {
                 showToast(`AutoSPD：${state.category?.name || '未分類'} · ${speed}x`);
             }
         } catch (error) {
