@@ -28,15 +28,15 @@
     "content_scripts": [
         {
             "matches": ["https://www.youtube.com/*", "https://youtube.com/*"],
-            "js": ["yt-categories.js", "content.js"],
-            "css": ["content.css"],
-            "run_at": "document_idle"
-        },
-        {
-            "matches": ["https://www.youtube.com/*", "https://youtube.com/*"],
             "js": ["page-bridge.js"],
             "run_at": "document_idle",
             "world": "MAIN"
+        },
+        {
+            "matches": ["https://www.youtube.com/*", "https://youtube.com/*"],
+            "js": ["yt-categories.js", "content.js"],
+            "css": ["content.css"],
+            "run_at": "document_idle"
         }
     ],
     "background": {

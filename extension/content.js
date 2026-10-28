@@ -9,7 +9,9 @@
         mode: 'loading',
         ytCategory: '',
         channelName: '',
-        aiStatus: ''
+        aiStatus: '',
+        // True once the video info came from the player response, not DOM fallbacks
+        hasPlayerInfo: false
     };
     let requestVersion = 0;
     let retryTimer = null;
@@ -106,7 +108,8 @@
                 ytCategory: playerInfo.ytCategory || '',
                 isLive: playerInfo.isLive === true,
                 isLiveContent: playerInfo.isLiveContent === true,
-                ytCategoryId: YT_CATEGORIES.find(cat => cat.en === playerInfo.ytCategory)?.id || null
+                ytCategoryId: YT_CATEGORIES.find(cat => cat.en === playerInfo.ytCategory)?.id || null,
+                fromPlayer: true
             };
         }
 
@@ -122,7 +125,7 @@
             ?.textContent?.trim()
             || '';
 
-        return { videoId, title, description, channelName };
+        return { videoId, title, description, channelName, fromPlayer: false };
     }
 
     async function sendMessage(message) {
@@ -227,6 +230,7 @@
             state.mode = 'not-video';
             state.ytCategory = '';
             state.channelName = '';
+            state.hasPlayerInfo = false;
             requestVersion += 1;
             return;
         }
@@ -237,7 +241,13 @@
             return;
         }
 
-        if (!force && state.videoId === videoId && state.mode !== 'loading') return;
+        // YouTube fires several navigation events per page, and also navigates
+        // within the same video (e.g. timestamp links). Handle each video once
+        // (a pass in flight counts) and keep a manual speed, but retry a finished
+        // pass that only had DOM fallbacks.
+        const handled = state.videoId === videoId && state.mode !== 'error'
+            && (state.mode === 'loading' || state.mode === 'manual' || state.hasPlayerInfo);
+        if (!force && handled) return;
 
         const version = ++requestVersion;
         const videoInfo = getVideoInfo(videoId);
@@ -245,6 +255,7 @@
         state.title = videoInfo.title;
         state.ytCategory = videoInfo.ytCategory || '';
         state.channelName = videoInfo.channelName || '';
+        state.hasPlayerInfo = videoInfo.fromPlayer;
         state.category = null;
         state.speed = null;
         state.aiStatus = '';
@@ -363,7 +374,7 @@
         retryCount = 0;
         clearTimeout(retryTimer);
         retryTimer = null;
-        setTimeout(() => processVideo(true), 100);
+        setTimeout(() => processVideo(), 100);
     }
 
     function getPublicState() {
@@ -388,6 +399,10 @@
         if (message.type === 'set-manual-speed') {
             const speed = Number(message.speed);
             const video = getVideoElement();
+            if (!getVideoId()) {
+                sendResponse({ error: '目前分頁不是影片頁' });
+                return false;
+            }
             if (!Number.isFinite(speed) || speed < 0.25 || speed > 2 || !video) {
                 sendResponse({ error: '目前無法套用這個播放速度' });
                 return false;
@@ -411,8 +426,19 @@
         return false;
     });
 
+    // Toggling the toast or captions must not reset the current speed
+    const SETTINGS_WITHOUT_SPEED_EFFECT = new Set(['notifications', 'hideCaptions']);
+
+    function affectsSpeed(settingsChange) {
+        const before = settingsChange?.oldValue || {};
+        const after = settingsChange?.newValue || {};
+        const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+        return [...keys].some(key => !SETTINGS_WITHOUT_SPEED_EFFECT.has(key)
+            && JSON.stringify(before[key]) !== JSON.stringify(after[key]));
+    }
+
     chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName === 'sync' && (changes.settings || changes.categories)) {
+        if (areaName === 'sync' && (changes.categories || affectsSpeed(changes.settings))) {
             processVideo(true);
         }
     });

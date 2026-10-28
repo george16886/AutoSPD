@@ -338,7 +338,7 @@ test('does not turn captions off again after the user re-enables them', async ()
     await wait(20);
 
     harness.page.captionsOn = true;
-    harness.storageListeners[0]({ settings: {} }, 'sync');
+    harness.storageListeners[0]({ categories: {} }, 'sync');
     await wait(20);
 
     assert.equal(harness.page.captionsOn, true);
@@ -420,4 +420,79 @@ test('AI mode announces again only when the model changes the speed', async () =
     await wait(30);
     assert.deepEqual(same.toasts, ['AutoSPD：說故事 · 1.5x']);
     assert.equal(getState(same).categoryName, '新聞時事（AI）');
+});
+
+const watchPlayerInfo = { videoId: 'test-video', title: '都市傳說：深夜的訪客', ytCategory: 'Entertainment' };
+
+function navigate(harness) {
+    harness.documentListeners.get('yt-navigate-finish')();
+    harness.documentListeners.get('yt-page-data-updated')();
+}
+
+test('the navigation events of one page handle the video only once', async () => {
+    const harness = createContentScript({ playerInfo: watchPlayerInfo, notifications: true });
+    await wait(20);
+
+    navigate(harness);
+    await wait(150);
+
+    assert.equal(harness.matchRequests.length, 1);
+    assert.equal(harness.toasts.length, 1);
+});
+
+test('navigating within the same video keeps a manual speed', async () => {
+    const harness = createContentScript({ playerInfo: watchPlayerInfo });
+    await wait(20);
+    harness.runtimeListeners[0]({ type: 'set-manual-speed', speed: 1.75 }, {}, () => {});
+
+    navigate(harness);
+    await wait(150);
+
+    assert.equal(harness.video.playbackRate, 1.75);
+    assert.equal(getState(harness).mode, 'manual');
+});
+
+test('a first pass without player data is retried on the next navigation event', async () => {
+    const harness = createContentScript();
+    await wait(20);
+
+    harness.documentListeners.get('yt-navigate-finish')();
+    await wait(150);
+
+    assert.equal(harness.matchRequests.length, 2);
+});
+
+test('toggling the toast or captions does not reset a manual speed', async () => {
+    const harness = createContentScript({ playerInfo: watchPlayerInfo });
+    await wait(20);
+    harness.runtimeListeners[0]({ type: 'set-manual-speed', speed: 1.75 }, {}, () => {});
+
+    harness.storageListeners[0]({
+        settings: { oldValue: { notifications: true, hideCaptions: true }, newValue: { notifications: false, hideCaptions: false } }
+    }, 'sync');
+    await wait(20);
+
+    assert.equal(harness.matchRequests.length, 1);
+    assert.equal(harness.video.playbackRate, 1.75);
+});
+
+test('changing a speed setting re-applies the automatic speed', async () => {
+    const harness = createContentScript({ playerInfo: watchPlayerInfo });
+    await wait(20);
+
+    harness.storageListeners[0]({ settings: { oldValue: { defaultSpeed: 1 }, newValue: { defaultSpeed: 1.25 } } }, 'sync');
+    await wait(20);
+
+    assert.equal(harness.matchRequests.length, 2);
+});
+
+test('the popup cannot set a manual speed outside a video page', async () => {
+    const harness = createContentScript({ url: 'https://www.youtube.com/' });
+    await wait(20);
+
+    let response;
+    harness.runtimeListeners[0]({ type: 'set-manual-speed', speed: 1.75 }, {}, result => { response = result; });
+
+    assert.equal(response.error, '目前分頁不是影片頁');
+    assert.equal(harness.video.playbackRate, 1);
 });
