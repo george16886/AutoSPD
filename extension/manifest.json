@@ -18,7 +18,7 @@
     "content_scripts": [
         {
             "matches": ["https://www.youtube.com/*", "https://youtube.com/*"],
-            "js": ["content.js"],
+            "js": ["yt-categories.js", "content.js"],
             "css": ["content.css"],
             "run_at": "document_idle"
         },

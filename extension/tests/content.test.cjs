@@ -4,10 +4,11 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-const contentSource = fs.readFileSync(
-    path.join(__dirname, '..', 'content.js'),
-    'utf8'
-);
+// The manifest loads yt-categories.js before content.js in the same world
+const contentSource = [
+    fs.readFileSync(path.join(__dirname, '..', 'yt-categories.js'), 'utf8'),
+    fs.readFileSync(path.join(__dirname, '..', 'content.js'), 'utf8')
+].join('\n');
 
 function createVideo() {
     const listeners = new Map();

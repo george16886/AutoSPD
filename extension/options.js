@@ -5,25 +5,6 @@
 const MIN_SPEED = 0.25;
 const MAX_SPEED = 2;
 
-const YT_CATEGORY_OPTIONS = [
-    ['', '不指定'],
-    ['1', '電影與動畫 (Film & Animation)'],
-    ['2', '汽車 (Autos & Vehicles)'],
-    ['10', '音樂 (Music)'],
-    ['15', '寵物與動物 (Pets & Animals)'],
-    ['17', '體育 (Sports)'],
-    ['19', '旅遊與活動 (Travel & Events)'],
-    ['20', '遊戲 (Gaming)'],
-    ['22', '人物與網誌 (People & Blogs)'],
-    ['23', '喜劇 (Comedy)'],
-    ['24', '娛樂 (Entertainment)'],
-    ['25', '新聞與政治 (News & Politics)'],
-    ['26', 'DIY 與生活百科 (Howto & Style)'],
-    ['27', '教育 (Education)'],
-    ['28', '科學與技術 (Science & Technology)'],
-    ['29', '非營利組織與行動主義 (Nonprofits & Activism)']
-];
-
 function parseKeywords(text) {
     const seen = new Set();
     const keywords = [];
@@ -36,6 +17,16 @@ function parseKeywords(text) {
         }
     }
     return keywords;
+}
+
+/** Returns an error message for the first invalid YouTube category speed, or null */
+function validateYouTubeSpeeds(speeds, names = {}) {
+    for (const [id, speed] of Object.entries(speeds)) {
+        if (!Number.isFinite(speed) || speed < MIN_SPEED || speed > MAX_SPEED) {
+            return `YouTube 分類「${names[id] || id}」的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`;
+        }
+    }
+    return null;
 }
 
 /** Returns an error message for the first invalid channel rule, or null */
@@ -78,6 +69,10 @@ function initOptionsPage() {
     const channelList = document.getElementById('channel-list');
     const channelTemplate = document.getElementById('channel-template');
     const channelEmpty = document.getElementById('channel-empty');
+    const keywordSection = document.getElementById('keyword-section');
+    const youtubeSection = document.getElementById('youtube-section');
+    const ytSpeedList = document.getElementById('yt-speed-list');
+    const modeInputs = [...document.querySelectorAll('input[name="classify-mode"]')];
 
     function showMessage(text, isError = false) {
         message.textContent = text;
@@ -104,8 +99,9 @@ function initOptionsPage() {
         card.querySelector('.field-keywords').value = (cat.keywords || []).join(', ');
 
         const select = card.querySelector('.field-yt-category');
-        for (const [value, label] of YT_CATEGORY_OPTIONS) {
-            select.append(new Option(label, value));
+        select.append(new Option('不指定', ''));
+        for (const ytCategory of YT_CATEGORIES) {
+            select.append(new Option(`${ytCategory.zh} (${ytCategory.en})`, ytCategory.id));
         }
         select.value = cat.ytCategoryIds?.[0] || '';
 
@@ -123,6 +119,51 @@ function initOptionsPage() {
     function render(categories) {
         list.replaceChildren(...categories.map(renderCategory));
         setDirty(false);
+    }
+
+    function showMode(mode) {
+        for (const input of modeInputs) input.checked = input.value === mode;
+        keywordSection.hidden = mode !== 'keywords';
+        youtubeSection.hidden = mode !== 'youtube';
+    }
+
+    function readMode() {
+        return modeInputs.find(input => input.checked)?.value || 'keywords';
+    }
+
+    function renderYouTubeSpeeds(speeds = {}) {
+        ytSpeedList.replaceChildren(...YT_CATEGORIES.map(ytCategory => {
+            const row = document.createElement('label');
+            row.className = 'yt-speed-row';
+            const name = document.createElement('span');
+            name.textContent = ytCategory.zh;
+            const en = document.createElement('small');
+            en.textContent = ytCategory.en;
+            name.append(en);
+            const speed = document.createElement('span');
+            speed.className = 'speed';
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = String(MIN_SPEED);
+            input.max = String(MAX_SPEED);
+            input.step = '0.05';
+            input.className = 'field-speed';
+            input.dataset.ytCategory = ytCategory.id;
+            input.value = String(speeds[ytCategory.id] ?? ytCategory.speed);
+            input.setAttribute('aria-label', `${ytCategory.zh}的播放速度`);
+            const unit = document.createElement('span');
+            unit.textContent = 'x';
+            speed.append(input, unit);
+            row.append(name, speed);
+            return row;
+        }));
+    }
+
+    function readYouTubeSpeeds() {
+        return Object.fromEntries([...ytSpeedList.querySelectorAll('input')].map(input => [
+            input.dataset.ytCategory,
+            Math.round(Number(input.value) * 100) / 100
+        ]));
     }
 
     function updateChannelEmpty() {
@@ -167,7 +208,14 @@ function initOptionsPage() {
         });
     }
 
-    for (const container of [list, channelList]) {
+    for (const input of modeInputs) {
+        input.addEventListener('change', () => {
+            showMode(readMode());
+            setDirty(true);
+        });
+    }
+
+    for (const container of [list, channelList, ytSpeedList]) {
         container.addEventListener('input', () => setDirty(true));
         container.addEventListener('change', () => setDirty(true));
     }
@@ -193,14 +241,22 @@ function initOptionsPage() {
     document.getElementById('save').addEventListener('click', async () => {
         const categories = readCategories();
         const channelRules = readChannelRules();
-        const error = validateCategories(categories) || validateChannelRules(channelRules);
+        const classifyMode = readMode();
+        const ytCategorySpeeds = readYouTubeSpeeds();
+        const ytNames = Object.fromEntries(YT_CATEGORIES.map(cat => [cat.id, cat.zh]));
+        const error = validateYouTubeSpeeds(ytCategorySpeeds, ytNames)
+            || validateChannelRules(channelRules)
+            || (classifyMode === 'keywords' ? validateCategories(categories) : null);
         if (error) {
             showMessage(error, true);
             return;
         }
         try {
             const { settings } = await send({ type: 'get-settings' });
-            await send({ type: 'save-settings', settings: { ...settings, channelRules } });
+            await send({
+                type: 'save-settings',
+                settings: { ...settings, channelRules, classifyMode, ytCategorySpeeds }
+            });
             await send({ type: 'save-categories', categories });
             setDirty(false);
             showMessage(`已儲存 ${categories.length} 個分類和 ${channelRules.length} 個頻道規則，開啟中的 YouTube 分頁會立即套用。`);
@@ -220,6 +276,8 @@ function initOptionsPage() {
         .then(([{ categories }, { settings }]) => {
             render(categories);
             renderChannelRules(settings.channelRules);
+            renderYouTubeSpeeds(settings.ytCategorySpeeds);
+            showMode(settings.classifyMode === 'youtube' ? 'youtube' : 'keywords');
         })
         .catch(error => showMessage(error.message || '無法載入設定', true));
 }

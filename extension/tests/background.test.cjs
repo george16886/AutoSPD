@@ -4,10 +4,12 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-const backgroundSource = fs.readFileSync(
-    path.join(__dirname, '..', 'background.js'),
-    'utf8'
-);
+// The worker loads yt-categories.js with importScripts; inline it the same way
+const backgroundSource = [
+    fs.readFileSync(path.join(__dirname, '..', 'yt-categories.js'), 'utf8'),
+    fs.readFileSync(path.join(__dirname, '..', 'background.js'), 'utf8')
+        .replace("importScripts('yt-categories.js');", '')
+].join('\n');
 
 function loadMatcher(storedData = {}) {
     const context = {
@@ -301,4 +303,37 @@ test('logging the same video twice in a row keeps one history entry', async () =
     await context.logHistory({ videoId: 'b', speed: 1 });
 
     assert.deepEqual(history.map(entry => entry.videoId), ['b', 'a']);
+});
+
+test('YouTube category mode uses the speed set for the video category', async () => {
+    const matchVideo = loadMatcher({
+        categories: [{ id: 'investigation', name: '案件', speed: 1.5, keywords: ['命案'], enabled: true }],
+        settings: { autoSpeed: true, defaultSpeed: 1, classifyMode: 'youtube', ytCategorySpeeds: { 24: 1.75 } }
+    });
+
+    const result = await matchVideo({ title: '滅門命案', ytCategoryId: '24' });
+
+    assert.equal(result.speed, 1.75);
+    assert.equal(result.category.name, 'YouTube：娛樂');
+});
+
+test('YouTube category mode falls back to the built-in speed, then the default', async () => {
+    const matchVideo = loadMatcher({
+        categories: [],
+        settings: { autoSpeed: true, defaultSpeed: 1.1, classifyMode: 'youtube', ytCategorySpeeds: {} }
+    });
+
+    assert.equal((await matchVideo({ ytCategoryId: '25' })).speed, 1.5);
+    const unknown = await matchVideo({ title: 'no category' });
+    assert.equal(unknown.category, null);
+    assert.equal(unknown.speed, 1.1);
+});
+
+test('channel rules still win in YouTube category mode', async () => {
+    const matchVideo = loadMatcher({
+        categories: [],
+        settings: { autoSpeed: true, classifyMode: 'youtube', channelRules: [{ channel: 'Wayne調查', speed: 2 }] }
+    });
+
+    assert.equal((await matchVideo({ channelName: 'Wayne調查', ytCategoryId: '24' })).speed, 2);
 });

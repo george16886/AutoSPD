@@ -47,25 +47,6 @@
             || document.querySelector('video');
     }
 
-    // playerMicroformatRenderer.category is the English category name
-    const YT_CATEGORY_IDS = {
-        'Film & Animation': '1',
-        'Autos & Vehicles': '2',
-        'Music': '10',
-        'Pets & Animals': '15',
-        'Sports': '17',
-        'Travel & Events': '19',
-        'Gaming': '20',
-        'People & Blogs': '22',
-        'Comedy': '23',
-        'Entertainment': '24',
-        'News & Politics': '25',
-        'Howto & Style': '26',
-        'Education': '27',
-        'Science & Technology': '28',
-        'Nonprofits & Activism': '29'
-    };
-
     // Ask page-bridge.js (main world) for the player response; dispatch is synchronous
     function readPlayerInfo(videoId) {
         let info = null;
@@ -92,7 +73,7 @@
                 tags: playerInfo.tags,
                 channelName: playerInfo.channelName,
                 ytCategory: playerInfo.ytCategory || '',
-                ytCategoryId: YT_CATEGORY_IDS[playerInfo.ytCategory] || null
+                ytCategoryId: YT_CATEGORIES.find(cat => cat.en === playerInfo.ytCategory)?.id || null
             };
         }
 

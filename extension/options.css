@@ -73,6 +73,80 @@ code {
     font-size: 12px;
 }
 
+.mode-section {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 0;
+    border: 0;
+}
+
+.mode-section legend {
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.mode-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid #e9e7f2;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.mode-option:has(input:checked) {
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 1px #6c5ce7;
+}
+
+.mode-option input {
+    margin-top: 3px;
+    accent-color: #6c5ce7;
+}
+
+.mode-option span {
+    display: grid;
+    gap: 3px;
+}
+
+.mode-option strong {
+    font-size: 14px;
+}
+
+.mode-option small {
+    color: #77758a;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.yt-speed-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+}
+
+.yt-speed-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #e9e7f2;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 13px;
+}
+
+.yt-speed-row small {
+    display: block;
+    color: #77758a;
+    font-size: 11px;
+}
+
 .category-list {
     display: grid;
     gap: 10px;

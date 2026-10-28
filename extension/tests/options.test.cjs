@@ -54,3 +54,10 @@ test('rejects channel rules with out-of-range speeds', () => {
     assert.equal(validateChannelRules([{ channel: 'Wayne調查', speed: 1.5 }]), null);
     assert.match(validateChannelRules([{ channel: 'Wayne調查', speed: 0 }]), /Wayne調查/);
 });
+
+test('rejects YouTube category speeds out of range and names the category', () => {
+    const { validateYouTubeSpeeds } = loadOptions();
+
+    assert.equal(validateYouTubeSpeeds({ 24: 1.5, 10: 1 }), null);
+    assert.match(validateYouTubeSpeeds({ 24: 2.5 }, { 24: '娛樂' }), /娛樂/);
+});

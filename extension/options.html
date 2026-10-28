@@ -12,20 +12,47 @@
             <div class="brand-mark" aria-hidden="true">▶</div>
             <div>
                 <h1>分類設定</h1>
-                <p>影片標題、說明、標籤或頻道名稱含有關鍵字，或 YouTube 分類相符時，就套用該分類的速度。</p>
+                <p>選擇影片要怎麼分類，再為每個分類設定播放速度。</p>
             </div>
         </header>
 
-        <section class="hint">
-            <p>英文關鍵字以整個單字比對（例如 <code>TED</code> 不會比對到 tested），中文以字串比對。多個關鍵字用逗號、頓號或換行分隔。</p>
+        <fieldset class="mode-section">
+            <legend>分類方式</legend>
+            <label class="mode-option">
+                <input type="radio" name="classify-mode" value="keywords">
+                <span>
+                    <strong>關鍵字分類</strong>
+                    <small>依影片標題、標籤、頻道名稱比對你設定的分類與關鍵字。可以細分到你常看的內容類型。</small>
+                </span>
+            </label>
+            <label class="mode-option">
+                <input type="radio" name="classify-mode" value="youtube">
+                <span>
+                    <strong>YouTube 分類</strong>
+                    <small>使用上傳者為影片選的 YouTube 分類。結果穩定、不受標題影響，但分類比較粗，例如大部分談話節目都在「娛樂」或「人物與網誌」。</small>
+                </span>
+            </label>
+        </fieldset>
+
+        <section id="keyword-section">
+            <section class="hint">
+                <p>影片標題、標籤或頻道名稱含有關鍵字，或 YouTube 分類相符時，就套用該分類的速度。英文關鍵字以整個單字比對（例如 <code>TED</code> 不會比對到 tested），中文以字串比對。多個關鍵字用逗號、頓號或換行分隔。</p>
+            </section>
+
+            <div id="category-list" class="category-list"></div>
+
+            <div class="actions">
+                <button id="add-category" class="button button-secondary" type="button">＋ 新增分類</button>
+                <button id="reset-categories" class="button button-ghost" type="button">還原預設分類</button>
+            </div>
         </section>
 
-        <div id="category-list" class="category-list"></div>
-
-        <div class="actions">
-            <button id="add-category" class="button button-secondary" type="button">＋ 新增分類</button>
-            <button id="reset-categories" class="button button-ghost" type="button">還原預設分類</button>
-        </div>
+        <section id="youtube-section" hidden>
+            <section class="hint">
+                <p>沒有 YouTube 分類資訊的影片，會使用彈出視窗裡「未分類影片的預設速度」。</p>
+            </section>
+            <div id="yt-speed-list" class="yt-speed-list"></div>
+        </section>
 
         <section class="channel-section">
             <h2>頻道規則</h2>
@@ -82,6 +109,7 @@
         </div>
     </template>
 
+    <script src="yt-categories.js"></script>
     <script src="options.js"></script>
 </body>
 </html>

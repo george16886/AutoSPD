@@ -3,6 +3,8 @@
  * Handles storage sync, message routing, and category matching
  */
 
+importScripts('yt-categories.js');
+
 // Default categories (same as webapp)
 const DEFAULT_CATEGORIES = [
     { id: 'sports', name: '球賽 / 體育', emoji: '⚽', speed: 1.0, keywords: ['足球', '籃球', 'NBA', 'MLB', '世界盃', '比賽', '賽事', '球賽', 'sports', 'match'], ytCategoryIds: ['17'], enabled: true },
@@ -26,6 +28,10 @@ const DEFAULT_SETTINGS = {
     hideCaptions: true,
     // [{ channel, speed }]; a channel rule wins over every category
     channelRules: [],
+    // 'keywords' matches the categories below; 'youtube' uses the uploader's
+    // YouTube category with a speed per category (ytCategorySpeeds, by ID)
+    classifyMode: 'keywords',
+    ytCategorySpeeds: {},
     recordHistory: true,
     defaultSpeed: 1.0
 };
@@ -157,13 +163,33 @@ function keywordMatches(text, keyword) {
 
 const MIN_MATCH_SCORE = 3;
 
+function isValidSpeed(speed) {
+    return Number.isFinite(speed) && speed >= 0.25 && speed <= 2;
+}
+
+function defaultMatch(settings) {
+    const speed = Number(settings.defaultSpeed);
+    return { speed: isValidSpeed(speed) ? speed : 1, category: null, score: 0 };
+}
+
+function matchByYouTubeCategory(ytCategoryId, settings) {
+    const ytCategory = YT_CATEGORIES.find(cat => cat.id === String(ytCategoryId));
+    if (!ytCategory) return defaultMatch(settings);
+    const speed = Number(settings.ytCategorySpeeds?.[ytCategory.id] ?? ytCategory.speed);
+    if (!isValidSpeed(speed)) return defaultMatch(settings);
+    return {
+        speed,
+        category: { id: `yt_${ytCategory.id}`, name: `YouTube：${ytCategory.zh}` },
+        score: 0
+    };
+}
+
 function findChannelRule(rules, channelName) {
     const channel = String(channelName || '').trim().toLowerCase();
     if (!channel || !Array.isArray(rules)) return null;
     return rules.find(rule => {
         const speed = Number(rule?.speed);
-        return String(rule?.channel || '').trim().toLowerCase() === channel
-            && Number.isFinite(speed) && speed >= 0.25 && speed <= 2;
+        return String(rule?.channel || '').trim().toLowerCase() === channel && isValidSpeed(speed);
     }) || null;
 }
 
@@ -187,6 +213,10 @@ async function matchVideoToCategory(videoInfo) {
             category: { id: 'channel', name: `頻道：${channelRule.channel}` },
             score: 0
         };
+    }
+
+    if (settings.classifyMode === 'youtube') {
+        return matchByYouTubeCategory(videoInfo.ytCategoryId, settings);
     }
 
     // A keyword scores the weight of the strongest field it appears in.
@@ -240,12 +270,7 @@ async function matchVideoToCategory(videoInfo) {
         };
     }
 
-    const defaultSpeed = Number(settings.defaultSpeed);
-    return {
-        speed: Number.isFinite(defaultSpeed) && defaultSpeed >= 0.25 && defaultSpeed <= 2 ? defaultSpeed : 1,
-        category: null,
-        score: 0
-    };
+    return defaultMatch(settings);
 }
 
 /**
