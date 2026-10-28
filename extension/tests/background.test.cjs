@@ -213,28 +213,19 @@ async function runInstall(stored) {
     return JSON.parse(JSON.stringify(writes));
 }
 
-test('new installs start with the speed toast off', async () => {
+test('new installs get default settings with captions hidden', async () => {
     const writes = await runInstall({});
 
-    assert.equal(writes.settings.notifications, false);
-    assert.equal(writes.defaultsVersion, 3);
+    assert.equal(writes.settings.notifications, true);
+    assert.equal(writes.settings.hideCaptions, true);
+    assert.equal(writes.defaultsVersion, 2);
 });
 
-test('updating from v2 turns the speed toast off but keeps other settings', async () => {
+test('updates leave existing settings untouched', async () => {
     const writes = await runInstall({
         categories: [],
         defaultsVersion: 2,
-        settings: { autoSpeed: false, notifications: true, defaultSpeed: 1.25 }
-    });
-
-    assert.deepEqual(writes.settings, { autoSpeed: false, notifications: false, defaultSpeed: 1.25 });
-});
-
-test('a toast the user re-enabled on v3 stays on after later updates', async () => {
-    const writes = await runInstall({
-        categories: [],
-        defaultsVersion: 3,
-        settings: { notifications: true }
+        settings: { notifications: false }
     });
 
     assert.equal(writes.settings, undefined);

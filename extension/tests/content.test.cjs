@@ -31,12 +31,20 @@ function getState(harness) {
 function createContentScript({
     playerInfo = null,
     url = 'https://www.youtube.com/watch?v=test-video',
-    staleWatchPlayer = false
+    staleWatchPlayer = false,
+    captionsOn = false,
+    hideCaptions = true
 } = {}) {
     const video = createVideo();
     // Hidden watch-page player left in the DOM after navigating to Shorts
     const staleWatchVideo = createVideo();
-    const page = { adShowing: false };
+    const page = { adShowing: false, captionsOn, captionClicks: 0 };
+    const captionsButton = {
+        click() {
+            page.captionClicks += 1;
+            page.captionsOn = !page.captionsOn;
+        }
+    };
     const documentListeners = new Map();
     const runtimeListeners = [];
     const storageListeners = [];
@@ -48,6 +56,7 @@ function createContentScript({
         documentElement: { append() {} },
         querySelector(selector) {
             if (selector.includes('.ad-showing')) return page.adShowing ? {} : null;
+            if (selector.includes('.ytp-subtitles-button')) return page.captionsOn ? captionsButton : null;
             if (staleWatchPlayer && selector.startsWith('#movie_player')) return staleWatchVideo;
             if (selector.includes('video')) return video;
             if (selector === 'h1.ytd-watch-metadata yt-formatted-string') return titleElement;
@@ -81,7 +90,7 @@ function createContentScript({
     };
     const matchRequests = [];
     const rateRequests = [];
-    const settings = { autoSpeed: true, notifications: false, recordHistory: false };
+    const settings = { autoSpeed: true, notifications: false, recordHistory: false, hideCaptions };
     const chrome = {
         runtime: {
             onMessage: {
@@ -265,4 +274,34 @@ test('asks the YouTube player to change speed so its menu stays in sync', async 
 
     harness.runtimeListeners[0]({ type: 'set-manual-speed', speed: 1.75 }, {}, () => {});
     assert.deepEqual(harness.rateRequests.at(-1), { videoId: 'test-video', speed: 1.75 });
+});
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+test('turns off captions YouTube switched on for a new video', async () => {
+    const harness = createContentScript({ captionsOn: true });
+    await wait(20);
+
+    assert.equal(harness.page.captionsOn, false);
+    assert.equal(harness.page.captionClicks, 1);
+});
+
+test('leaves captions on when the setting is off', async () => {
+    const harness = createContentScript({ captionsOn: true, hideCaptions: false });
+    await wait(20);
+
+    assert.equal(harness.page.captionsOn, true);
+    assert.equal(harness.page.captionClicks, 0);
+});
+
+test('does not turn captions off again after the user re-enables them', async () => {
+    const harness = createContentScript({ captionsOn: true });
+    await wait(20);
+
+    harness.page.captionsOn = true;
+    harness.storageListeners[0]({ settings: {} }, 'sync');
+    await wait(20);
+
+    assert.equal(harness.page.captionsOn, true);
+    assert.equal(harness.page.captionClicks, 1);
 });

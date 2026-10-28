@@ -21,6 +21,12 @@
     const guardedVideos = new WeakSet();
     let resetWindowUntil = 0;
 
+    // Captions can switch on a moment after the video loads, so check a few
+    // times. Each video is handled once: captions the user turns back on stay on
+    const CAPTION_CHECK_DELAYS_MS = [0, 1000, 3000];
+    let captionTimers = [];
+    let captionsHandledVideoId = null;
+
     function getVideoId() {
         const url = new URL(location.href);
         if (url.pathname === '/watch') return url.searchParams.get('v');
@@ -29,8 +35,12 @@
     }
 
     // #movie_player stays in the DOM on Shorts after visiting a watch page
+    function getPlayerId() {
+        return location.pathname.startsWith('/shorts/') ? 'shorts-player' : 'movie_player';
+    }
+
     function getVideoElement() {
-        const playerId = location.pathname.startsWith('/shorts/') ? 'shorts-player' : 'movie_player';
+        const playerId = getPlayerId();
         return document.querySelector(`#${playerId} video.html5-main-video`)
             || document.querySelector(`#${playerId} video`)
             || document.querySelector('video.html5-main-video')
@@ -129,6 +139,23 @@
         }).catch(error => console.error('[AutoSPD] Notification failed:', error));
     }
 
+    function turnOffCaptions() {
+        const button = document.querySelector(`#${getPlayerId()} .ytp-subtitles-button[aria-pressed="true"]`);
+        if (!button) return false;
+        button.click();
+        return true;
+    }
+
+    function hideCaptionsOnce(videoId) {
+        if (captionsHandledVideoId === videoId) return;
+        captionsHandledVideoId = videoId;
+        captionTimers.forEach(clearTimeout);
+        captionTimers = CAPTION_CHECK_DELAYS_MS.map(delay => setTimeout(() => {
+            if (getVideoId() !== videoId) return;
+            if (turnOffCaptions()) captionTimers.forEach(clearTimeout);
+        }, delay));
+    }
+
     function isAdShowing() {
         return Boolean(document.querySelector('#movie_player.ad-showing, #shorts-player.ad-showing'));
     }
@@ -211,6 +238,8 @@
         try {
             const { settings } = await sendMessage({ type: 'get-settings' });
             if (version !== requestVersion || getVideoId() !== videoId) return;
+
+            if (settings.hideCaptions) hideCaptionsOnce(videoId);
 
             if (!settings.autoSpeed) {
                 state.mode = 'disabled';

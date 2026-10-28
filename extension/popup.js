@@ -3,6 +3,7 @@
 
     const autoSpeed = document.getElementById('auto-speed');
     const notifications = document.getElementById('notifications');
+    const hideCaptions = document.getElementById('hide-captions');
     const videoMeta = document.getElementById('video-meta');
     const defaultSpeed = document.getElementById('default-speed');
     const manualSpeed = document.getElementById('manual-speed');
@@ -48,7 +49,8 @@
                 getYouTubeTab()
             ]);
             autoSpeed.checked = settings.autoSpeed !== false;
-            notifications.checked = settings.notifications === true;
+            notifications.checked = settings.notifications !== false;
+            hideCaptions.checked = settings.hideCaptions !== false;
             defaultSpeed.value = String(settings.defaultSpeed ?? 1);
 
             if (!tab) return;
@@ -101,20 +103,25 @@
         }
     });
 
-    notifications.addEventListener('change', async () => {
-        try {
-            const { settings } = await chrome.runtime.sendMessage({ type: 'get-settings' });
-            const response = await chrome.runtime.sendMessage({
-                type: 'save-settings',
-                settings: { ...settings, notifications: notifications.checked }
-            });
-            if (response?.error) throw new Error(response.error);
-            showMessage(notifications.checked ? '速度提示已開啟' : '速度提示已關閉');
-        } catch (error) {
-            notifications.checked = !notifications.checked;
-            showMessage(error.message || '設定儲存失敗', true);
-        }
-    });
+    function bindSettingToggle(input, key, onText, offText) {
+        input.addEventListener('change', async () => {
+            try {
+                const { settings } = await chrome.runtime.sendMessage({ type: 'get-settings' });
+                const response = await chrome.runtime.sendMessage({
+                    type: 'save-settings',
+                    settings: { ...settings, [key]: input.checked }
+                });
+                if (response?.error) throw new Error(response.error);
+                showMessage(input.checked ? onText : offText);
+            } catch (error) {
+                input.checked = !input.checked;
+                showMessage(error.message || '設定儲存失敗', true);
+            }
+        });
+    }
+
+    bindSettingToggle(notifications, 'notifications', '速度提示已開啟', '速度提示已關閉');
+    bindSettingToggle(hideCaptions, 'hideCaptions', '之後開啟的影片會自動關閉字幕', '已停止自動關閉字幕');
 
     document.getElementById('save-default').addEventListener('click', async () => {
         try {
