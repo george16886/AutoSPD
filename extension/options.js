@@ -2,6 +2,12 @@
  * AutoSPD - Category settings page
  */
 
+// Must match page-bridge.js so availability reflects the sessions it creates
+const AI_LANGUAGES = {
+    expectedInputs: [{ type: 'text', languages: ['en'] }],
+    expectedOutputs: [{ type: 'text', languages: ['en'] }]
+};
+
 const MIN_SPEED = 0.25;
 const MAX_SPEED = 2;
 
@@ -39,8 +45,11 @@ function validateChannelRules(rules) {
     return null;
 }
 
-/** Returns an error message for the first invalid category, or null */
-function validateCategories(categories) {
+/**
+ * Returns an error message for the first invalid category, or null.
+ * Keyword mode needs something to match on; the AI can work from names alone.
+ */
+function validateCategories(categories, { requireMatchers = true } = {}) {
     const names = new Set();
     for (const [index, cat] of categories.entries()) {
         const label = cat.name || `第 ${index + 1} 個分類`;
@@ -50,7 +59,7 @@ function validateCategories(categories) {
         if (!Number.isFinite(cat.speed) || cat.speed < MIN_SPEED || cat.speed > MAX_SPEED) {
             return `「${label}」的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`;
         }
-        if (cat.keywords.length === 0 && cat.ytCategoryIds.length === 0) {
+        if (requireMatchers && cat.keywords.length === 0 && cat.ytCategoryIds.length === 0) {
             return `「${label}」至少要有一個關鍵字或指定 YouTube 分類，否則不會比對到任何影片。`;
         }
     }
@@ -73,6 +82,9 @@ function initOptionsPage() {
     const youtubeSection = document.getElementById('youtube-section');
     const ytSpeedList = document.getElementById('yt-speed-list');
     const modeInputs = [...document.querySelectorAll('input[name="classify-mode"]')];
+    const aiStatus = document.getElementById('ai-status');
+    const aiStatusText = document.getElementById('ai-status-text');
+    const aiDownload = document.getElementById('ai-download');
 
     function showMessage(text, isError = false) {
         message.textContent = text;
@@ -123,8 +135,33 @@ function initOptionsPage() {
 
     function showMode(mode) {
         for (const input of modeInputs) input.checked = input.value === mode;
-        keywordSection.hidden = mode !== 'keywords';
+        keywordSection.hidden = mode === 'youtube';
         youtubeSection.hidden = mode !== 'youtube';
+        aiStatus.hidden = mode !== 'ai';
+        if (mode === 'ai') refreshAiStatus();
+    }
+
+    function setAiStatus(text, tone = '', canDownload = false) {
+        aiStatusText.textContent = text;
+        aiStatus.classList.toggle('ready', tone === 'ready');
+        aiStatus.classList.toggle('problem', tone === 'problem');
+        aiDownload.hidden = !canDownload;
+    }
+
+    async function refreshAiStatus() {
+        if (typeof LanguageModel === 'undefined') {
+            setAiStatus('這個版本的 Chrome 不支援內建 AI。請更新 Chrome，或改用其他分類方式。', 'problem');
+            return;
+        }
+        try {
+            const availability = await LanguageModel.availability(AI_LANGUAGES);
+            if (availability === 'available') setAiStatus('✓ AI 模型已就緒', 'ready');
+            else if (availability === 'downloadable') setAiStatus('使用前需要先下載 AI 模型（數 GB，只需下載一次）。', '', true);
+            else if (availability === 'downloading') setAiStatus('AI 模型下載中，完成後就會開始使用…');
+            else setAiStatus('這台電腦不符合 Chrome 內建 AI 的硬體需求，請改用其他分類方式。', 'problem');
+        } catch (error) {
+            setAiStatus(`無法檢查 AI 模型：${error.message}`, 'problem');
+        }
     }
 
     function readMode() {
@@ -208,6 +245,27 @@ function initOptionsPage() {
         });
     }
 
+    // Chrome only starts the model download from a user click
+    aiDownload.addEventListener('click', async () => {
+        aiDownload.disabled = true;
+        try {
+            const session = await LanguageModel.create({
+                ...AI_LANGUAGES,
+                monitor(monitor) {
+                    monitor.addEventListener('downloadprogress', event => {
+                        setAiStatus(`AI 模型下載中… ${Math.round(event.loaded * 100)}%`);
+                    });
+                }
+            });
+            session.destroy();
+            await refreshAiStatus();
+        } catch (error) {
+            setAiStatus(`下載失敗：${error.message}`, 'problem', true);
+        } finally {
+            aiDownload.disabled = false;
+        }
+    });
+
     for (const input of modeInputs) {
         input.addEventListener('change', () => {
             showMode(readMode());
@@ -246,7 +304,9 @@ function initOptionsPage() {
         const ytNames = Object.fromEntries(YT_CATEGORIES.map(cat => [cat.id, cat.zh]));
         const error = validateYouTubeSpeeds(ytCategorySpeeds, ytNames)
             || validateChannelRules(channelRules)
-            || (classifyMode === 'keywords' ? validateCategories(categories) : null);
+            || (classifyMode !== 'youtube'
+                ? validateCategories(categories, { requireMatchers: classifyMode === 'keywords' })
+                : null);
         if (error) {
             showMessage(error, true);
             return;
@@ -277,7 +337,7 @@ function initOptionsPage() {
             render(categories);
             renderChannelRules(settings.channelRules);
             renderYouTubeSpeeds(settings.ytCategorySpeeds);
-            showMode(settings.classifyMode === 'youtube' ? 'youtube' : 'keywords');
+            showMode(['youtube', 'ai'].includes(settings.classifyMode) ? settings.classifyMode : 'keywords');
         })
         .catch(error => showMessage(error.message || '無法載入設定', true));
 }

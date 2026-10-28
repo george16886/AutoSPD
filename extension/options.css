@@ -123,6 +123,31 @@ code {
     line-height: 1.5;
 }
 
+.ai-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #efedfa;
+    color: #48455c;
+    font-size: 13px;
+}
+
+.ai-status.ready {
+    background: #e8f5ee;
+    color: #268159;
+}
+
+.ai-status.problem {
+    background: #fbeef0;
+    color: #b23b49;
+}
+
+.ai-status .button {
+    margin-left: auto;
+}
+
 .yt-speed-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

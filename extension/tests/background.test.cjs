@@ -337,3 +337,53 @@ test('channel rules still win in YouTube category mode', async () => {
 
     assert.equal((await matchVideo({ channelName: 'Wayne調查', ytCategoryId: '24' })).speed, 2);
 });
+
+test('AI mode uses the model pick, with a marked name', async () => {
+    const matchVideo = loadMatcher({
+        categories: [
+            { id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事'], enabled: true },
+            { id: 'investigation', name: '案件', speed: 1.75, keywords: [], enabled: true }
+        ],
+        settings: { autoSpeed: true, defaultSpeed: 1, classifyMode: 'ai' }
+    });
+
+    const result = await matchVideo({ title: '都市傳說故事', aiCategoryId: 'investigation' });
+
+    assert.equal(result.speed, 1.75);
+    assert.equal(result.category.name, '案件（AI）');
+});
+
+test('AI mode: "none" means the default speed; unknown picks fall back to keywords', async () => {
+    const matchVideo = loadMatcher({
+        categories: [{ id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事'], enabled: true }],
+        settings: { autoSpeed: true, defaultSpeed: 1.1, classifyMode: 'ai' }
+    });
+
+    assert.equal((await matchVideo({ title: '都市傳說故事', aiCategoryId: 'none' })).speed, 1.1);
+    assert.equal((await matchVideo({ title: '都市傳說故事', aiCategoryId: 'deleted' })).category.id, 'stories');
+    assert.equal((await matchVideo({ title: '都市傳說故事' })).category.id, 'stories');
+});
+
+test('AI labels are cached per video and cleared when categories change', async () => {
+    const local = {};
+    const context = {
+        console,
+        chrome: {
+            runtime: { onInstalled: { addListener() {} }, onMessage: { addListener() {} } },
+            storage: {
+                sync: { async set() {} },
+                local: {
+                    async get(key) { return { [key]: local[key] }; },
+                    async set(values) { Object.assign(local, values); }
+                }
+            }
+        }
+    };
+    vm.runInNewContext(backgroundSource, context);
+
+    await context.handleMessage({ type: 'save-ai-label', videoId: 'v1', categoryId: 'investigation' });
+    assert.equal((await context.handleMessage({ type: 'get-ai-label', videoId: 'v1' })).categoryId, 'investigation');
+
+    await context.handleMessage({ type: 'save-categories', categories: [] });
+    assert.equal((await context.handleMessage({ type: 'get-ai-label', videoId: 'v1' })).categoryId, null);
+});

@@ -99,3 +99,75 @@ test('sets the speed through the player that is playing the video', () => {
     assert.deepEqual(watchPlayer.rates, [1.5]);
     assert.deepEqual(shortsPlayer.rates, []);
 });
+
+function createAiBridge({ availability = 'available', answer = '{"category":"investigation"}' } = {}) {
+    const listeners = new Map();
+    const prompts = [];
+    let systemPrompt = '';
+    const session = {
+        async clone() { return session; },
+        async prompt(text, options) {
+            prompts.push({ text, enum: options.responseConstraint.properties.category.enum });
+            return answer;
+        },
+        destroy() {}
+    };
+    const context = {
+        document: {
+            getElementById() { return null; },
+            addEventListener(name, listener) { listeners.set(name, listener); },
+            dispatchEvent(event) { listeners.get(event.type)?.(event); }
+        },
+        window: {},
+        console,
+        LanguageModel: {
+            async availability() { return availability; },
+            async create(options) {
+                systemPrompt = options.initialPrompts[0].content;
+                return session;
+            }
+        },
+        CustomEvent: class {
+            constructor(type, options = {}) {
+                this.type = type;
+                this.detail = options.detail;
+            }
+        }
+    };
+    vm.runInNewContext(bridgeSource, context);
+
+    return {
+        prompts,
+        get systemPrompt() { return systemPrompt; },
+        classify(request) {
+            return new Promise(resolve => {
+                listeners.set('autospd-ai-result', event => resolve(JSON.parse(event.detail)));
+                listeners.get('autospd-ai-classify')({ detail: JSON.stringify(request) });
+            });
+        }
+    };
+}
+
+const aiRequest = {
+    requestId: 7,
+    video: { title: '滅門命案', channelName: 'Wayne調查', tags: ['命案'], description: '' },
+    categories: [{ id: 'investigation', name: '案件 / 調查解說', keywords: ['命案', '調查'] }]
+};
+
+test('classifies with the model, offering only the given categories or none', async () => {
+    const bridge = createAiBridge();
+
+    const result = await bridge.classify(aiRequest);
+
+    assert.deepEqual(result, { requestId: 7, categoryId: 'investigation' });
+    assert.deepEqual([...bridge.prompts[0].enum], ['investigation', 'none']);
+    assert.match(bridge.prompts[0].text, /Title: 滅門命案/);
+    assert.match(bridge.systemPrompt, /investigation: 案件 \/ 調查解說 \(e\.g\. 命案, 調查\)/);
+});
+
+test('reports why the model cannot be used instead of starting a download', async () => {
+    const bridge = createAiBridge({ availability: 'downloadable' });
+
+    assert.deepEqual(await bridge.classify(aiRequest), { requestId: 7, error: 'downloadable' });
+    assert.equal(bridge.prompts.length, 0);
+});

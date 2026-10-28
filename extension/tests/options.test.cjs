@@ -61,3 +61,11 @@ test('rejects YouTube category speeds out of range and names the category', () =
     assert.equal(validateYouTubeSpeeds({ 24: 1.5, 10: 1 }), null);
     assert.match(validateYouTubeSpeeds({ 24: 2.5 }, { 24: '娛樂' }), /娛樂/);
 });
+
+test('AI mode accepts categories that only have a name', () => {
+    const { validateCategories } = loadOptions();
+    const nameOnly = category({ keywords: [], ytCategoryIds: [] });
+
+    assert.equal(validateCategories([nameOnly], { requireMatchers: false }), null);
+    assert.match(validateCategories([nameOnly]), /關鍵字/);
+});

@@ -78,6 +78,16 @@
         const parts = [];
         if (state.ytCategory) parts.push(`YouTube 分類：${state.ytCategory}`);
         if (state.channelName) parts.push(`頻道：${state.channelName}`);
+        const aiProblems = {
+            downloadable: 'AI 模型尚未下載，請到設定頁下載',
+            downloading: 'AI 模型下載中',
+            unavailable: '這台電腦無法使用 AI 分析',
+            unsupported: '這個版本的 Chrome 不支援 AI 分析',
+            timeout: 'AI 分析逾時'
+        };
+        if (state.aiStatus && state.aiStatus !== 'ok') {
+            parts.push(aiProblems[state.aiStatus] || `AI 分析失敗（${state.aiStatus}）`);
+        }
         videoMeta.textContent = parts.join(' · ');
         videoMeta.hidden = parts.length === 0;
     }

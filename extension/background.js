@@ -29,7 +29,9 @@ const DEFAULT_SETTINGS = {
     // [{ channel, speed }]; a channel rule wins over every category
     channelRules: [],
     // 'keywords' matches the categories below; 'youtube' uses the uploader's
-    // YouTube category with a speed per category (ytCategorySpeeds, by ID)
+    // YouTube category with a speed per category (ytCategorySpeeds, by ID);
+    // 'ai' starts from the keyword match, then the content script refines it
+    // with Chrome's built-in model, picking one of the same categories
     classifyMode: 'keywords',
     ytCategorySpeeds: {},
     recordHistory: true,
@@ -118,11 +120,23 @@ async function handleMessage(message, sender) {
                 throw new Error('Categories must be an array');
             }
             await chrome.storage.sync.set({ categories: message.categories });
+            // Cached AI labels were chosen from the old category list
+            await chrome.storage.local.set({ aiLabels: {} });
             return { success: true };
 
         case 'reset-categories':
             await chrome.storage.sync.set({ categories: DEFAULT_CATEGORIES, defaultsVersion: DEFAULTS_VERSION });
+            await chrome.storage.local.set({ aiLabels: {} });
             return { categories: DEFAULT_CATEGORIES };
+
+        case 'get-ai-label': {
+            const { aiLabels = {} } = await chrome.storage.local.get('aiLabels');
+            return { categoryId: aiLabels[message.videoId] || null };
+        }
+
+        case 'save-ai-label':
+            await saveAiLabel(message.videoId, message.categoryId);
+            return { success: true };
 
         case 'save-settings':
             if (!message.settings || typeof message.settings !== 'object') {
@@ -219,6 +233,17 @@ async function matchVideoToCategory(videoInfo) {
         return matchByYouTubeCategory(videoInfo.ytCategoryId, settings);
     }
 
+    // The model's pick wins when it names a usable category; otherwise fall
+    // through to keyword matching ('none' means the model found no fit)
+    if (settings.classifyMode === 'ai' && videoInfo.aiCategoryId) {
+        if (videoInfo.aiCategoryId === 'none') return defaultMatch(settings);
+        const cat = categories.find(item => item.id === videoInfo.aiCategoryId);
+        const speed = Number(cat?.speed);
+        if (cat && cat.enabled !== false && isValidSpeed(speed)) {
+            return { speed, category: { ...cat, name: `${cat.name}（AI）` }, score: 0 };
+        }
+    }
+
     // A keyword scores the weight of the strongest field it appears in.
     // Descriptions are long and full of sponsor and social links, so a lone
     // description hit stays below MIN_MATCH_SCORE. Each tag scores at most
@@ -271,6 +296,19 @@ async function matchVideoToCategory(videoInfo) {
     }
 
     return defaultMatch(settings);
+}
+
+const MAX_AI_LABELS = 2000;
+
+async function saveAiLabel(videoId, categoryId) {
+    if (!videoId || !categoryId) return;
+    const { aiLabels = {} } = await chrome.storage.local.get('aiLabels');
+    delete aiLabels[videoId];
+    aiLabels[videoId] = categoryId;
+    // Objects keep insertion order, so the first keys are the oldest labels
+    const ids = Object.keys(aiLabels);
+    for (const id of ids.slice(0, Math.max(0, ids.length - MAX_AI_LABELS))) delete aiLabels[id];
+    await chrome.storage.local.set({ aiLabels });
 }
 
 /**

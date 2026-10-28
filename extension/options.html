@@ -32,6 +32,17 @@
                     <small>使用上傳者為影片選的 YouTube 分類。結果穩定、不受標題影響，但分類比較粗，例如大部分談話節目都在「娛樂」或「人物與網誌」。</small>
                 </span>
             </label>
+            <label class="mode-option">
+                <input type="radio" name="classify-mode" value="ai">
+                <span>
+                    <strong>AI 內容分析（實驗性）</strong>
+                    <small>由 Chrome 內建的 AI 模型（Gemini Nano，在你的電腦上執行，資料不會上傳）判斷影片實際在講什麼，不受聳動標題影響，再對應到下方的分類。影片會先用關鍵字結果調速，約 1～2 秒後依 AI 判斷修正；每支影片只判斷一次。</small>
+                </span>
+            </label>
+            <div id="ai-status" class="ai-status" hidden>
+                <span id="ai-status-text"></span>
+                <button id="ai-download" class="button button-secondary" type="button" hidden>下載 AI 模型</button>
+            </div>
         </fieldset>
 
         <section id="keyword-section">

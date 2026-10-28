@@ -34,7 +34,10 @@ function createContentScript({
     url = 'https://www.youtube.com/watch?v=test-video',
     staleWatchPlayer = false,
     captionsOn = false,
-    hideCaptions = true
+    hideCaptions = true,
+    classifyMode = 'keywords',
+    aiAnswer = null,
+    aiLabels = {}
 } = {}) {
     const video = createVideo();
     // Hidden watch-page player left in the DOM after navigating to Shorts
@@ -82,6 +85,15 @@ function createContentScript({
                 rateRequests.push(JSON.parse(event.detail));
                 return;
             }
+            if (event.type === 'autospd-ai-classify') {
+                const request = JSON.parse(event.detail);
+                aiRequests.push(request);
+                // Answer asynchronously, like the model does
+                setImmediate(() => documentListeners.get('autospd-ai-result')?.({
+                    detail: JSON.stringify({ requestId: request.requestId, ...aiAnswer })
+                }));
+                return;
+            }
             if (event.type === 'autospd-request-video-info') {
                 documentListeners.get('autospd-video-info')?.({
                     detail: JSON.stringify(playerInfo)
@@ -91,7 +103,14 @@ function createContentScript({
     };
     const matchRequests = [];
     const rateRequests = [];
-    const settings = { autoSpeed: true, notifications: false, recordHistory: false, hideCaptions };
+    const aiRequests = [];
+    const savedLabels = [];
+    const settings = { autoSpeed: true, notifications: false, recordHistory: false, hideCaptions, classifyMode };
+    const categories = [
+        { id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事'], enabled: true },
+        { id: 'investigation', name: '案件 / 調查解說', speed: 1.75, keywords: ['命案'], enabled: true },
+        { id: 'off', name: '停用', speed: 2, keywords: [], enabled: false }
+    ];
     const chrome = {
         runtime: {
             onMessage: {
@@ -101,10 +120,18 @@ function createContentScript({
                 if (message.type === 'get-settings') return { settings: { ...settings } };
                 if (message.type === 'match-video') {
                     matchRequests.push(message.videoInfo);
+                    const aiPick = categories.find(cat => cat.id === message.videoInfo.aiCategoryId);
+                    if (aiPick) return { speed: aiPick.speed, category: { id: aiPick.id, name: `${aiPick.name}（AI）` } };
                     return {
                         speed: 1.5,
                         category: { id: 'stories', name: '說故事' }
                     };
+                }
+                if (message.type === 'get-categories') return { categories };
+                if (message.type === 'get-ai-label') return { categoryId: aiLabels[message.videoId] || null };
+                if (message.type === 'save-ai-label') {
+                    savedLabels.push([message.videoId, message.categoryId]);
+                    return { success: true };
                 }
                 return { success: true };
             }
@@ -144,7 +171,9 @@ function createContentScript({
         documentListeners,
         currentLocation,
         matchRequests,
-        rateRequests
+        rateRequests,
+        aiRequests,
+        savedLabels
     };
 }
 
@@ -305,4 +334,54 @@ test('does not turn captions off again after the user re-enables them', async ()
 
     assert.equal(harness.page.captionsOn, true);
     assert.equal(harness.page.captionClicks, 1);
+});
+
+test('AI mode starts with the keyword match, then switches to the model pick', async () => {
+    const harness = createContentScript({ classifyMode: 'ai', aiAnswer: { categoryId: 'investigation' } });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(harness.video.playbackRate, 1.5);
+
+    await wait(20);
+
+    assert.equal(harness.video.playbackRate, 1.75);
+    assert.equal(getState(harness).categoryName, '案件 / 調查解說（AI）');
+    assert.deepEqual(harness.savedLabels, [['test-video', 'investigation']]);
+    const offered = harness.aiRequests[0].categories.map(cat => cat.id);
+    assert.deepEqual(offered, ['stories', 'investigation']);
+});
+
+test('AI mode reuses a cached pick without asking the model again', async () => {
+    const harness = createContentScript({ classifyMode: 'ai', aiLabels: { 'test-video': 'investigation' } });
+    await wait(20);
+
+    assert.equal(harness.video.playbackRate, 1.75);
+    assert.equal(harness.aiRequests.length, 0);
+});
+
+test('AI mode keeps the keyword speed when the model is unavailable', async () => {
+    const harness = createContentScript({ classifyMode: 'ai', aiAnswer: { error: 'downloadable' } });
+    await wait(20);
+
+    assert.equal(harness.video.playbackRate, 1.5);
+    assert.equal(getState(harness).aiStatus, 'downloadable');
+    assert.deepEqual(harness.savedLabels, []);
+});
+
+test('AI mode does not override a speed the user picked while waiting', async () => {
+    const harness = createContentScript({ classifyMode: 'ai', aiAnswer: { categoryId: 'investigation' } });
+    await new Promise(resolve => setImmediate(resolve));
+
+    harness.video.playbackRate = 2;
+    harness.video.fire('ratechange');
+    await wait(20);
+
+    assert.equal(harness.video.playbackRate, 2);
+    assert.equal(getState(harness).mode, 'manual');
+});
+
+test('keyword mode never asks the model', async () => {
+    const harness = createContentScript({ aiAnswer: { categoryId: 'investigation' } });
+    await wait(20);
+
+    assert.equal(harness.aiRequests.length, 0);
 });

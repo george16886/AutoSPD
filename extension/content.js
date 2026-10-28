@@ -9,7 +9,8 @@
         mode: 'loading',
         lastLoggedVideoId: null,
         ytCategory: '',
-        channelName: ''
+        channelName: '',
+        aiStatus: ''
     };
     let requestVersion = 0;
     let retryTimer = null;
@@ -26,6 +27,37 @@
     const CAPTION_CHECK_DELAYS_MS = [0, 1000, 3000];
     let captionTimers = [];
     let captionsHandledVideoId = null;
+
+    // AI requests go to page-bridge.js, which can reach Chrome's built-in model
+    const AI_TIMEOUT_MS = 20000;
+    const aiPending = new Map();
+    let aiRequestSeq = 0;
+
+    document.addEventListener('autospd-ai-result', event => {
+        let result;
+        try {
+            result = JSON.parse(event.detail);
+        } catch {
+            return;
+        }
+        const resolve = aiPending.get(result?.requestId);
+        if (!resolve) return;
+        aiPending.delete(result.requestId);
+        resolve(result);
+    });
+
+    function requestAiCategory(video, categories) {
+        const requestId = ++aiRequestSeq;
+        return new Promise(resolve => {
+            aiPending.set(requestId, resolve);
+            setTimeout(() => {
+                if (aiPending.delete(requestId)) resolve({ error: 'timeout' });
+            }, AI_TIMEOUT_MS);
+            document.dispatchEvent(new CustomEvent('autospd-ai-classify', {
+                detail: JSON.stringify({ requestId, video, categories })
+            }));
+        });
+    }
 
     function getVideoId() {
         const url = new URL(location.href);
@@ -214,6 +246,7 @@
         state.channelName = videoInfo.channelName || '';
         state.category = null;
         state.speed = null;
+        state.aiStatus = '';
         state.mode = 'loading';
 
         try {
@@ -227,7 +260,10 @@
                 return;
             }
 
-            const result = await sendMessage({ type: 'match-video', videoInfo });
+            const aiMode = settings.classifyMode === 'ai';
+            const cachedAi = aiMode ? (await sendMessage({ type: 'get-ai-label', videoId })).categoryId : null;
+            const matchInfo = cachedAi ? { ...videoInfo, aiCategoryId: cachedAi } : videoInfo;
+            const result = await sendMessage({ type: 'match-video', videoInfo: matchInfo });
             if (version !== requestVersion || getVideoId() !== videoId) return;
 
             const speed = Number(result.speed);
@@ -249,29 +285,87 @@
 
             if (settings.recordHistory && state.lastLoggedVideoId !== videoId) {
                 state.lastLoggedVideoId = videoId;
-                const thumbnail = document.querySelector('meta[property="og:image"]')?.content || '';
-                sendMessage({
-                    type: 'log-history',
-                    entry: {
-                        title: videoInfo.title,
-                        category: state.category?.id || 'default',
-                        categoryId: state.category?.id || 'default',
-                        speed,
-                        thumb: thumbnail,
-                        thumbnail,
-                        videoId
-                    }
-                }).catch(error => console.error('[AutoSPD] Could not save local history:', error));
+                logHistory(videoInfo);
             }
 
             if (settings.notifications) {
                 const categoryName = state.category?.name || '未分類';
                 showToast(`AutoSPD：${categoryName} · ${speed}x`);
             }
+
+            // Channel rules are the user's explicit choice, so the model is not asked
+            if (aiMode && !cachedAi && result.category?.id !== 'channel') {
+                refineWithAi(videoId, videoInfo, settings, version);
+            }
         } catch (error) {
             if (version !== requestVersion) return;
             state.mode = 'error';
             console.error('[AutoSPD] Could not apply playback speed:', error);
+        }
+    }
+
+    function logHistory(videoInfo) {
+        const thumbnail = document.querySelector('meta[property="og:image"]')?.content || '';
+        sendMessage({
+            type: 'log-history',
+            entry: {
+                title: videoInfo.title,
+                category: state.category?.id || 'default',
+                categoryId: state.category?.id || 'default',
+                speed: state.speed,
+                thumb: thumbnail,
+                thumbnail,
+                videoId: state.videoId
+            }
+        }).catch(error => console.error('[AutoSPD] Could not save local history:', error));
+    }
+
+    // The keyword match is already playing; ask the model, cache its pick, and
+    // switch speed if the user has not taken over in the meantime
+    async function refineWithAi(videoId, videoInfo, settings, version) {
+        try {
+            const { categories } = await sendMessage({ type: 'get-categories' });
+            const choices = (categories || [])
+                .filter(cat => cat.enabled !== false)
+                .map(cat => ({ id: cat.id, name: cat.name, keywords: (cat.keywords || []).slice(0, 8) }));
+            if (choices.length === 0) return;
+
+            const summary = {
+                title: videoInfo.title,
+                channelName: videoInfo.channelName,
+                tags: (videoInfo.tags || []).slice(0, 15),
+                description: String(videoInfo.description || '').slice(0, 300)
+            };
+            const answer = await requestAiCategory(summary, choices);
+            if (answer.error || !answer.categoryId) {
+                if (state.videoId === videoId) state.aiStatus = answer.error || 'no-answer';
+                console.warn('[AutoSPD] AI classification unavailable:', answer.error);
+                return;
+            }
+            await sendMessage({ type: 'save-ai-label', videoId, categoryId: answer.categoryId });
+            if (version !== requestVersion || state.videoId !== videoId || state.mode !== 'auto') return;
+
+            const match = await sendMessage({
+                type: 'match-video',
+                videoInfo: { ...videoInfo, aiCategoryId: answer.categoryId }
+            });
+            if (version !== requestVersion || state.videoId !== videoId || state.mode !== 'auto') return;
+
+            const speed = Number(match.speed);
+            if (!Number.isFinite(speed) || speed < 0.25 || speed > 2) return;
+            const changed = speed !== state.speed || match.category?.id !== state.category?.id;
+            state.category = match.category || null;
+            state.speed = speed;
+            state.aiStatus = 'ok';
+            const video = getVideoElement();
+            if (video && !isAdShowing()) setVideoSpeed(video, speed);
+
+            if (changed && settings.recordHistory) logHistory(videoInfo);
+            if (changed && settings.notifications) {
+                showToast(`AutoSPD：${state.category?.name || '未分類'} · ${speed}x`);
+            }
+        } catch (error) {
+            console.error('[AutoSPD] AI classification failed:', error);
         }
     }
 
@@ -299,7 +393,8 @@
             speed: state.speed,
             mode: state.mode,
             ytCategory: state.ytCategory,
-            channelName: state.channelName
+            channelName: state.channelName,
+            aiStatus: state.aiStatus
         };
     }
 
