@@ -47,3 +47,10 @@ test('rejects categories that can never match a video', () => {
 
     assert.match(validateCategories([category({ keywords: [], ytCategoryIds: [] })]), /關鍵字/);
 });
+
+test('rejects channel rules with out-of-range speeds', () => {
+    const { validateChannelRules } = loadOptions();
+
+    assert.equal(validateChannelRules([{ channel: 'Wayne調查', speed: 1.5 }]), null);
+    assert.match(validateChannelRules([{ channel: 'Wayne調查', speed: 0 }]), /Wayne調查/);
+});

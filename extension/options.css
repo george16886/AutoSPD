@@ -222,11 +222,62 @@ textarea:focus-visible,
     white-space: nowrap;
 }
 
+.channel-section {
+    margin-top: 28px;
+}
+
+h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+}
+
+.section-hint {
+    margin: 0 0 10px;
+    color: #77758a;
+    font-size: 13px;
+}
+
+.channel-list {
+    display: grid;
+    gap: 6px;
+}
+
+.channel-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border: 1px solid #e9e7f2;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.channel-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.channel-row .delete {
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+}
+
 .actions {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: 16px;
+}
+
+.actions-save {
+    position: sticky;
+    bottom: 0;
+    margin-top: 24px;
+    padding: 12px 0;
+    border-top: 1px solid #e9e7f2;
+    background: #f7f6fc;
 }
 
 .spacer {

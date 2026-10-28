@@ -218,7 +218,7 @@ test('new installs get default settings with captions hidden', async () => {
 
     assert.equal(writes.settings.notifications, true);
     assert.equal(writes.settings.hideCaptions, true);
-    assert.equal(writes.defaultsVersion, 2);
+    assert.equal(writes.defaultsVersion, 3);
 });
 
 test('updates leave existing settings untouched', async () => {
@@ -229,4 +229,76 @@ test('updates leave existing settings untouched', async () => {
     });
 
     assert.equal(writes.settings, undefined);
+});
+
+test('a single keyword in the description is not enough to classify', async () => {
+    const matchVideo = loadMatcher({
+        categories: [{ id: 'fitness', name: '健身運動', speed: 1, keywords: ['運動'], enabled: true }],
+        settings: { autoSpeed: true, defaultSpeed: 1.25 }
+    });
+
+    const result = await matchVideo({ title: '職場守則', description: '……本集提到不合作運動……' });
+
+    assert.equal(result.category, null);
+    assert.equal(result.speed, 1.25);
+});
+
+test('a tag scores once even when it contains several keywords', async () => {
+    const matchVideo = loadMatcher({
+        categories: [
+            { id: 'science', name: '科普知識', speed: 1.25, keywords: ['科普', '知識'], enabled: true },
+            { id: 'fitness', name: '健身運動', speed: 1, keywords: ['健身'], enabled: true }
+        ],
+        settings: { autoSpeed: true, defaultSpeed: 1 }
+    });
+
+    const result = await matchVideo({ title: '居家健身動作', tags: ['健身知識科普'] });
+
+    assert.equal(result.category.id, 'fitness');
+});
+
+test('a channel rule wins over category matches', async () => {
+    const matchVideo = loadMatcher({
+        categories: [{ id: 'sports', name: '體育', speed: 1, keywords: ['nba'], ytCategoryIds: ['17'], enabled: true }],
+        settings: { autoSpeed: true, defaultSpeed: 1, channelRules: [{ channel: '澤北SG', speed: 1.75 }] }
+    });
+
+    const result = await matchVideo({ title: 'NBA 傷病潮', channelName: ' 澤北sg ', ytCategoryId: '17' });
+
+    assert.equal(result.speed, 1.75);
+    assert.equal(result.category.id, 'channel');
+});
+
+test('migration to v3 adds the investigation category once', () => {
+    const { migrateCategories } = loadBackground();
+
+    const migrated = migrateCategories([{ id: 'sports', keywords: [] }], 2);
+    assert.deepEqual([...migrated.map(cat => cat.id)], ['sports', 'investigation']);
+
+    const again = migrateCategories(migrated, 2);
+    assert.equal(again.filter(cat => cat.id === 'investigation').length, 1);
+});
+
+test('logging the same video twice in a row keeps one history entry', async () => {
+    let history = [];
+    const context = {
+        console,
+        chrome: {
+            runtime: { onInstalled: { addListener() {} }, onMessage: { addListener() {} } },
+            storage: {
+                sync: {},
+                local: {
+                    async get() { return { history }; },
+                    async set(values) { history = values.history; }
+                }
+            }
+        }
+    };
+    vm.runInNewContext(backgroundSource, context);
+
+    await context.logHistory({ videoId: 'a', speed: 1.5 });
+    await context.logHistory({ videoId: 'a', speed: 1.5 });
+    await context.logHistory({ videoId: 'b', speed: 1 });
+
+    assert.deepEqual(history.map(entry => entry.videoId), ['b', 'a']);
 });

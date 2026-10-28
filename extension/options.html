@@ -25,6 +25,16 @@
         <div class="actions">
             <button id="add-category" class="button button-secondary" type="button">＋ 新增分類</button>
             <button id="reset-categories" class="button button-ghost" type="button">還原預設分類</button>
+        </div>
+
+        <section class="channel-section">
+            <h2>頻道規則</h2>
+            <p class="section-hint">頻道規則優先於所有分類。在 YouTube 影片頁打開 AutoSPD 彈出視窗，就能為目前影片的頻道設定速度。</p>
+            <div id="channel-list" class="channel-list"></div>
+            <p id="channel-empty" class="section-hint" hidden>還沒有頻道規則。</p>
+        </section>
+
+        <div class="actions actions-save">
             <span class="spacer"></span>
             <span id="dirty" class="dirty" hidden>有未儲存的變更</span>
             <button id="save" class="button" type="button">儲存</button>
@@ -59,6 +69,17 @@
                 </label>
             </div>
         </article>
+    </template>
+
+    <template id="channel-template">
+        <div class="channel-row">
+            <span class="channel-name"></span>
+            <label class="speed">
+                <input class="field-channel-speed" type="number" min="0.25" max="2" step="0.05" aria-label="頻道速度">
+                <span>x</span>
+            </label>
+            <button class="delete button button-ghost" type="button">刪除</button>
+        </div>
     </template>
 
     <script src="options.js"></script>

@@ -38,6 +38,16 @@ function parseKeywords(text) {
     return keywords;
 }
 
+/** Returns an error message for the first invalid channel rule, or null */
+function validateChannelRules(rules) {
+    for (const rule of rules) {
+        if (!Number.isFinite(rule.speed) || rule.speed < MIN_SPEED || rule.speed > MAX_SPEED) {
+            return `頻道「${rule.channel}」的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`;
+        }
+    }
+    return null;
+}
+
 /** Returns an error message for the first invalid category, or null */
 function validateCategories(categories) {
     const names = new Set();
@@ -65,6 +75,9 @@ function initOptionsPage() {
     const template = document.getElementById('category-template');
     const message = document.getElementById('message');
     const dirty = document.getElementById('dirty');
+    const channelList = document.getElementById('channel-list');
+    const channelTemplate = document.getElementById('channel-template');
+    const channelEmpty = document.getElementById('channel-empty');
 
     function showMessage(text, isError = false) {
         message.textContent = text;
@@ -112,6 +125,33 @@ function initOptionsPage() {
         setDirty(false);
     }
 
+    function updateChannelEmpty() {
+        channelEmpty.hidden = channelList.children.length > 0;
+    }
+
+    function renderChannelRules(rules = []) {
+        channelList.replaceChildren(...rules.map(rule => {
+            const row = channelTemplate.content.firstElementChild.cloneNode(true);
+            row.dataset.channel = rule.channel;
+            row.querySelector('.channel-name').textContent = rule.channel;
+            row.querySelector('.field-channel-speed').value = String(rule.speed);
+            row.querySelector('.delete').addEventListener('click', () => {
+                row.remove();
+                updateChannelEmpty();
+                setDirty(true);
+            });
+            return row;
+        }));
+        updateChannelEmpty();
+    }
+
+    function readChannelRules() {
+        return [...channelList.querySelectorAll('.channel-row')].map(row => ({
+            channel: row.dataset.channel,
+            speed: Math.round(Number(row.querySelector('.field-channel-speed').value) * 100) / 100
+        }));
+    }
+
     function readCategories() {
         return [...list.querySelectorAll('.category')].map(card => {
             const ytCategoryId = card.querySelector('.field-yt-category').value;
@@ -127,8 +167,10 @@ function initOptionsPage() {
         });
     }
 
-    list.addEventListener('input', () => setDirty(true));
-    list.addEventListener('change', () => setDirty(true));
+    for (const container of [list, channelList]) {
+        container.addEventListener('input', () => setDirty(true));
+        container.addEventListener('change', () => setDirty(true));
+    }
 
     document.getElementById('add-category').addEventListener('click', () => {
         const card = renderCategory({ id: createCategoryId(), emoji: '🏷️', speed: 1, keywords: [], enabled: true });
@@ -150,15 +192,18 @@ function initOptionsPage() {
 
     document.getElementById('save').addEventListener('click', async () => {
         const categories = readCategories();
-        const error = validateCategories(categories);
+        const channelRules = readChannelRules();
+        const error = validateCategories(categories) || validateChannelRules(channelRules);
         if (error) {
             showMessage(error, true);
             return;
         }
         try {
+            const { settings } = await send({ type: 'get-settings' });
+            await send({ type: 'save-settings', settings: { ...settings, channelRules } });
             await send({ type: 'save-categories', categories });
             setDirty(false);
-            showMessage(`已儲存 ${categories.length} 個分類，開啟中的 YouTube 分頁會立即套用。`);
+            showMessage(`已儲存 ${categories.length} 個分類和 ${channelRules.length} 個頻道規則，開啟中的 YouTube 分頁會立即套用。`);
         } catch (saveError) {
             const quota = /quota/i.test(saveError.message || '');
             showMessage(quota
@@ -171,9 +216,12 @@ function initOptionsPage() {
         if (!dirty.hidden) event.preventDefault();
     });
 
-    send({ type: 'get-categories' })
-        .then(({ categories }) => render(categories))
-        .catch(error => showMessage(error.message || '無法載入分類', true));
+    Promise.all([send({ type: 'get-categories' }), send({ type: 'get-settings' })])
+        .then(([{ categories }, { settings }]) => {
+            render(categories);
+            renderChannelRules(settings.channelRules);
+        })
+        .catch(error => showMessage(error.message || '無法載入設定', true));
 }
 
 if (typeof document !== 'undefined') initOptionsPage();

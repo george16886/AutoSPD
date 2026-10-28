@@ -5,6 +5,11 @@
     const notifications = document.getElementById('notifications');
     const hideCaptions = document.getElementById('hide-captions');
     const videoMeta = document.getElementById('video-meta');
+    const channelRule = document.getElementById('channel-rule');
+    const channelRuleLabel = document.getElementById('channel-rule-label');
+    const channelSpeed = document.getElementById('channel-speed');
+    const removeChannelRule = document.getElementById('remove-channel-rule');
+    let currentChannel = '';
     const defaultSpeed = document.getElementById('default-speed');
     const manualSpeed = document.getElementById('manual-speed');
     const videoTitle = document.getElementById('video-title');
@@ -59,6 +64,7 @@
             videoTitle.textContent = state.title || '正在載入影片資訊…';
             videoStatus.textContent = formatStatus(state);
             renderMeta(state);
+            renderChannelRule(state.channelName, settings.channelRules);
             if (Number.isFinite(state.speed)) manualSpeed.value = String(state.speed);
         } catch (error) {
             videoTitle.textContent = '無法連線至 YouTube 播放器';
@@ -74,6 +80,33 @@
         if (state.channelName) parts.push(`頻道：${state.channelName}`);
         videoMeta.textContent = parts.join(' · ');
         videoMeta.hidden = parts.length === 0;
+    }
+
+    function sameChannel(a, b) {
+        return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+    }
+
+    function renderChannelRule(channelName, rules = []) {
+        currentChannel = channelName || '';
+        channelRule.hidden = !currentChannel;
+        if (!currentChannel) return;
+        const rule = rules.find(item => sameChannel(item.channel, currentChannel));
+        channelRuleLabel.textContent = rule
+            ? `「${currentChannel}」的影片一律使用（已設定）`
+            : `「${currentChannel}」的影片一律使用`;
+        if (rule) channelSpeed.value = String(rule.speed);
+        removeChannelRule.hidden = !rule;
+    }
+
+    async function saveChannelRules(update) {
+        const { settings } = await chrome.runtime.sendMessage({ type: 'get-settings' });
+        const rules = update((settings.channelRules || []).filter(rule => !sameChannel(rule.channel, currentChannel)));
+        const response = await chrome.runtime.sendMessage({
+            type: 'save-settings',
+            settings: { ...settings, channelRules: rules }
+        });
+        if (response?.error) throw new Error(response.error);
+        renderChannelRule(currentChannel, rules);
     }
 
     function formatStatus(state) {
@@ -122,6 +155,25 @@
 
     bindSettingToggle(notifications, 'notifications', '速度提示已開啟', '速度提示已關閉');
     bindSettingToggle(hideCaptions, 'hideCaptions', '之後開啟的影片會自動關閉字幕', '已停止自動關閉字幕');
+
+    document.getElementById('save-channel-rule').addEventListener('click', async () => {
+        try {
+            const speed = parseSpeed(channelSpeed);
+            await saveChannelRules(rules => [...rules, { channel: currentChannel, speed }]);
+            showMessage(`「${currentChannel}」的影片之後都會使用 ${speed}x`);
+        } catch (error) {
+            showMessage(error.message || '設定儲存失敗', true);
+        }
+    });
+
+    removeChannelRule.addEventListener('click', async () => {
+        try {
+            await saveChannelRules(rules => rules);
+            showMessage(`已移除「${currentChannel}」的頻道規則`);
+        } catch (error) {
+            showMessage(error.message || '設定儲存失敗', true);
+        }
+    });
 
     document.getElementById('save-default').addEventListener('click', async () => {
         try {

@@ -16,25 +16,31 @@ const DEFAULT_CATEGORIES = [
     { id: 'fitness', name: '健身運動', emoji: '💪', speed: 1.0, keywords: ['健身', '運動', 'workout', 'fitness', 'exercise', '瑜珈'], ytCategoryIds: [], enabled: true },
     { id: 'news', name: '新聞時事', emoji: '📰', speed: 1.5, keywords: ['新聞', 'news', '時事', '政治', '經濟', '國際'], ytCategoryIds: ['25'], enabled: true },
     { id: 'movie_review', name: '電影評論', emoji: '🎬', speed: 1.25, keywords: ['電影', 'movie', 'film', '影評', '預告'], ytCategoryIds: ['1'], enabled: true },
-    { id: 'travel', name: '旅遊 Vlog', emoji: '✈️', speed: 1.25, keywords: ['旅遊', 'travel', 'vlog', '旅行', '景點'], ytCategoryIds: ['19'], enabled: true }
+    { id: 'travel', name: '旅遊 Vlog', emoji: '✈️', speed: 1.25, keywords: ['旅遊', 'travel', 'vlog', '旅行', '景點'], ytCategoryIds: ['19'], enabled: true },
+    { id: 'investigation', name: '案件 / 調查解說', emoji: '🔍', speed: 1.5, keywords: ['調查', '案件', '命案', '懸案', '說案', '真實案件', '真相', '揭秘', '內幕', 'true crime'], ytCategoryIds: [], enabled: true }
 ];
 
 const DEFAULT_SETTINGS = {
     autoSpeed: true,
     notifications: true,
     hideCaptions: true,
+    // [{ channel, speed }]; a channel rule wins over every category
+    channelRules: [],
     recordHistory: true,
     defaultSpeed: 1.0
 };
 
 // Bump when DEFAULT_CATEGORIES changes and add the matching migration below.
 // Migrations are targeted edits so categories the user customized survive.
-const DEFAULTS_VERSION = 2;
+const DEFAULTS_VERSION = 3;
 const DEFAULT_MIGRATIONS = {
     2: [
         { id: 'sports', removeKeywords: ['game'] },
         { id: 'movie_review', removeKeywords: ['review'] },
         { id: 'travel', removeKeywords: ['攻略'] }
+    ],
+    3: [
+        { addCategory: 'investigation' }
     ]
 };
 
@@ -42,6 +48,11 @@ function migrateCategories(categories, fromVersion) {
     let migrated = categories;
     for (let version = fromVersion + 1; version <= DEFAULTS_VERSION; version++) {
         for (const change of DEFAULT_MIGRATIONS[version] || []) {
+            if (change.addCategory) {
+                const added = DEFAULT_CATEGORIES.find(cat => cat.id === change.addCategory);
+                if (added && !migrated.some(cat => cat.id === added.id)) migrated = [...migrated, added];
+                continue;
+            }
             migrated = migrated.map(cat => {
                 if (cat.id !== change.id || !Array.isArray(cat.keywords)) return cat;
                 const removed = change.removeKeywords.map(kw => kw.toLowerCase());
@@ -144,6 +155,18 @@ function keywordMatches(text, keyword) {
     return new RegExp(`(?<![a-z0-9])${escaped}(?![a-z0-9])`).test(text);
 }
 
+const MIN_MATCH_SCORE = 3;
+
+function findChannelRule(rules, channelName) {
+    const channel = String(channelName || '').trim().toLowerCase();
+    if (!channel || !Array.isArray(rules)) return null;
+    return rules.find(rule => {
+        const speed = Number(rule?.speed);
+        return String(rule?.channel || '').trim().toLowerCase() === channel
+            && Number.isFinite(speed) && speed >= 0.25 && speed <= 2;
+    }) || null;
+}
+
 /**
  * Match a video to a category based on title, tags, and YouTube category ID
  */
@@ -157,16 +180,26 @@ async function matchVideoToCategory(videoInfo) {
         return { speed: null, category: null, autoDisabled: true };
     }
 
+    const channelRule = findChannelRule(settings.channelRules, videoInfo.channelName);
+    if (channelRule) {
+        return {
+            speed: channelRule.speed,
+            category: { id: 'channel', name: `頻道：${channelRule.channel}` },
+            score: 0
+        };
+    }
+
+    // A keyword scores the weight of the strongest field it appears in.
+    // Descriptions are long and full of sponsor and social links, so a lone
+    // description hit stays below MIN_MATCH_SCORE. Each tag scores at most
+    // once, so a tag like "健身知識科普" cannot outweigh a title hit.
+    const title = String(videoInfo.title || '').toLowerCase();
+    const channel = String(videoInfo.channelName || '').toLowerCase();
+    const description = String(videoInfo.description || '').toLowerCase();
+    const tags = (Array.isArray(videoInfo.tags) ? videoInfo.tags : []).map(tag => String(tag).toLowerCase());
+
     let bestMatch = null;
     let bestScore = 0;
-
-    const title = String(videoInfo.title || '').toLowerCase();
-    const searchText = [
-        videoInfo.title,
-        videoInfo.description,
-        Array.isArray(videoInfo.tags) ? videoInfo.tags.join(' ') : '',
-        videoInfo.channelName
-    ].filter(Boolean).join(' ').toLowerCase();
 
     for (const cat of categories) {
         const categorySpeed = Number(cat.speed);
@@ -178,18 +211,20 @@ async function matchVideoToCategory(videoInfo) {
             score += 10;
         }
 
-        // Keyword matching
+        const matchedTags = new Set();
         for (const keyword of (Array.isArray(cat.keywords) ? cat.keywords : [])) {
             const kw = String(keyword).toLowerCase().trim();
             if (!kw) continue;
-            if (keywordMatches(searchText, kw)) {
-                if (keywordMatches(title, kw)) {
-                    score += 5;
-                } else {
-                    score += 2;
-                }
+            if (keywordMatches(title, kw)) {
+                score += 5;
+                continue;
             }
+            const tagIndex = tags.findIndex(tag => keywordMatches(tag, kw));
+            if (tagIndex !== -1) matchedTags.add(tagIndex);
+            else if (keywordMatches(channel, kw)) score += 3;
+            else if (keywordMatches(description, kw)) score += 1;
         }
+        score += matchedTags.size * 3;
 
         if (score > bestScore) {
             bestScore = score;
@@ -197,7 +232,7 @@ async function matchVideoToCategory(videoInfo) {
         }
     }
 
-    if (bestMatch && bestScore >= 2) {
+    if (bestMatch && bestScore >= MIN_MATCH_SCORE) {
         return {
             speed: bestMatch.speed,
             category: bestMatch,
@@ -219,7 +254,10 @@ async function matchVideoToCategory(videoInfo) {
 async function logHistory(entry) {
     const data = await chrome.storage.local.get('history');
     const history = data.history || [];
-    
+
+    // Reloading the page logs the same video again; keep one entry
+    if (history[0]?.videoId && history[0].videoId === entry.videoId) history.shift();
+
     history.unshift({
         ...entry,
         date: new Date().toISOString()

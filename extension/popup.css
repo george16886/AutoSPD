@@ -219,6 +219,10 @@ footer {
     background: #5747d2;
 }
 
+.button + .button {
+    margin-left: 0;
+}
+
 .button-secondary {
     border: 1px solid #dedce8;
     color: #48455c;

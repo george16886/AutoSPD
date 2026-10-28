@@ -59,6 +59,16 @@
             </div>
         </section>
 
+        <section id="channel-rule" class="setting" hidden>
+            <label id="channel-rule-label" for="channel-speed">這個頻道一律使用</label>
+            <div class="speed-control">
+                <input id="channel-speed" type="number" min="0.25" max="2" step="0.05" value="1.5">
+                <span>x</span>
+                <button id="remove-channel-rule" class="button button-secondary" type="button" hidden>移除</button>
+                <button id="save-channel-rule" class="button" type="button">設定</button>
+            </div>
+        </section>
+
         <section class="setting">
             <label for="manual-speed">只套用到目前影片</label>
             <div class="speed-control">
