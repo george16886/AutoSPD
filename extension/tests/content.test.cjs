@@ -38,7 +38,8 @@ function createContentScript({
     classifyMode = 'keywords',
     aiAnswer = null,
     aiLabels = {},
-    notifications = false
+    notifications = false,
+    withPlayer = false
 } = {}) {
     const video = createVideo();
     // Hidden watch-page player left in the DOM after navigating to Shorts
@@ -56,9 +57,11 @@ function createContentScript({
     const parsedUrl = new URL(url);
     const currentLocation = { href: parsedUrl.href, pathname: parsedUrl.pathname };
     const titleElement = { textContent: '都市傳說：深夜的訪客' };
+    const playerElement = { append(child) { child.parentNode = this; } };
+    let toastElement = null;
     const document = {
         title: '都市傳說：深夜的訪客 - YouTube',
-        documentElement: { append() {} },
+        documentElement: { append(child) { child.parentNode = this; } },
         querySelector(selector) {
             if (selector.includes('.ad-showing')) return page.adShowing ? {} : null;
             if (selector.includes('.ytp-subtitles-button')) return page.captionsOn ? captionsButton : null;
@@ -67,14 +70,25 @@ function createContentScript({
             if (selector === 'h1.ytd-watch-metadata yt-formatted-string') return titleElement;
             return null;
         },
-        getElementById() { return null; },
+        getElementById(id) {
+            if (id === 'autospd-toast') return toastElement;
+            if (id === 'movie_player' && withPlayer) return playerElement;
+            return null;
+        },
         createElement() {
-            const toast = {
-                classList: { add() {}, remove() {} },
+            const classes = new Set();
+            toastElement = {
+                parentNode: null,
+                classes,
+                classList: {
+                    add(name) { classes.add(name); },
+                    remove(name) { classes.delete(name); },
+                    toggle(name, on) { if (on) classes.add(name); else classes.delete(name); }
+                },
                 setAttribute() {},
                 set textContent(text) { toasts.push(text); }
             };
-            return toast;
+            return toastElement;
         },
         addEventListener(name, listener) {
             documentListeners.set(name, listener);
@@ -182,6 +196,8 @@ function createContentScript({
         aiRequests,
         savedLabels,
         toasts,
+        playerElement,
+        get toastElement() { return toastElement; },
         setMatchResult(result) { matchOverride = result; }
     };
 }
@@ -495,4 +511,21 @@ test('the popup cannot set a manual speed outside a video page', async () => {
 
     assert.equal(response.error, '目前分頁不是影片頁');
     assert.equal(harness.video.playbackRate, 1);
+});
+
+test('the speed toast overlays the video player when there is one', async () => {
+    const harness = createContentScript({ notifications: true, withPlayer: true });
+    await wait(20);
+
+    assert.equal(harness.toastElement.parentNode, harness.playerElement);
+    assert.ok(harness.toastElement.classes.has('autospd-toast-in-player'));
+    assert.ok(harness.toastElement.classes.has('autospd-toast-visible'));
+});
+
+test('without a player the toast falls back to the page corner', async () => {
+    const harness = createContentScript({ notifications: true });
+    await wait(20);
+
+    assert.notEqual(harness.toastElement.parentNode, harness.playerElement);
+    assert.ok(!harness.toastElement.classes.has('autospd-toast-in-player'));
 });

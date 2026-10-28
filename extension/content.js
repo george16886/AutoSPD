@@ -20,6 +20,7 @@
     // A rate change this soon after the player loads a source (new video, ad
     // ending) is YouTube restoring its own rate, not the user picking one
     const RESET_WINDOW_MS = 1500;
+    const TOAST_DURATION_MS = 3000;
     const guardedVideos = new WeakSet();
     let resetWindowUntil = 0;
 
@@ -144,15 +145,22 @@
                 toast = document.createElement('div');
                 toast.id = 'autospd-toast';
                 toast.setAttribute('role', 'status');
-                document.documentElement.append(toast);
             }
+
+            // Overlay the video like YouTube's own notices, so it is where the
+            // viewer is looking and still shows in fullscreen; fall back to the
+            // page corner when there is no player element
+            const player = document.getElementById(getPlayerId());
+            const container = player || document.documentElement;
+            if (toast.parentNode !== container) container.append(toast);
+            toast.classList.toggle('autospd-toast-in-player', Boolean(player));
 
             toast.textContent = text;
             toast.classList.add('autospd-toast-visible');
             clearTimeout(toast.hideTimer);
             toast.hideTimer = setTimeout(() => {
                 toast.classList.remove('autospd-toast-visible');
-            }, 2400);
+            }, TOAST_DURATION_MS);
         }).catch(error => console.error('[AutoSPD] Notification failed:', error));
     }
 

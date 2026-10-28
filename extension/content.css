@@ -15,6 +15,17 @@
     transition: opacity 160ms ease, transform 160ms ease;
 }
 
+/* Inside the player: top-left over the video, above YouTube's controls */
+#autospd-toast.autospd-toast-in-player {
+    position: absolute;
+    z-index: 70;
+    top: 16px;
+    right: auto;
+    bottom: auto;
+    left: 16px;
+    transform: translateY(-8px);
+}
+
 #autospd-toast.autospd-toast-visible {
     opacity: 1;
     transform: translateY(0);
