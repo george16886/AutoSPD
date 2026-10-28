@@ -105,6 +105,7 @@
                 tags: playerInfo.tags,
                 channelName: playerInfo.channelName,
                 ytCategory: playerInfo.ytCategory || '',
+                isLive: playerInfo.isLive === true,
                 ytCategoryId: YT_CATEGORIES.find(cat => cat.en === playerInfo.ytCategory)?.id || null
             };
         }
@@ -293,8 +294,9 @@
                 showToast(`AutoSPD：${categoryName} · ${speed}x`);
             }
 
-            // Channel rules are the user's explicit choice, so the model is not asked
-            if (aiMode && !cachedAi && result.category?.id !== 'channel') {
+            // Channel rules and the fixed-1x rules decide on their own, so the model is not asked
+            const ruleDecided = result.category?.id === 'channel' || result.category?.id?.startsWith('fixed_');
+            if (aiMode && !cachedAi && !ruleDecided) {
                 refineWithAi(videoId, videoInfo, settings, version);
             }
         } catch (error) {

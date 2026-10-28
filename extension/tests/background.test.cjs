@@ -387,3 +387,54 @@ test('AI labels are cached per video and cleared when categories change', async 
     await context.handleMessage({ type: 'save-categories', categories: [] });
     assert.equal((await context.handleMessage({ type: 'get-ai-label', videoId: 'v1' })).categoryId, null);
 });
+
+function loadFixedMatcher(settings = {}) {
+    return loadMatcher({
+        categories: [{ id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事', 'mv'], enabled: true }],
+        settings: { autoSpeed: true, defaultSpeed: 1.25, fixedNormalForLive: true, fixedNormalForMusic: true, ...settings }
+    });
+}
+
+test('live streams are fixed at 1x, above channel rules', async () => {
+    const matchVideo = loadFixedMatcher({ channelRules: [{ channel: '實況主', speed: 2 }] });
+
+    const live = await matchVideo({ title: '深夜故事直播', channelName: '實況主', isLive: true });
+    assert.equal(live.speed, 1);
+    assert.equal(live.category.id, 'fixed_live');
+
+    const replay = await matchVideo({ title: '深夜故事直播', channelName: '實況主', isLive: false });
+    assert.equal(replay.speed, 2);
+});
+
+test('music is fixed at 1x by YouTube category, Topic channel, or MV-style title', async () => {
+    const matchVideo = loadFixedMatcher();
+
+    for (const info of [
+        { title: '某首歌', ytCategoryId: '10' },
+        { title: 'Song Name', channelName: 'Some Artist - Topic' },
+        { title: '周杰倫【最偉大的作品 Official MV】' },
+        { title: 'Artist - Song (M/V)' },
+        { title: 'Song (Official Lyric Video)' },
+        { title: 'Song Official Audio' },
+        { title: '告白氣球 動態歌詞' },
+        { title: '2026 跨年演唱會完整版' }
+    ]) {
+        const result = await matchVideo(info);
+        assert.equal(result.category?.id, 'fixed_music', info.title);
+        assert.equal(result.speed, 1, info.title);
+    }
+});
+
+test('music detection does not fire on words that merely contain "mv"', async () => {
+    const matchVideo = loadFixedMatcher();
+
+    const result = await matchVideo({ title: 'Mvp 故事 and the mvno market' });
+
+    assert.equal(result.category.id, 'stories');
+});
+
+test('the fixed 1x rules can be turned off', async () => {
+    const matchVideo = loadFixedMatcher({ fixedNormalForLive: false, fixedNormalForMusic: false });
+
+    assert.equal((await matchVideo({ title: '故事 Official MV', isLive: true, ytCategoryId: '10' })).category.id, 'stories');
+});

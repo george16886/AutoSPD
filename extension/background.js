@@ -26,6 +26,10 @@ const DEFAULT_SETTINGS = {
     autoSpeed: true,
     notifications: true,
     hideCaptions: true,
+    // Live streams and music always play at 1x, above channel rules and every
+    // classification mode; the user can still change the speed by hand
+    fixedNormalForLive: true,
+    fixedNormalForMusic: true,
     // [{ channel, speed }]; a channel rule wins over every category
     channelRules: [],
     // 'keywords' matches the categories below; 'youtube' uses the uploader's
@@ -198,6 +202,26 @@ function matchByYouTubeCategory(ytCategoryId, settings) {
     };
 }
 
+const MUSIC_YT_CATEGORY_ID = '10';
+// MV, M/V, official music/lyric video or audio, lyric(s) video, 歌詞, 演唱會…
+const MUSIC_TITLE_PATTERN = /(?<![a-z0-9])m\/?v(?![a-z0-9])|official\s+(music\s+|lyric\s+)?video|official\s+audio|lyrics?\s+video|歌詞|演唱會|音樂錄影帶/i;
+
+function isMusicVideo(videoInfo) {
+    return String(videoInfo.ytCategoryId) === MUSIC_YT_CATEGORY_ID
+        || /\s-\s*topic$/i.test(String(videoInfo.channelName || '').trim())
+        || MUSIC_TITLE_PATTERN.test(String(videoInfo.title || ''));
+}
+
+function findFixedNormalSpeed(videoInfo, settings) {
+    if (settings.fixedNormalForLive && videoInfo.isLive === true) {
+        return { id: 'fixed_live', name: '直播（固定 1x）' };
+    }
+    if (settings.fixedNormalForMusic && isMusicVideo(videoInfo)) {
+        return { id: 'fixed_music', name: '音樂 / MV（固定 1x）' };
+    }
+    return null;
+}
+
 function findChannelRule(rules, channelName) {
     const channel = String(channelName || '').trim().toLowerCase();
     if (!channel || !Array.isArray(rules)) return null;
@@ -219,6 +243,9 @@ async function matchVideoToCategory(videoInfo) {
     if (!settings.autoSpeed) {
         return { speed: null, category: null, autoDisabled: true };
     }
+
+    const fixed = findFixedNormalSpeed(videoInfo, settings);
+    if (fixed) return { speed: 1, category: fixed, score: 0 };
 
     const channelRule = findChannelRule(settings.channelRules, videoInfo.channelName);
     if (channelRule) {

@@ -336,6 +336,42 @@ h2 {
     font-size: 13px;
 }
 
+.fixed-list {
+    display: grid;
+    gap: 6px;
+}
+
+.fixed-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid #e9e7f2;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.fixed-row input {
+    margin-top: 3px;
+    accent-color: #6c5ce7;
+}
+
+.fixed-row span {
+    display: grid;
+    gap: 2px;
+}
+
+.fixed-row strong {
+    font-size: 13px;
+}
+
+.fixed-row small {
+    color: #77758a;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
 .channel-list {
     display: grid;
     gap: 6px;

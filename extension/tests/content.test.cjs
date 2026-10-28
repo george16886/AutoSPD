@@ -105,6 +105,7 @@ function createContentScript({
     const rateRequests = [];
     const aiRequests = [];
     const savedLabels = [];
+    let matchOverride = null;
     const settings = { autoSpeed: true, notifications: false, recordHistory: false, hideCaptions, classifyMode };
     const categories = [
         { id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事'], enabled: true },
@@ -120,6 +121,7 @@ function createContentScript({
                 if (message.type === 'get-settings') return { settings: { ...settings } };
                 if (message.type === 'match-video') {
                     matchRequests.push(message.videoInfo);
+                    if (matchOverride) return matchOverride;
                     const aiPick = categories.find(cat => cat.id === message.videoInfo.aiCategoryId);
                     if (aiPick) return { speed: aiPick.speed, category: { id: aiPick.id, name: `${aiPick.name}（AI）` } };
                     return {
@@ -173,7 +175,8 @@ function createContentScript({
         matchRequests,
         rateRequests,
         aiRequests,
-        savedLabels
+        savedLabels,
+        setMatchResult(result) { matchOverride = result; }
     };
 }
 
@@ -384,4 +387,18 @@ test('keyword mode never asks the model', async () => {
     await wait(20);
 
     assert.equal(harness.aiRequests.length, 0);
+});
+
+test('AI mode does not ask the model when a fixed 1x rule decided', async () => {
+    const harness = createContentScript({
+        classifyMode: 'ai',
+        aiAnswer: { categoryId: 'investigation' },
+        playerInfo: { videoId: 'test-video', title: 'Song (Official MV)', isLive: false, ytCategory: 'Music' }
+    });
+    harness.setMatchResult({ speed: 1, category: { id: 'fixed_music', name: '音樂 / MV（固定 1x）' } });
+    await wait(20);
+
+    assert.equal(harness.aiRequests.length, 0);
+    assert.equal(harness.matchRequests[0].ytCategoryId, '10');
+    assert.equal(harness.matchRequests[0].isLive, false);
 });

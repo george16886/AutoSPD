@@ -85,6 +85,8 @@ function initOptionsPage() {
     const aiStatus = document.getElementById('ai-status');
     const aiStatusText = document.getElementById('ai-status-text');
     const aiDownload = document.getElementById('ai-download');
+    const fixedLive = document.getElementById('fixed-live');
+    const fixedMusic = document.getElementById('fixed-music');
 
     function showMessage(text, isError = false) {
         message.textContent = text;
@@ -273,6 +275,10 @@ function initOptionsPage() {
         });
     }
 
+    for (const input of [fixedLive, fixedMusic]) {
+        input.addEventListener('change', () => setDirty(true));
+    }
+
     for (const container of [list, channelList, ytSpeedList]) {
         container.addEventListener('input', () => setDirty(true));
         container.addEventListener('change', () => setDirty(true));
@@ -315,7 +321,14 @@ function initOptionsPage() {
             const { settings } = await send({ type: 'get-settings' });
             await send({
                 type: 'save-settings',
-                settings: { ...settings, channelRules, classifyMode, ytCategorySpeeds }
+                settings: {
+                    ...settings,
+                    channelRules,
+                    classifyMode,
+                    ytCategorySpeeds,
+                    fixedNormalForLive: fixedLive.checked,
+                    fixedNormalForMusic: fixedMusic.checked
+                }
             });
             await send({ type: 'save-categories', categories });
             setDirty(false);
@@ -337,6 +350,8 @@ function initOptionsPage() {
             render(categories);
             renderChannelRules(settings.channelRules);
             renderYouTubeSpeeds(settings.ytCategorySpeeds);
+            fixedLive.checked = settings.fixedNormalForLive !== false;
+            fixedMusic.checked = settings.fixedNormalForMusic !== false;
             showMode(['youtube', 'ai'].includes(settings.classifyMode) ? settings.classifyMode : 'keywords');
         })
         .catch(error => showMessage(error.message || '無法載入設定', true));

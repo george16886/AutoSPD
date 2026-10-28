@@ -136,7 +136,10 @@
                     description: details.shortDescription || '',
                     tags: Array.isArray(details.keywords) ? details.keywords : [],
                     channelName: details.author || '',
-                    ytCategory: response.microformat?.playerMicroformatRenderer?.category || ''
+                    ytCategory: response.microformat?.playerMicroformatRenderer?.category || '',
+                    // Live right now; finished streams (replays) are false
+                    isLive: details.isLive === true
+                        || response.microformat?.playerMicroformatRenderer?.liveBroadcastDetails?.isLiveNow === true
                 };
             }
         } catch (error) {
