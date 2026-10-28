@@ -9,17 +9,25 @@ const contentSource = fs.readFileSync(
     'utf8'
 );
 
-function createContentScript({ playerInfo = null } = {}) {
+function createContentScript({
+    playerInfo = null,
+    url = 'https://www.youtube.com/watch?v=test-video',
+    staleWatchPlayer = false
+} = {}) {
     const video = { playbackRate: 1 };
+    // Hidden watch-page player left in the DOM after navigating to Shorts
+    const staleWatchVideo = { playbackRate: 1 };
     const documentListeners = new Map();
     const runtimeListeners = [];
     const storageListeners = [];
-    const currentLocation = { href: 'https://www.youtube.com/watch?v=test-video' };
+    const parsedUrl = new URL(url);
+    const currentLocation = { href: parsedUrl.href, pathname: parsedUrl.pathname };
     const titleElement = { textContent: '都市傳說：深夜的訪客' };
     const document = {
         title: '都市傳說：深夜的訪客 - YouTube',
         documentElement: { append() {} },
         querySelector(selector) {
+            if (staleWatchPlayer && selector.startsWith('#movie_player')) return staleWatchVideo;
             if (selector.includes('video')) return video;
             if (selector === 'h1.ytd-watch-metadata yt-formatted-string') return titleElement;
             return null;
@@ -89,6 +97,7 @@ function createContentScript({ playerInfo = null } = {}) {
 
     return {
         video,
+        staleWatchVideo,
         settings,
         runtimeListeners,
         storageListeners,
@@ -159,4 +168,15 @@ test('ignores player metadata that belongs to a different video', async () => {
     const videoInfo = harness.matchRequests[0];
     assert.equal(videoInfo.title, '都市傳說：深夜的訪客');
     assert.equal(videoInfo.ytCategoryId, undefined);
+});
+
+test('applies the speed to the Shorts player, not a leftover watch player', async () => {
+    const harness = createContentScript({
+        url: 'https://www.youtube.com/shorts/short-video',
+        staleWatchPlayer: true
+    });
+    await new Promise(resolve => setImmediate(resolve));
+
+    assert.equal(harness.video.playbackRate, 1.5);
+    assert.equal(harness.staleWatchVideo.playbackRate, 1);
 });

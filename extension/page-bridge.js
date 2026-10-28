@@ -7,21 +7,28 @@
 (() => {
     'use strict';
 
-    function getPlayerResponse() {
-        const player = document.getElementById('movie_player');
-        if (typeof player?.getPlayerResponse === 'function') {
+    // Watch pages use #movie_player and Shorts use #shorts-player; both can
+    // exist at once after SPA navigation, so pick the one playing videoId
+    const PLAYER_IDS = ['movie_player', 'shorts-player'];
+
+    function getPlayerResponse(videoId) {
+        for (const id of PLAYER_IDS) {
+            const player = document.getElementById(id);
+            if (typeof player?.getPlayerResponse !== 'function') continue;
             const response = player.getPlayerResponse();
-            if (response) return response;
+            if (response?.videoDetails?.videoId === videoId) return response;
         }
-        return window.ytInitialPlayerResponse || null;
+        const initial = window.ytInitialPlayerResponse;
+        return initial?.videoDetails?.videoId === videoId ? initial : null;
     }
 
-    document.addEventListener('autospd-request-video-info', () => {
+    document.addEventListener('autospd-request-video-info', event => {
         let info = null;
         try {
-            const response = getPlayerResponse();
+            const videoId = typeof event.detail === 'string' ? event.detail : null;
+            const response = videoId ? getPlayerResponse(videoId) : null;
             const details = response?.videoDetails;
-            if (details?.videoId) {
+            if (details) {
                 info = {
                     videoId: details.videoId,
                     title: details.title || '',

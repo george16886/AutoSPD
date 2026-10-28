@@ -20,8 +20,11 @@
         return match ? match[1] : null;
     }
 
+    // #movie_player stays in the DOM on Shorts after visiting a watch page
     function getVideoElement() {
-        return document.querySelector('#movie_player video.html5-main-video')
+        const playerId = location.pathname.startsWith('/shorts/') ? 'shorts-player' : 'movie_player';
+        return document.querySelector(`#${playerId} video.html5-main-video`)
+            || document.querySelector(`#${playerId} video`)
             || document.querySelector('video.html5-main-video')
             || document.querySelector('video');
     }
@@ -56,7 +59,7 @@
             }
         };
         document.addEventListener('autospd-video-info', onInfo);
-        document.dispatchEvent(new CustomEvent('autospd-request-video-info'));
+        document.dispatchEvent(new CustomEvent('autospd-request-video-info', { detail: videoId }));
         document.removeEventListener('autospd-video-info', onInfo);
         return info?.videoId === videoId ? info : null;
     }

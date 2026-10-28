@@ -88,7 +88,7 @@ Firebase Web 設定值會出現在用戶端，不能取代資料庫安全規則�
 擴充功能的分類邏輯測試使用 Node.js 內建測試執行器，不需要安裝套件：
 
 ```sh
-node --test extension/tests/background.test.cjs extension/tests/content.test.cjs
+node --test extension/tests/*.test.cjs
 ```
 
 另外請在 Chrome 手動驗證 YouTube 影片導覽、自動調速、設定開關、預設速度、影片手動調速，以及非 YouTube 分頁的提示。網站端仍需設定 Firebase 後手動驗證登入、登出及資料儲存。
