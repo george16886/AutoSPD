@@ -106,7 +106,7 @@ function createContentScript({
     const aiRequests = [];
     const savedLabels = [];
     let matchOverride = null;
-    const settings = { autoSpeed: true, notifications: false, recordHistory: false, hideCaptions, classifyMode };
+    const settings = { autoSpeed: true, notifications: false, hideCaptions, classifyMode };
     const categories = [
         { id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事'], enabled: true },
         { id: 'investigation', name: '案件 / 調查解說', speed: 1.75, keywords: ['命案'], enabled: true },

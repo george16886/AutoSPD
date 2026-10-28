@@ -7,7 +7,6 @@
         category: null,
         speed: null,
         mode: 'loading',
-        lastLoggedVideoId: null,
         ytCategory: '',
         channelName: '',
         aiStatus: ''
@@ -285,11 +284,6 @@
             state.mode = 'auto';
             if (!isAdShowing()) setVideoSpeed(activeVideo, speed);
 
-            if (settings.recordHistory && state.lastLoggedVideoId !== videoId) {
-                state.lastLoggedVideoId = videoId;
-                logHistory(videoInfo);
-            }
-
             if (settings.notifications) {
                 const categoryName = state.category?.name || '未分類';
                 showToast(`AutoSPD：${categoryName} · ${speed}x`);
@@ -305,22 +299,6 @@
             state.mode = 'error';
             console.error('[AutoSPD] Could not apply playback speed:', error);
         }
-    }
-
-    function logHistory(videoInfo) {
-        const thumbnail = document.querySelector('meta[property="og:image"]')?.content || '';
-        sendMessage({
-            type: 'log-history',
-            entry: {
-                title: videoInfo.title,
-                category: state.category?.id || 'default',
-                categoryId: state.category?.id || 'default',
-                speed: state.speed,
-                thumb: thumbnail,
-                thumbnail,
-                videoId: state.videoId
-            }
-        }).catch(error => console.error('[AutoSPD] Could not save local history:', error));
     }
 
     // The keyword match is already playing; ask the model, cache its pick, and
@@ -363,7 +341,6 @@
             const video = getVideoElement();
             if (video && !isAdShowing()) setVideoSpeed(video, speed);
 
-            if (changed && settings.recordHistory) logHistory(videoInfo);
             if (changed && settings.notifications) {
                 showToast(`AutoSPD：${state.category?.name || '未分類'} · ${speed}x`);
             }

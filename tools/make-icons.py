@@ -14,20 +14,21 @@ from pathlib import Path
 from PIL import Image, ImageFilter
 
 # One character per pixel. '.' is transparent.
+# A fast-forward double chevron: violet fading into electric cyan.
 GRID = [
     "..BBBBBBBBBBBB..",
     ".BDDDDDDDDDDDDB.",
     "BDDDDDDDDDDDDDDB",
-    "BDDDDDDDWDDDDDDB",
-    "BDDDDDDDWWDDDDDB",
-    "BDDDLLLDWWWDDDDB",
-    "BDDDDDDDWWWWDDDB",
-    "BDDLLLLDWWWWWDDB",
-    "BDDLLLLDWWWWWDDB",
-    "BDDDDDDDWWWWDDDB",
-    "BDDDLLLDWWWDDDDB",
-    "BDDDDDDDWWDDDDDB",
-    "BDDDDDDDWDDDDDDB",
+    "BDDDDDDDDDDDDDDB",
+    "BDDLLDDDDCCDDDDB",
+    "BDDDLLDDDDCCDDDB",
+    "BDDDDLLDDDDCCDDB",
+    "BDDDDDLLDDDDCCDB",
+    "BDDDDDLLDDDDCCDB",
+    "BDDDDLLDDDDCCDDB",
+    "BDDDLLDDDDCCDDDB",
+    "BDDLLDDDDCCDDDDB",
+    "BDDDDDDDDDDDDDDB",
     "BDDDDDDDDDDDDDDB",
     ".BDDDDDDDDDDDDB.",
     "..BBBBBBBBBBBB..",
@@ -35,10 +36,10 @@ GRID = [
 
 PALETTE = {
     ".": (0, 0, 0, 0),
-    "B": (108, 92, 231, 255),   # border: AutoSPD purple (#6c5ce7)
-    "D": (27, 22, 48, 255),     # background: deep night purple
-    "W": (240, 237, 255, 255),  # play triangle: near-white lavender
-    "L": (162, 155, 254, 255),  # speed lines: light purple (#a29bfe)
+    "B": (108, 92, 231, 255),   # frame: AutoSPD purple (#6c5ce7)
+    "D": (16, 14, 32, 255),     # background: near-black navy
+    "L": (150, 120, 255, 255),  # first chevron: violet
+    "C": (64, 232, 255, 255),   # second chevron: electric cyan
 }
 
 ROOT = Path(__file__).resolve().parent.parent

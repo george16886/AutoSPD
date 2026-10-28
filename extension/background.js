@@ -42,7 +42,6 @@ const DEFAULT_SETTINGS = {
     // with Chrome's built-in model, picking one of the same categories
     classifyMode: 'keywords',
     ytCategorySpeeds: {},
-    recordHistory: true,
     defaultSpeed: 1.0
 };
 
@@ -97,6 +96,13 @@ chrome.runtime.onInstalled.addListener(async () => {
 
     if (!data.settings) {
         await chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
+    }
+
+    // Versions before 1.2 kept a local watch history that nothing used; drop it
+    await chrome.storage.local.remove('history');
+    if (data.settings && 'recordHistory' in data.settings) {
+        const { recordHistory, ...settings } = data.settings;
+        await chrome.storage.sync.set({ settings });
     }
 
     console.log('[AutoSPD] Extension installed/updated');
@@ -155,18 +161,6 @@ async function handleMessage(message, sender) {
 
         case 'match-video':
             return await matchVideoToCategory(message.videoInfo);
-
-        case 'log-history':
-            await logHistory(message.entry);
-            return { success: true };
-
-        case 'get-history':
-            const histData = await chrome.storage.local.get('history');
-            return { history: histData.history || [] };
-
-        case 'clear-history':
-            await chrome.storage.local.set({ history: [] });
-            return { success: true };
 
         default:
             throw new Error(`Unknown message type: ${message.type}`);
@@ -350,27 +344,4 @@ async function saveAiLabel(videoId, categoryId) {
     const ids = Object.keys(aiLabels);
     for (const id of ids.slice(0, Math.max(0, ids.length - MAX_AI_LABELS))) delete aiLabels[id];
     await chrome.storage.local.set({ aiLabels });
-}
-
-/**
- * Log a history entry
- */
-async function logHistory(entry) {
-    const data = await chrome.storage.local.get('history');
-    const history = data.history || [];
-
-    // Reloading the page logs the same video again; keep one entry
-    if (history[0]?.videoId && history[0].videoId === entry.videoId) history.shift();
-
-    history.unshift({
-        ...entry,
-        date: new Date().toISOString()
-    });
-
-    // Keep only the last 500 entries
-    if (history.length > 500) {
-        history.length = 500;
-    }
-
-    await chrome.storage.local.set({ history });
 }

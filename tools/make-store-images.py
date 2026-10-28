@@ -28,6 +28,7 @@ BACKDROP = (11, 9, 20)
 SCANLINE = (18, 16, 30)
 PURPLE = (108, 92, 231)
 LAVENDER = (162, 155, 254)
+CYAN = (64, 232, 255)
 WHITE = (240, 237, 255)
 
 
@@ -69,9 +70,9 @@ def promo_small():
     width, height = 440, 280
     icon = Image.open(EXTENSION / "icons" / "icon16.png").resize((128, 128), Image.NEAREST)
     title = pixel_text("AutoSPD", FONT_BOLD, 16, 3, WHITE)
-    line1 = pixel_text("YouTube 智慧調速", FONT_BOLD, 12, 2, LAVENDER)
+    line1 = pixel_text("AI 智慧播放速度", FONT_BOLD, 12, 2, CYAN)
     # Too small for pixel text: CJK strokes break apart without anti-aliasing
-    line2 = smooth_text("依影片內容自動調整播放速度", FONT, 15, (200, 196, 230))
+    line2 = smooth_text("for YouTube ・ 依影片內容自動調速", FONT, 15, (200, 196, 230))
 
     layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     icon_x, icon_y = 32, (height - 128) // 2

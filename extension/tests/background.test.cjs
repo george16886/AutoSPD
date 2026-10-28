@@ -191,7 +191,7 @@ test('migration is a no-op for categories already on the latest defaults', () =>
     assert.deepEqual(JSON.parse(JSON.stringify(latest)), JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)));
 });
 
-async function runInstall(stored) {
+async function runInstall(stored, removed = []) {
     let onInstalled;
     const writes = {};
     const context = {
@@ -206,7 +206,9 @@ async function runInstall(stored) {
                     async get(keys) { return Object.fromEntries(keys.map(key => [key, stored[key]])); },
                     async set(values) { Object.assign(writes, values); }
                 },
-                local: {}
+                local: {
+                    async remove(key) { removed.push(key); }
+                }
             }
         }
     };
@@ -281,28 +283,16 @@ test('migration to v3 adds the investigation category once', () => {
     assert.equal(again.filter(cat => cat.id === 'investigation').length, 1);
 });
 
-test('logging the same video twice in a row keeps one history entry', async () => {
-    let history = [];
-    const context = {
-        console,
-        chrome: {
-            runtime: { onInstalled: { addListener() {} }, onMessage: { addListener() {} } },
-            storage: {
-                sync: {},
-                local: {
-                    async get() { return { history }; },
-                    async set(values) { history = values.history; }
-                }
-            }
-        }
-    };
-    vm.runInNewContext(backgroundSource, context);
+test('updating removes the old watch history and its setting', async () => {
+    const removed = [];
+    const writes = await runInstall({
+        categories: [],
+        defaultsVersion: 3,
+        settings: { recordHistory: true, autoSpeed: false }
+    }, removed);
 
-    await context.logHistory({ videoId: 'a', speed: 1.5 });
-    await context.logHistory({ videoId: 'a', speed: 1.5 });
-    await context.logHistory({ videoId: 'b', speed: 1 });
-
-    assert.deepEqual(history.map(entry => entry.videoId), ['b', 'a']);
+    assert.deepEqual(removed, ['history']);
+    assert.deepEqual(writes.settings, { autoSpeed: false });
 });
 
 test('YouTube category mode uses the speed set for the video category', async () => {

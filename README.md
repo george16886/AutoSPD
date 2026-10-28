@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/logo.png" width="160" alt="AutoSPD logo"></p>
 
-# AutoSPD — YouTube 智慧播放速度控制器
+# AutoSPD for YouTube — AI 智慧播放速度
 
 AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的播放速度：說書、案件解說這類談話影片自動加速，直播、音樂與 MV 維持 1x，不必每支影片都手動調。
 
@@ -14,7 +14,7 @@ AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的�
 
 - 管理影片分類、分類關鍵字及預設播放速度。
 - 網站提供 Google 登入、設定介面、觀看紀錄與統計儀表板原型。
-- 擴充功能依影片標題、說明、標籤、頻道名稱與 YouTube 分類自動套用速度，並提供分類設定頁、手動調速與本機觀看紀錄。
+- 擴充功能依影片標題、說明、標籤、頻道名稱與 YouTube 分類自動套用速度，並提供分類設定頁、頻道規則與手動調速；不記錄觀看紀錄。
 - 產品架構、影片分類策略、行動 App 方案與風險評估詳見 [`youtube-speed-controller-proposal.md`](./youtube-speed-controller-proposal.md)。
 
 ## 專案結構
@@ -133,7 +133,7 @@ node --test extension/tests/*.test.cjs
 
 ## 隱私與 YouTube 體驗
 
-產品設計目標是透過瀏覽器擴充功能在使用者原本的 YouTube 網頁調整播放速度，不讀取或寫入 YouTube 觀看紀錄。但 YouTube 的推薦結果仍由 YouTube 自身系統決定，不能保證觀看行為對推薦結果完全沒有影響。請在正式發布前補齊隱私政策、資料保留／刪除方式及必要的第三方服務揭露。
+產品設計目標是透過瀏覽器擴充功能在使用者原本的 YouTube 網頁調整播放速度，不讀取或寫入 YouTube 觀看紀錄。但 YouTube 的推薦結果仍由 YouTube 自身系統決定，不能保證觀看行為對推薦結果完全沒有影響。擴充功能讀取與儲存哪些資料，詳見[隱私權政策](./PRIVACY.md)。
 
 ## 打包上架
 
