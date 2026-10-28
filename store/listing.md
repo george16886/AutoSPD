@@ -56,6 +56,8 @@ AI 內容分析需要 Chrome 138 以上版本，並符合 Chrome 內建 AI 的�
 | 螢幕截圖 4 | `screenshot-4-live-and-channels.png` | 1280×800 |
 | 小型宣傳圖塊 | `promo-small.png` | 440×280 |
 
+**宣傳影片**（選填）：商店只接受 YouTube 網址。把 `promo-video.mp4`（32 秒、1920×1080、無音軌，由 `python tools/make-promo-video.py` 產生）上傳到 YouTube，瀏覽權限可設為「不公開」，再把影片網址貼到後台的「宣傳影片」欄位。想加背景音樂的話，可以在 YouTube 工作室的音效庫挑選免版稅音樂。
+
 截圖最多 5 張。建議第 5 張用實際的 YouTube 播放畫面加上 AutoSPD 彈出視窗，需要在 Chrome 中手動截圖並裁成 1280×800。
 
 ## 隱私權做法（Privacy practices）

@@ -46,6 +46,7 @@ AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的�
 ├── tools/
 │   ├── make-icons.py     # 由 16×16 像素圖產生圖示與 logo（需要 Pillow）
 │   ├── make-store-images.py  # 產生商店截圖與宣傳圖（需要 Pillow 與 Chrome）
+│   ├── make-promo-video.py   # 產生商店宣傳影片（需要 Pillow 與 PyAV）
 │   └── package.py        # 打包上傳用的 ZIP 到 dist/（不含測試）
 ├── PRIVACY.md            # 隱私權政策
 ├── goal.md               # 原始產品需求與設計提示
