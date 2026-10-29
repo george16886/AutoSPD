@@ -222,10 +222,10 @@ function isMusicVideo(videoInfo) {
 
 function findFixedNormalSpeed(videoInfo, settings) {
     if (settings.fixedNormalForLive && videoInfo.isLive === true) {
-        return { id: 'fixed_live', name: '直播（固定 1x）' };
+        return { id: 'fixed_live', name: '直播' };
     }
     if (settings.fixedNormalForMusic && isMusicVideo(videoInfo)) {
-        return { id: 'fixed_music', name: '音樂 / MV（固定 1x）' };
+        return { id: 'fixed_music', name: '音樂 / MV' };
     }
     return null;
 }

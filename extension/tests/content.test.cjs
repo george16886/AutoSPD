@@ -417,7 +417,7 @@ test('AI mode does not ask the model when a fixed 1x rule decided', async () => 
         aiAnswer: { categoryId: 'investigation' },
         playerInfo: { videoId: 'test-video', title: 'Song (Official MV)', isLive: false, ytCategory: 'Music' }
     });
-    harness.setMatchResult({ speed: 1, category: { id: 'fixed_music', name: '音樂 / MV（固定 1x）' } });
+    harness.setMatchResult({ speed: 1, category: { id: 'fixed_music', name: '音樂 / MV' } });
     await wait(20);
 
     assert.equal(harness.aiRequests.length, 0);

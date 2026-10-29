@@ -470,3 +470,10 @@ test('the replay speed can be turned off', async () => {
 
     assert.equal((await matchVideo({ title: '雜談', isLiveContent: true, isLive: false })).speed, 1.25);
 });
+
+test('fixed 1x matches are labelled plainly, without repeating the speed', async () => {
+    const matchVideo = loadFixedMatcher();
+
+    assert.equal((await matchVideo({ title: 'Song (Official MV)' })).category.name, '音樂 / MV');
+    assert.equal((await matchVideo({ title: '雜談', isLive: true })).category.name, '直播');
+});

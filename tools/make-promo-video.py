@@ -209,7 +209,7 @@ def scene_demo(t):
         local = t - DEMO_SWITCH
         draw_player(frame, palette=((70, 40, 90), (24, 14, 40)), speed=1, clock=local,
                     progress=0.02 + local * 0.01, title="星空下（Official MV）",
-                    toast="AutoSPD：音樂 / MV（固定 1x） · 1x",
+                    toast="AutoSPD：音樂 / MV · 1x",
                     toast_alpha=ramp(local, 0.5, 0.3) * (1 - ramp(local, 4.2, 0.4)))
         caption = "音樂、MV 與直播自動維持 1x，不必再切回來"
         alpha = ramp(local, 0.8, 0.5)
