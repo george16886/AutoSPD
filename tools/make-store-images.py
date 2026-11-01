@@ -184,8 +184,8 @@ ZOOM = "body{zoom:1.45}"
 SETTINGS_SHOTS = {
     "screenshot-2-ai-mode.png": ({**SETTINGS, "classifyMode": "ai"}, ZOOM),
     "screenshot-3-youtube-mode.png": (
-        {**SETTINGS, "classifyMode": "youtube", "ytCategorySpeeds": {"24": 1.5, "22": 1.5}},
-        ZOOM + " .mode-section,.channel-section{display:none}",
+        {**SETTINGS, "classifyMode": "youtube"},
+        ZOOM + " .mode-section,.channel-section,#youtube-section .hint{display:none}",
     ),
     "screenshot-4-live-and-channels.png": (
         SETTINGS,

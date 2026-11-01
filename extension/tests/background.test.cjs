@@ -512,3 +512,53 @@ test('music performance terms need a real match and ignore the description', asy
         assert.equal((await matchVideo(info)).category?.id, 'stories', info.title);
     }
 });
+
+function loadFallbackMatcher(settings = {}) {
+    return loadMatcher({
+        categories: [{ id: 'stories', name: '說故事', speed: 1.5, keywords: ['故事'], enabled: true }],
+        settings: { autoSpeed: true, defaultSpeed: 1.1, classifyMode: 'keywords', ...settings }
+    });
+}
+
+test('keyword mode falls back to the YouTube category speed when nothing matches', async () => {
+    const matchVideo = loadFallbackMatcher();
+
+    const result = await matchVideo({ title: '週五雜談', ytCategoryId: '24' });
+
+    assert.equal(result.speed, 1.25);
+    assert.equal(result.category.name, 'YouTube：娛樂');
+});
+
+test('the fallback uses speeds the user set for YouTube categories', async () => {
+    const matchVideo = loadFallbackMatcher({ ytCategorySpeeds: { 24: 1.75 } });
+
+    assert.equal((await matchVideo({ title: '週五雜談', ytCategoryId: '24' })).speed, 1.75);
+});
+
+test('keyword matches and live replays win over the YouTube category fallback', async () => {
+    const matchVideo = loadFallbackMatcher({ liveReplayEnabled: true, liveReplaySpeed: 1.5 });
+
+    assert.equal((await matchVideo({ title: '深夜故事', ytCategoryId: '23' })).category.id, 'stories');
+    const replay = await matchVideo({ title: '週五雜談', ytCategoryId: '23', isLiveContent: true, isLive: false });
+    assert.equal(replay.category.id, 'live_replay');
+});
+
+test('AI "none" uses the YouTube category; no category info uses the default speed', async () => {
+    const ai = loadFallbackMatcher({ classifyMode: 'ai' });
+    assert.equal((await ai({ title: '週五雜談', ytCategoryId: '25', aiCategoryId: 'none' })).speed, 1.5);
+
+    const keywords = loadFallbackMatcher();
+    const unknown = await keywords({ title: '週五雜談' });
+    assert.equal(unknown.category, null);
+    assert.equal(unknown.speed, 1.1);
+});
+
+test('every YouTube category has a usable default speed', () => {
+    const context = loadBackground();
+    const categories = vm.runInContext('YT_CATEGORIES', context);
+
+    assert.equal(categories.length, 15);
+    for (const category of categories) {
+        assert.ok(category.speed >= 0.25 && category.speed <= 2, category.en);
+    }
+});

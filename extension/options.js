@@ -79,7 +79,7 @@ function initOptionsPage() {
     const channelTemplate = document.getElementById('channel-template');
     const channelEmpty = document.getElementById('channel-empty');
     const keywordSection = document.getElementById('keyword-section');
-    const youtubeSection = document.getElementById('youtube-section');
+    const youtubeHint = document.getElementById('youtube-hint');
     const ytSpeedList = document.getElementById('yt-speed-list');
     const modeInputs = [...document.querySelectorAll('input[name="classify-mode"]')];
     const aiStatus = document.getElementById('ai-status');
@@ -140,7 +140,9 @@ function initOptionsPage() {
     function showMode(mode) {
         for (const input of modeInputs) input.checked = input.value === mode;
         keywordSection.hidden = mode === 'youtube';
-        youtubeSection.hidden = mode !== 'youtube';
+        youtubeHint.textContent = mode === 'youtube'
+            ? '沒有 YouTube 分類資訊的影片，會使用彈出視窗裡「未分類影片的預設速度」。'
+            : '影片沒有符合上方任何分類時，依它的 YouTube 分類套用這裡的速度。沒有 YouTube 分類資訊時，才使用「未分類影片的預設速度」。';
         aiStatus.hidden = mode !== 'ai';
         if (mode === 'ai') refreshAiStatus();
     }

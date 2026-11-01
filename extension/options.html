@@ -22,7 +22,7 @@
                 <input type="radio" name="classify-mode" value="keywords">
                 <span>
                     <strong>關鍵字分類</strong>
-                    <small>依影片標題、標籤、頻道名稱比對你設定的分類與關鍵字。可以細分到你常看的內容類型。</small>
+                    <small>依影片標題、標籤、頻道名稱比對你設定的分類與關鍵字，可以細分到你常看的內容類型。都沒有符合時，改用 YouTube 分類的速度。</small>
                 </span>
             </label>
             <label class="mode-option">
@@ -58,9 +58,10 @@
             </div>
         </section>
 
-        <section id="youtube-section" hidden>
+        <section id="youtube-section">
+            <h2>YouTube 分類速度</h2>
             <section class="hint">
-                <p>沒有 YouTube 分類資訊的影片，會使用彈出視窗裡「未分類影片的預設速度」。</p>
+                <p id="youtube-hint"></p>
             </section>
             <div id="yt-speed-list" class="yt-speed-list"></div>
         </section>

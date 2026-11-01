@@ -149,6 +149,14 @@ code {
     margin-left: auto;
 }
 
+#youtube-section {
+    margin-top: 28px;
+}
+
+#youtube-section .hint {
+    margin-top: 10px;
+}
+
 .yt-speed-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

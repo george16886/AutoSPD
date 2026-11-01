@@ -187,27 +187,28 @@ function isLiveReplay(videoInfo) {
     return videoInfo?.isLiveContent === true && videoInfo.isLive !== true;
 }
 
+function youTubeCategoryMatch(videoInfo, settings) {
+    const ytCategory = YT_CATEGORIES.find(cat => cat.id === String(videoInfo?.ytCategoryId));
+    if (!ytCategory) return null;
+    const speed = Number(settings.ytCategorySpeeds?.[ytCategory.id] ?? ytCategory.speed);
+    if (!isValidSpeed(speed)) return null;
+    return {
+        speed,
+        category: { id: `yt_${ytCategory.id}`, name: `YouTube：${ytCategory.zh}` },
+        score: 0
+    };
+}
+
 // Used whenever no category applies
 function defaultMatch(settings, videoInfo) {
     const replaySpeed = Number(settings.liveReplaySpeed);
     if (settings.liveReplayEnabled && isLiveReplay(videoInfo) && isValidSpeed(replaySpeed)) {
         return { speed: replaySpeed, category: { id: 'live_replay', name: '直播重播' }, score: 0 };
     }
+    const fromYouTube = youTubeCategoryMatch(videoInfo, settings);
+    if (fromYouTube) return fromYouTube;
     const speed = Number(settings.defaultSpeed);
     return { speed: isValidSpeed(speed) ? speed : 1, category: null, score: 0 };
-}
-
-function matchByYouTubeCategory(videoInfo, settings) {
-    const ytCategoryId = videoInfo.ytCategoryId;
-    const ytCategory = YT_CATEGORIES.find(cat => cat.id === String(ytCategoryId));
-    if (!ytCategory) return defaultMatch(settings, videoInfo);
-    const speed = Number(settings.ytCategorySpeeds?.[ytCategory.id] ?? ytCategory.speed);
-    if (!isValidSpeed(speed)) return defaultMatch(settings, videoInfo);
-    return {
-        speed,
-        category: { id: `yt_${ytCategory.id}`, name: `YouTube：${ytCategory.zh}` },
-        score: 0
-    };
 }
 
 const MUSIC_YT_CATEGORY_ID = '10';
@@ -280,7 +281,7 @@ async function matchVideoToCategory(videoInfo) {
     }
 
     if (settings.classifyMode === 'youtube') {
-        return matchByYouTubeCategory(videoInfo, settings);
+        return youTubeCategoryMatch(videoInfo, settings) || defaultMatch(settings, videoInfo);
     }
 
     // The model's pick wins when it names a usable category; otherwise fall
