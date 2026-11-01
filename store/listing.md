@@ -95,7 +95,7 @@ AI 內容分析需要 Chrome 138 以上版本，並符合 Chrome 內建 AI 的�
 **隱私權政策網址**
 
 ```
-https://github.com/george16886/AutoSPD/blob/main/PRIVACY.md
+https://github.com/george16886/AutoSPD/blob/main/PRIVACY.en.md
 ```
 
 ## 送審前檢查

@@ -2,6 +2,8 @@
 
 Last updated: November 2, 2026
 
+[繁體中文版](./PRIVACY.md)
+
 AutoSPD is a Chrome extension that sets YouTube's playback speed from what a video is about. This policy explains what the extension reads and stores, and where that data goes.
 
 ## Summary
