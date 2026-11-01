@@ -89,6 +89,7 @@ function initOptionsPage() {
     const fixedMusic = document.getElementById('fixed-music');
     const replayEnabled = document.getElementById('replay-enabled');
     const replaySpeed = document.getElementById('replay-speed');
+    const defaultSpeed = document.getElementById('default-speed');
 
     function showMessage(text, isError = false) {
         message.textContent = text;
@@ -274,7 +275,7 @@ function initOptionsPage() {
         });
     }
 
-    for (const input of [fixedLive, fixedMusic, replayEnabled, replaySpeed]) {
+    for (const input of [fixedLive, fixedMusic, replayEnabled, replaySpeed, defaultSpeed]) {
         input.addEventListener('change', () => setDirty(true));
         input.addEventListener('input', () => setDirty(true));
     }
@@ -306,13 +307,18 @@ function initOptionsPage() {
         const categories = readCategories();
         const channelRules = readChannelRules();
         const classifyMode = readMode();
+        const uncategorizedSpeed = Math.round(Number(defaultSpeed.value) * 100) / 100;
+        const defaultSpeedError = !Number.isFinite(uncategorizedSpeed) || uncategorizedSpeed < MIN_SPEED || uncategorizedSpeed > MAX_SPEED
+            ? t('errDefaultSpeed', MIN_SPEED, MAX_SPEED)
+            : null;
         const liveReplaySpeed = Math.round(Number(replaySpeed.value) * 100) / 100;
         const replayError = !Number.isFinite(liveReplaySpeed) || liveReplaySpeed < MIN_SPEED || liveReplaySpeed > MAX_SPEED
             ? t('errReplaySpeed', MIN_SPEED, MAX_SPEED)
             : null;
         const ytCategorySpeeds = readYouTubeSpeeds();
         const ytNames = Object.fromEntries(YT_CATEGORIES.map(cat => [cat.id, t(`ytCategory${cat.id}`)]));
-        const error = replayError
+        const error = defaultSpeedError
+            || replayError
             || validateYouTubeSpeeds(ytCategorySpeeds, ytNames)
             || validateChannelRules(channelRules)
             || (classifyMode !== 'youtube'
@@ -334,7 +340,8 @@ function initOptionsPage() {
                     fixedNormalForLive: fixedLive.checked,
                     fixedNormalForMusic: fixedMusic.checked,
                     liveReplayEnabled: replayEnabled.checked,
-                    liveReplaySpeed
+                    liveReplaySpeed,
+                    defaultSpeed: uncategorizedSpeed
                 }
             });
             await send({ type: 'save-categories', categories });
@@ -361,6 +368,7 @@ function initOptionsPage() {
             fixedMusic.checked = settings.fixedNormalForMusic !== false;
             replayEnabled.checked = settings.liveReplayEnabled !== false;
             replaySpeed.value = String(settings.liveReplaySpeed ?? 1.5);
+            defaultSpeed.value = String(settings.defaultSpeed ?? 1);
             showMode(['youtube', 'ai'].includes(settings.classifyMode) ? settings.classifyMode : 'keywords');
         })
         .catch(error => showMessage(error.message || t('errLoadSettings'), true));

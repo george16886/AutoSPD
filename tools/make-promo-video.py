@@ -57,7 +57,7 @@ COPY = {
         ],
         "privacy": ("資料不離開你的電腦", "不上傳、不追蹤、不記錄觀看紀錄", "AI 在你的電腦上執行"),
         "outro": ("AI 智慧播放速度", "Chrome 線上應用程式商店 免費安裝"),
-        "popup_height": 372,
+        "popup_height": 548,
     },
     "en": {
         "tagline": "AI smart playback speed for YouTube",
@@ -72,7 +72,7 @@ COPY = {
         ],
         "privacy": ("Your data stays on your computer", "No uploads, no tracking, no watch history", "AI runs on your computer"),
         "outro": ("AI smart playback speed", "Free on the Chrome Web Store"),
-        "popup_height": 402,
+        "popup_height": 594,
     },
     "zh_CN": {
         "tagline": "AI 智能播放速度 for YouTube",
@@ -87,7 +87,7 @@ COPY = {
         ],
         "privacy": ("数据不离开你的电脑", "不上传、不跟踪、不记录观看记录", "AI 在你的电脑上运行"),
         "outro": ("AI 智能播放速度", "Chrome 应用商店 免费安装"),
-        "popup_height": 372,
+        "popup_height": 548,
     },
     "ja": {
         "tagline": "YouTube 向け AI スマート再生速度",
@@ -102,7 +102,7 @@ COPY = {
         ],
         "privacy": ("データはパソコンの外に出ません", "アップロードなし、追跡なし、視聴履歴なし", "AI はパソコン上で動作"),
         "outro": ("AI スマート再生速度", "Chrome ウェブストアから無料で追加"),
-        "popup_height": 388,
+        "popup_height": 567,
     },
     "ko": {
         "tagline": "YouTube용 AI 스마트 재생 속도",
@@ -117,7 +117,7 @@ COPY = {
         ],
         "privacy": ("데이터는 컴퓨터 밖으로 나가지 않습니다", "업로드 없음, 추적 없음, 시청 기록 없음", "AI는 컴퓨터에서 실행"),
         "outro": ("AI 스마트 재생 속도", "Chrome 웹 스토어에서 무료 설치"),
-        "popup_height": 372,
+        "popup_height": 548,
     },
 }
 
@@ -299,7 +299,7 @@ def load_shots():
     shots = {
         "ai": ({**settings, "classifyMode": "ai"}, store_images.ZOOM + " #keyword-section,#youtube-section,.channel-section{display:none}"),
         "youtube": ({**settings, "classifyMode": "youtube"},
-                    store_images.ZOOM + " .mode-section,.channel-section,#youtube-section .hint{display:none}"),
+                    store_images.ZOOM + " .mode-section,.channel-section,#youtube-section .hint,.default-speed-row{display:none}"),
         "live": (settings, store_images.ZOOM + " .mode-section,#keyword-section,#youtube-section{display:none}"),
     }
     with tempfile.TemporaryDirectory() as tmp:

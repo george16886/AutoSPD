@@ -217,7 +217,7 @@ def screenshot_popup(workdir, locale_name):
     locale = LOCALES[locale_name]
     FONT_BOLD, FONT = FONTS + locale["bold"], FONTS + locale["regular"]
     stub = stub_script(locale_name, {**SETTINGS, "channelRules": []}, video_state(locale))
-    popup = render_page(workdir, "popup.html", stub, (340, 784))
+    popup = render_page(workdir, "popup.html", stub, (340, 600))
     canvas = backdrop(1280, 800)
     layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     headline = pixel_text(locale["headline"], FONT_BOLD, 15, 3, WHITE)
@@ -245,7 +245,7 @@ SETTINGS_SHOTS = {
     "screenshot-2-ai-mode.png": ({**SETTINGS, "classifyMode": "ai"}, ZOOM),
     "screenshot-3-youtube-mode.png": (
         {**SETTINGS, "classifyMode": "youtube"},
-        ZOOM + " .mode-section,.channel-section,#youtube-section .hint{display:none}",
+        ZOOM + " .mode-section,.channel-section,#youtube-section .hint,.default-speed-row{display:none}",
     ),
     "screenshot-4-live-and-channels.png": (
         SETTINGS,

@@ -190,14 +190,6 @@
       }
     }
   },
-  "defaultSpeedSaved": {
-    "message": "未分類影片預設速度已儲存為 $arg1$x",
-    "placeholders": {
-      "arg1": {
-        "content": "$1"
-      }
-    }
-  },
   "manualApplied": {
     "message": "目前影片已設定為 $arg1$x",
     "placeholders": {
@@ -358,10 +350,24 @@
     "message": "YouTube 分類速度"
   },
   "ytHintYouTubeMode": {
-    "message": "沒有 YouTube 分類資訊的影片，會使用彈出視窗裡「未分類影片的預設速度」。"
+    "message": "每種 YouTube 分類各自的播放速度。"
   },
   "ytHintFallback": {
-    "message": "影片沒有符合上方任何分類時，依它的 YouTube 分類套用這裡的速度。沒有 YouTube 分類資訊時，才使用「未分類影片的預設速度」。"
+    "message": "影片沒有符合上方任何分類時，依它的 YouTube 分類套用這裡的速度。"
+  },
+  "defaultSpeedHint": {
+    "message": "影片沒有 YouTube 分類資訊時使用。"
+  },
+  "errDefaultSpeed": {
+    "message": "預設速度必須介於 $arg1$ 到 $arg2$ 之間。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "liveMusicHeading": {
     "message": "直播與音樂"

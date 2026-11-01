@@ -190,14 +190,6 @@
       }
     }
   },
-  "defaultSpeedSaved": {
-    "message": "未分类视频默认速度已保存为 $arg1$x",
-    "placeholders": {
-      "arg1": {
-        "content": "$1"
-      }
-    }
-  },
   "manualApplied": {
     "message": "当前视频已设置为 $arg1$x",
     "placeholders": {
@@ -358,10 +350,24 @@
     "message": "YouTube 分类速度"
   },
   "ytHintYouTubeMode": {
-    "message": "没有 YouTube 分类信息的视频，会使用弹出窗口里的“未分类视频的默认速度”。"
+    "message": "每种 YouTube 分类各自的播放速度。"
   },
   "ytHintFallback": {
-    "message": "视频不符合上方任何分类时，根据其 YouTube 分类应用这里的速度。没有 YouTube 分类信息时，才使用“未分类视频的默认速度”。"
+    "message": "视频不符合上方任何分类时，根据其 YouTube 分类应用这里的速度。"
+  },
+  "defaultSpeedHint": {
+    "message": "视频没有 YouTube 分类信息时使用。"
+  },
+  "errDefaultSpeed": {
+    "message": "默认速度必须介于 $arg1$ 到 $arg2$ 之间。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "liveMusicHeading": {
     "message": "直播与音乐"

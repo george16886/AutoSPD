@@ -190,14 +190,6 @@
       }
     }
   },
-  "defaultSpeedSaved": {
-    "message": "미분류 영상의 기본 속도를 $arg1$x로 저장했습니다",
-    "placeholders": {
-      "arg1": {
-        "content": "$1"
-      }
-    }
-  },
   "manualApplied": {
     "message": "이 영상을 $arg1$x로 설정했습니다",
     "placeholders": {
@@ -358,10 +350,24 @@
     "message": "YouTube 카테고리 속도"
   },
   "ytHintYouTubeMode": {
-    "message": "YouTube 카테고리 정보가 없는 영상은 팝업의 '미분류 영상의 기본 속도'를 사용합니다."
+    "message": "YouTube 카테고리별 재생 속도입니다."
   },
   "ytHintFallback": {
-    "message": "위 카테고리에 해당하지 않는 영상은 YouTube 카테고리에 따라 이 속도를 적용합니다. YouTube 카테고리 정보가 없을 때만 '미분류 영상의 기본 속도'를 사용합니다."
+    "message": "위 카테고리에 해당하지 않는 영상은 YouTube 카테고리에 따라 이 속도를 적용합니다."
+  },
+  "defaultSpeedHint": {
+    "message": "영상에 YouTube 카테고리 정보가 없을 때 사용합니다."
+  },
+  "errDefaultSpeed": {
+    "message": "기본 속도는 $arg1$에서 $arg2$ 사이여야 합니다.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "liveMusicHeading": {
     "message": "라이브와 음악"

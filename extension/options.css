@@ -375,6 +375,10 @@ h2 {
     font-size: 13px;
 }
 
+.default-speed-row {
+    margin-top: 8px;
+}
+
 .fixed-row .fixed-speed {
     display: flex;
     flex: 0 0 auto;

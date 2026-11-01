@@ -190,14 +190,6 @@
       }
     }
   },
-  "defaultSpeedSaved": {
-    "message": "未分類の動画の既定の速度を $arg1$x に保存しました",
-    "placeholders": {
-      "arg1": {
-        "content": "$1"
-      }
-    }
-  },
   "manualApplied": {
     "message": "この動画を $arg1$x に設定しました",
     "placeholders": {
@@ -358,10 +350,24 @@
     "message": "YouTube カテゴリの速度"
   },
   "ytHintYouTubeMode": {
-    "message": "YouTube カテゴリの情報がない動画には、ポップアップの「未分類の動画の既定の速度」を使います。"
+    "message": "YouTube カテゴリごとの再生速度です。"
   },
   "ytHintFallback": {
-    "message": "上のどのカテゴリにも一致しない動画には、YouTube カテゴリに応じてここの速度を適用します。YouTube カテゴリの情報がない場合のみ「未分類の動画の既定の速度」を使います。"
+    "message": "上のどのカテゴリにも一致しない動画には、YouTube カテゴリに応じてここの速度を適用します。"
+  },
+  "defaultSpeedHint": {
+    "message": "動画に YouTube カテゴリの情報がないときに使います。"
+  },
+  "errDefaultSpeed": {
+    "message": "既定の速度は $arg1$～$arg2$ にしてください。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "liveMusicHeading": {
     "message": "ライブと音楽"

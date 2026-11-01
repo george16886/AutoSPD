@@ -26,14 +26,14 @@ input {
 }
 
 .popup {
-    padding: 18px;
+    padding: 12px 14px;
 }
 
 .header {
     display: flex;
     align-items: center;
-    gap: 11px;
-    margin-bottom: 17px;
+    gap: 9px;
+    margin-bottom: 9px;
 }
 
 .brand-mark {
@@ -67,7 +67,7 @@ footer {
 }
 
 .video-card {
-    padding: 12px;
+    padding: 9px 11px;
     border: 1px solid #e9e7f2;
     border-radius: 12px;
     background: #fff;
@@ -111,8 +111,8 @@ footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 14px 1px;
+    gap: 10px;
+    padding: 8px 1px;
     border-bottom: 1px solid #e9e7f2;
 }
 
@@ -177,7 +177,7 @@ footer {
 .setting {
     align-items: flex-start;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
 }
 
 .speed-control {
@@ -189,7 +189,7 @@ footer {
 
 .speed-control input {
     width: 78px;
-    padding: 7px 8px;
+    padding: 5px 8px;
     border: 1px solid #dedce8;
     border-radius: 7px;
     background: #fff;
@@ -204,7 +204,7 @@ footer {
 }
 
 .button {
-    min-height: 31px;
+    min-height: 28px;
     margin-left: auto;
     padding: 0 12px;
     border: 0;
@@ -236,8 +236,8 @@ footer {
 
 .link-button {
     width: 100%;
-    margin-top: 12px;
-    padding: 9px 0;
+    margin-top: 8px;
+    padding: 7px 0;
     border: 0;
     border-radius: 7px;
     color: #5747d2;
@@ -253,7 +253,7 @@ footer {
 
 .message {
     min-height: 15px;
-    margin: 10px 0 0;
+    margin: 5px 0 0;
     color: #b23b49;
     font-size: 11px;
 }
@@ -263,6 +263,6 @@ footer {
 }
 
 footer {
-    padding-top: 5px;
+    padding-top: 2px;
     font-size: 10px;
 }

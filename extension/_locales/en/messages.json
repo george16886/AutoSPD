@@ -190,14 +190,6 @@
       }
     }
   },
-  "defaultSpeedSaved": {
-    "message": "Default speed saved as $arg1$x",
-    "placeholders": {
-      "arg1": {
-        "content": "$1"
-      }
-    }
-  },
   "manualApplied": {
     "message": "This video is now at $arg1$x",
     "placeholders": {
@@ -358,10 +350,24 @@
     "message": "YouTube category speeds"
   },
   "ytHintYouTubeMode": {
-    "message": "Videos with no YouTube category use \"Default speed for uncategorized videos\" in the popup."
+    "message": "Each YouTube category has its own playback speed."
   },
   "ytHintFallback": {
-    "message": "When a video matches none of the categories above, these speeds apply by its YouTube category. \"Default speed for uncategorized videos\" is only used when YouTube reports no category."
+    "message": "When a video matches none of the categories above, these speeds apply by its YouTube category."
+  },
+  "defaultSpeedHint": {
+    "message": "Used when YouTube reports no category for a video."
+  },
+  "errDefaultSpeed": {
+    "message": "Default speed must be between $arg1$ and $arg2$.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
   },
   "liveMusicHeading": {
     "message": "Live and music"

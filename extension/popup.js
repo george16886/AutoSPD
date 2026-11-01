@@ -10,7 +10,6 @@
     const channelSpeed = document.getElementById('channel-speed');
     const removeChannelRule = document.getElementById('remove-channel-rule');
     let currentChannel = '';
-    const defaultSpeed = document.getElementById('default-speed');
     const manualSpeed = document.getElementById('manual-speed');
     const videoTitle = document.getElementById('video-title');
     const videoStatus = document.getElementById('video-status');
@@ -58,7 +57,6 @@
             autoSpeed.checked = settings.autoSpeed !== false;
             notifications.checked = settings.notifications !== false;
             hideCaptions.checked = settings.hideCaptions !== false;
-            defaultSpeed.value = String(settings.defaultSpeed ?? 1);
 
             if (!tab) return;
             activeTabId = tab.id;
@@ -183,22 +181,6 @@
         try {
             await saveChannelRules(rules => rules);
             showMessage(t('channelRuleRemoved', currentChannel));
-        } catch (error) {
-            showMessage(error.message || t('saveFailed'), true);
-        }
-    });
-
-    document.getElementById('save-default').addEventListener('click', async () => {
-        try {
-            const speed = parseSpeed(defaultSpeed);
-            const { settings } = await chrome.runtime.sendMessage({ type: 'get-settings' });
-            const response = await chrome.runtime.sendMessage({
-                type: 'save-settings',
-                settings: { ...settings, defaultSpeed: speed }
-            });
-            if (response?.error) throw new Error(response.error);
-            defaultSpeed.value = String(speed);
-            showMessage(t('defaultSpeedSaved', speed));
         } catch (error) {
             showMessage(error.message || t('saveFailed'), true);
         }
