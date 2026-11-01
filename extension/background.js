@@ -214,10 +214,25 @@ const MUSIC_YT_CATEGORY_ID = '10';
 // MV, M/V, official music/lyric video or audio, lyric(s) video, 歌詞, 演唱會…
 const MUSIC_TITLE_PATTERN = /(?<![a-z0-9])m\/?v(?![a-z0-9])|official\s+(music\s+|lyric\s+)?video|official\s+audio|lyrics?\s+video|歌詞|演唱會|音樂錄影帶/i;
 
+// Music shows and stage footage are often filed under Entertainment with titles
+// that never say MV, so also look for terms specific to them in the title, tags
+// and channel. Keep these specific: 歌, 音樂 or "song" would also catch talk videos.
+const MUSIC_PERFORMANCE_TERMS = [
+    '직캠', '음악방송', '인기가요', '뮤직뱅크', '엠카운트다운', '음악중심', '뮤직비디오',
+    '直拍', '打歌', '翻唱', '歌ってみた', 'ミュージックビデオ',
+    'fancam', 'fan cam', 'inkigayo', 'm countdown', 'mcountdown', 'music bank', 'music core',
+    'show champion', 'music show', 'dance practice', 'live session'
+];
+
 function isMusicVideo(videoInfo) {
-    return String(videoInfo.ytCategoryId) === MUSIC_YT_CATEGORY_ID
+    if (String(videoInfo.ytCategoryId) === MUSIC_YT_CATEGORY_ID
         || /\s-\s*topic$/i.test(String(videoInfo.channelName || '').trim())
-        || MUSIC_TITLE_PATTERN.test(String(videoInfo.title || ''));
+        || MUSIC_TITLE_PATTERN.test(String(videoInfo.title || ''))) {
+        return true;
+    }
+    const tags = Array.isArray(videoInfo.tags) ? videoInfo.tags : [];
+    const text = [videoInfo.title, videoInfo.channelName, ...tags].filter(Boolean).join('\n').toLowerCase();
+    return MUSIC_PERFORMANCE_TERMS.some(term => keywordMatches(text, term));
 }
 
 function findFixedNormalSpeed(videoInfo, settings) {

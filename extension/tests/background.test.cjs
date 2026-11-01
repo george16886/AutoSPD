@@ -477,3 +477,38 @@ test('fixed 1x matches are labelled plainly, without repeating the speed', async
     assert.equal((await matchVideo({ title: 'Song (Official MV)' })).category.name, '音樂 / MV');
     assert.equal((await matchVideo({ title: '雜談', isLive: true })).category.name, '直播');
 });
+
+test('music show and stage footage is fixed at 1x from its title, tags or channel', async () => {
+    const matchVideo = loadFixedMatcher();
+
+    // The reported video: Entertainment category, Korean title, music only visible in the tags
+    const stage = await matchVideo({
+        title: "[단독샷캠4K] 에이투오 라이트 'NEON' 단독샷 별도녹화│A2O LITE ONE TAKE STAGE│@SBS Inkigayo 261025",
+        channelName: 'SBSKPOP X INKIGAYO',
+        tags: ['인기가요직캠', '음악방송', '에이투오 라이트 무대'],
+        ytCategoryId: '24'
+    });
+    assert.equal(stage.category?.id, 'fixed_music');
+    assert.equal(stage.speed, 1);
+
+    for (const info of [
+        { title: '某團體', tags: ['직캠'] },
+        { title: '回歸舞台 4K 直拍' },
+        { title: 'Stage', channelName: 'Mnet M COUNTDOWN' },
+        { title: 'Live', tags: ['Music Bank'] }
+    ]) {
+        assert.equal((await matchVideo(info)).category?.id, 'fixed_music', info.title);
+    }
+});
+
+test('music performance terms need a real match and ignore the description', async () => {
+    const matchVideo = loadFixedMatcher();
+
+    for (const info of [
+        { title: '聊聊音樂產業的故事', tags: ['音樂', '歌手', 'song'] },
+        { title: '故事', tags: ['showcase', 'musical'] },
+        { title: '故事', description: '本集也提到 fancam 和 인기가요' }
+    ]) {
+        assert.equal((await matchVideo(info)).category?.id, 'stories', info.title);
+    }
+});
