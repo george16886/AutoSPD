@@ -154,7 +154,7 @@ def stub_script(locale_name, settings, video_state):
     )
 
 
-def render_page(workdir, page, stub, size, extra_css=""):
+def render_page(workdir, page, stub, size, extra_css="", scale=1):
     html = (EXTENSION / page).read_text(encoding="utf-8")
     first_script = '<script src="i18n.js">'
     html = html.replace(first_script, stub + first_script, 1)
@@ -165,7 +165,8 @@ def render_page(workdir, page, stub, size, extra_css=""):
     shot = workdir / f"{page}.png"
     subprocess.run([
         str(CHROME), "--headless=new", "--disable-gpu", "--hide-scrollbars",
-        f"--window-size={size[0]},{size[1]}", "--virtual-time-budget=3000",
+        f"--window-size={size[0]},{size[1]}", f"--force-device-scale-factor={scale}",
+        "--virtual-time-budget=3000",
         f"--screenshot={shot}", target.as_uri()
     ], check=True, capture_output=True)
     return Image.open(shot).convert("RGBA")
