@@ -1,5 +1,5 @@
 """Render the Chrome Web Store promo videos, one per language: Traditional
-Chinese in store/promo-video.mp4, the others in store/<locale>/promo-video.mp4.
+Chinese in store/promo-video.mp4, the others in store/en, zh_CN, jp and kr.
 
 About 40 seconds, 1920x1080, 30 fps, H.264, no audio track. The Web Store
 takes a YouTube link, so upload the file to YouTube (unlisted is fine) and
@@ -430,7 +430,7 @@ def use_locale(locale):
 def render_video(locale):
     use_locale(locale)
     total = sum(length for _, length in SCENES)
-    folder = STORE if locale == "zh_TW" else STORE / locale
+    folder = store_images.store_folder(locale)
     folder.mkdir(parents=True, exist_ok=True)
     out_path = folder / "promo-video.mp4"
     container = av.open(str(out_path), "w")

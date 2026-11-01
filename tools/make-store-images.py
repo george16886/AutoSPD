@@ -1,6 +1,6 @@
 """Generate Chrome Web Store images, one set per language.
 
-Traditional Chinese goes in store/, the others in store/<locale>/.
+Traditional Chinese goes in store/, the others in store/en, zh_CN, jp and kr.
 
 - promo-small.png (440x280): the small promo tile, pixel-art style.
 - screenshot-*.png (1280x800): the popup and settings page, rendered with
@@ -75,6 +75,13 @@ PURPLE = (108, 92, 231)
 LAVENDER = (162, 155, 254)
 CYAN = (64, 232, 255)
 WHITE = (240, 237, 255)
+
+
+def store_folder(locale_name):
+    """Where a language's store assets live. jp and kr are only folder names here;
+    extension/_locales must keep Chrome's codes, ja and ko."""
+    folders = {"zh_TW": "", "ja": "jp", "ko": "kr"}
+    return STORE / folders.get(locale_name, locale_name)
 
 
 def pixel_text(text, font_path, size, scale, color):
@@ -261,7 +268,7 @@ def main():
             else:
                 shutil.copy(item, workdir / item.name)
         for locale_name, locale in LOCALES.items():
-            folder = STORE if locale_name == "zh_TW" else STORE / locale_name
+            folder = store_folder(locale_name)
             folder.mkdir(parents=True, exist_ok=True)
             promo_small(locale).save(folder / "promo-small.png")
             screenshot_popup(workdir, locale_name).save(folder / "screenshot-1-popup.png")
