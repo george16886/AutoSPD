@@ -29,7 +29,7 @@ function parseKeywords(text) {
 function validateYouTubeSpeeds(speeds, names = {}) {
     for (const [id, speed] of Object.entries(speeds)) {
         if (!Number.isFinite(speed) || speed < MIN_SPEED || speed > MAX_SPEED) {
-            return `YouTube 分類「${names[id] || id}」的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`;
+            return t('errYtSpeed', names[id] || id, MIN_SPEED, MAX_SPEED);
         }
     }
     return null;
@@ -39,7 +39,7 @@ function validateYouTubeSpeeds(speeds, names = {}) {
 function validateChannelRules(rules) {
     for (const rule of rules) {
         if (!Number.isFinite(rule.speed) || rule.speed < MIN_SPEED || rule.speed > MAX_SPEED) {
-            return `頻道「${rule.channel}」的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`;
+            return t('errChannelSpeed', rule.channel, MIN_SPEED, MAX_SPEED);
         }
     }
     return null;
@@ -52,15 +52,14 @@ function validateChannelRules(rules) {
 function validateCategories(categories, { requireMatchers = true } = {}) {
     const names = new Set();
     for (const [index, cat] of categories.entries()) {
-        const label = cat.name || `第 ${index + 1} 個分類`;
-        if (!cat.name) return `${label}：請輸入分類名稱。`;
-        if (names.has(cat.name)) return `「${cat.name}」重複了，請使用不同的分類名稱。`;
+        if (!cat.name) return t('errCategoryName', t('nthCategory', index + 1));
+        if (names.has(cat.name)) return t('errCategoryDuplicate', cat.name);
         names.add(cat.name);
         if (!Number.isFinite(cat.speed) || cat.speed < MIN_SPEED || cat.speed > MAX_SPEED) {
-            return `「${label}」的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`;
+            return t('errCategorySpeed', cat.name, MIN_SPEED, MAX_SPEED);
         }
         if (requireMatchers && cat.keywords.length === 0 && cat.ytCategoryIds.length === 0) {
-            return `「${label}」至少要有一個關鍵字或指定 YouTube 分類，否則不會比對到任何影片。`;
+            return t('errCategoryMatchers', cat.name);
         }
     }
     return null;
@@ -71,6 +70,7 @@ function createCategoryId() {
 }
 
 function initOptionsPage() {
+    localizePage();
     const list = document.getElementById('category-list');
     const template = document.getElementById('category-template');
     const message = document.getElementById('message');
@@ -115,9 +115,9 @@ function initOptionsPage() {
         card.querySelector('.field-keywords').value = (cat.keywords || []).join(', ');
 
         const select = card.querySelector('.field-yt-category');
-        select.append(new Option('不指定', ''));
+        select.append(new Option(t('notSpecified'), ''));
         for (const ytCategory of YT_CATEGORIES) {
-            select.append(new Option(`${ytCategory.zh} (${ytCategory.en})`, ytCategory.id));
+            select.append(new Option(t(`ytCategory${ytCategory.id}`), ytCategory.id));
         }
         select.value = cat.ytCategoryIds?.[0] || '';
 
@@ -140,9 +140,7 @@ function initOptionsPage() {
     function showMode(mode) {
         for (const input of modeInputs) input.checked = input.value === mode;
         keywordSection.hidden = mode === 'youtube';
-        youtubeHint.textContent = mode === 'youtube'
-            ? '沒有 YouTube 分類資訊的影片，會使用彈出視窗裡「未分類影片的預設速度」。'
-            : '影片沒有符合上方任何分類時，依它的 YouTube 分類套用這裡的速度。沒有 YouTube 分類資訊時，才使用「未分類影片的預設速度」。';
+        youtubeHint.textContent = t(mode === 'youtube' ? 'ytHintYouTubeMode' : 'ytHintFallback');
         aiStatus.hidden = mode !== 'ai';
         if (mode === 'ai') refreshAiStatus();
     }
@@ -156,17 +154,17 @@ function initOptionsPage() {
 
     async function refreshAiStatus() {
         if (typeof LanguageModel === 'undefined') {
-            setAiStatus('這個版本的 Chrome 不支援內建 AI。請更新 Chrome，或改用其他分類方式。', 'problem');
+            setAiStatus(t('aiNoChrome'), 'problem');
             return;
         }
         try {
             const availability = await LanguageModel.availability(AI_LANGUAGES);
-            if (availability === 'available') setAiStatus('✓ AI 模型已就緒', 'ready');
-            else if (availability === 'downloadable') setAiStatus('使用前需要先下載 AI 模型（數 GB，只需下載一次）。', '', true);
-            else if (availability === 'downloading') setAiStatus('AI 模型下載中，完成後就會開始使用…');
-            else setAiStatus('這台電腦不符合 Chrome 內建 AI 的硬體需求，請改用其他分類方式。', 'problem');
+            if (availability === 'available') setAiStatus(t('aiReady'), 'ready');
+            else if (availability === 'downloadable') setAiStatus(t('aiNeedsDownload'), '', true);
+            else if (availability === 'downloading') setAiStatus(t('aiDownloadingWait'));
+            else setAiStatus(t('aiNoHardware'), 'problem');
         } catch (error) {
-            setAiStatus(`無法檢查 AI 模型：${error.message}`, 'problem');
+            setAiStatus(t('aiCheckFailed', error.message), 'problem');
         }
     }
 
@@ -179,10 +177,7 @@ function initOptionsPage() {
             const row = document.createElement('label');
             row.className = 'yt-speed-row';
             const name = document.createElement('span');
-            name.textContent = ytCategory.zh;
-            const en = document.createElement('small');
-            en.textContent = ytCategory.en;
-            name.append(en);
+            name.textContent = t(`ytCategory${ytCategory.id}`);
             const speed = document.createElement('span');
             speed.className = 'speed';
             const input = document.createElement('input');
@@ -193,7 +188,7 @@ function initOptionsPage() {
             input.className = 'field-speed';
             input.dataset.ytCategory = ytCategory.id;
             input.value = String(speeds[ytCategory.id] ?? ytCategory.speed);
-            input.setAttribute('aria-label', `${ytCategory.zh}的播放速度`);
+            input.setAttribute('aria-label', t('speedOfCategory', t(`ytCategory${ytCategory.id}`)));
             const unit = document.createElement('span');
             unit.textContent = 'x';
             speed.append(input, unit);
@@ -259,14 +254,14 @@ function initOptionsPage() {
                 ...AI_LANGUAGES,
                 monitor(monitor) {
                     monitor.addEventListener('downloadprogress', event => {
-                        setAiStatus(`AI 模型下載中… ${Math.round(event.loaded * 100)}%`);
+                        setAiStatus(t('aiDownloadProgress', Math.round(event.loaded * 100)));
                     });
                 }
             });
             session.destroy();
             await refreshAiStatus();
         } catch (error) {
-            setAiStatus(`下載失敗：${error.message}`, 'problem', true);
+            setAiStatus(t('aiDownloadFailed', error.message), 'problem', true);
         } finally {
             aiDownload.disabled = false;
         }
@@ -297,13 +292,13 @@ function initOptionsPage() {
     });
 
     document.getElementById('reset-categories').addEventListener('click', async () => {
-        if (!confirm('確定要還原成預設分類嗎？你新增和修改過的分類都會被清除。')) return;
+        if (!confirm(t('confirmReset'))) return;
         try {
             const { categories } = await send({ type: 'reset-categories' });
             render(categories);
-            showMessage('已還原預設分類');
+            showMessage(t('resetDone'));
         } catch (error) {
-            showMessage(error.message || '還原失敗', true);
+            showMessage(error.message || t('resetFailed'), true);
         }
     });
 
@@ -313,10 +308,10 @@ function initOptionsPage() {
         const classifyMode = readMode();
         const liveReplaySpeed = Math.round(Number(replaySpeed.value) * 100) / 100;
         const replayError = !Number.isFinite(liveReplaySpeed) || liveReplaySpeed < MIN_SPEED || liveReplaySpeed > MAX_SPEED
-            ? `直播重播的速度必須介於 ${MIN_SPEED} 到 ${MAX_SPEED} 之間。`
+            ? t('errReplaySpeed', MIN_SPEED, MAX_SPEED)
             : null;
         const ytCategorySpeeds = readYouTubeSpeeds();
-        const ytNames = Object.fromEntries(YT_CATEGORIES.map(cat => [cat.id, cat.zh]));
+        const ytNames = Object.fromEntries(YT_CATEGORIES.map(cat => [cat.id, t(`ytCategory${cat.id}`)]));
         const error = replayError
             || validateYouTubeSpeeds(ytCategorySpeeds, ytNames)
             || validateChannelRules(channelRules)
@@ -344,12 +339,12 @@ function initOptionsPage() {
             });
             await send({ type: 'save-categories', categories });
             setDirty(false);
-            showMessage(`已儲存 ${categories.length} 個分類和 ${channelRules.length} 個頻道規則，開啟中的 YouTube 分頁會立即套用。`);
+            showMessage(t('savedSummary', categories.length, channelRules.length));
         } catch (saveError) {
             const quota = /quota/i.test(saveError.message || '');
             showMessage(quota
-                ? '分類資料超過 Chrome 同步容量上限，請減少關鍵字或分類數量。'
-                : (saveError.message || '儲存失敗'), true);
+                ? t('errQuota')
+                : (saveError.message || t('errSave')), true);
         }
     });
 
@@ -368,7 +363,7 @@ function initOptionsPage() {
             replaySpeed.value = String(settings.liveReplaySpeed ?? 1.5);
             showMode(['youtube', 'ai'].includes(settings.classifyMode) ? settings.classifyMode : 'keywords');
         })
-        .catch(error => showMessage(error.message || '無法載入設定', true));
+        .catch(error => showMessage(error.message || t('errLoadSettings'), true));
 }
 
 if (typeof document !== 'undefined') initOptionsPage();

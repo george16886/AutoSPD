@@ -1,0 +1,602 @@
+{
+  "extName": {
+    "message": "AutoSPD for YouTube — AI 智慧播放速度"
+  },
+  "extDescription": {
+    "message": "依影片內容自動調整 YouTube 播放速度：用關鍵字、YouTube 分類或本機 AI 判斷，支援頻道規則，直播與音樂固定 1x。"
+  },
+  "popupSubtitle": {
+    "message": "AI 智慧播放速度 for YouTube"
+  },
+  "currentVideo": {
+    "message": "目前影片"
+  },
+  "checkingTab": {
+    "message": "正在檢查 YouTube 分頁…"
+  },
+  "loading": {
+    "message": "讀取中"
+  },
+  "defaultSpeedLabel": {
+    "message": "未分類影片的預設速度"
+  },
+  "save": {
+    "message": "儲存"
+  },
+  "set": {
+    "message": "設定"
+  },
+  "remove": {
+    "message": "移除"
+  },
+  "apply": {
+    "message": "套用"
+  },
+  "channelRuleDefault": {
+    "message": "這個頻道一律使用"
+  },
+  "channelRuleLabel": {
+    "message": "「$arg1$」的影片一律使用",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "channelRuleLabelSet": {
+    "message": "「$arg1$」的影片一律使用（已設定）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualLabel": {
+    "message": "只套用到目前影片"
+  },
+  "autoSpeedTitle": {
+    "message": "自動分類調速"
+  },
+  "autoSpeedHint": {
+    "message": "依影片標題和分類規則套用速度"
+  },
+  "hideCaptionsTitle": {
+    "message": "自動關閉 CC 字幕"
+  },
+  "hideCaptionsHint": {
+    "message": "影片開始時關閉 YouTube 自動開啟的字幕"
+  },
+  "notificationsTitle": {
+    "message": "顯示速度提示"
+  },
+  "notificationsHint": {
+    "message": "換影片時在影片左上角顯示分類和速度"
+  },
+  "manageCategories": {
+    "message": "管理分類與關鍵字 →"
+  },
+  "speedRange": {
+    "message": "速度範圍：0.25x–2x"
+  },
+  "openYouTube": {
+    "message": "請先在此分頁開啟 YouTube 影片"
+  },
+  "notConnected": {
+    "message": "尚未連線"
+  },
+  "loadingVideoInfo": {
+    "message": "正在載入影片資訊…"
+  },
+  "playerUnreachable": {
+    "message": "無法連線至 YouTube 播放器"
+  },
+  "reloadTab": {
+    "message": "請重新整理 YouTube 分頁後再試"
+  },
+  "loadFailed": {
+    "message": "載入失敗"
+  },
+  "noVideoToControl": {
+    "message": "目前沒有可控制的 YouTube 影片。"
+  },
+  "speedRangeError": {
+    "message": "請輸入 0.25 到 2 之間的速度。"
+  },
+  "metaYouTubeCategory": {
+    "message": "YouTube 分類：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "metaChannel": {
+    "message": "頻道：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadable": {
+    "message": "AI 模型尚未下載，請到設定頁下載"
+  },
+  "aiDownloading": {
+    "message": "AI 模型下載中"
+  },
+  "aiUnavailable": {
+    "message": "這台電腦無法使用 AI 分析"
+  },
+  "aiUnsupported": {
+    "message": "這個版本的 Chrome 不支援 AI 分析"
+  },
+  "aiTimeout": {
+    "message": "AI 分析逾時"
+  },
+  "aiFailed": {
+    "message": "AI 分析失敗（$arg1$）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusAutoOff": {
+    "message": "自動調速已關閉"
+  },
+  "statusNotVideo": {
+    "message": "目前分頁不是影片頁"
+  },
+  "statusError": {
+    "message": "套用失敗，請重新整理頁面"
+  },
+  "statusDetecting": {
+    "message": "正在判斷影片類型…"
+  },
+  "autoSpeedOn": {
+    "message": "自動調速已開啟"
+  },
+  "saveFailed": {
+    "message": "設定儲存失敗"
+  },
+  "noticeOn": {
+    "message": "速度提示已開啟"
+  },
+  "noticeOff": {
+    "message": "速度提示已關閉"
+  },
+  "captionsOn": {
+    "message": "之後開啟的影片會自動關閉字幕"
+  },
+  "captionsOff": {
+    "message": "已停止自動關閉字幕"
+  },
+  "channelRuleSaved": {
+    "message": "「$arg1$」的影片之後都會使用 $arg2$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "channelRuleRemoved": {
+    "message": "已移除「$arg1$」的頻道規則",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultSpeedSaved": {
+    "message": "未分類影片預設速度已儲存為 $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualApplied": {
+    "message": "目前影片已設定為 $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualFailed": {
+    "message": "無法套用播放速度"
+  },
+  "toastSpeed": {
+    "message": "AutoSPD：$arg1$ · $arg2$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "toastManual": {
+    "message": "AutoSPD：已手動設定為 $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uncategorized": {
+    "message": "未分類"
+  },
+  "errCannotApply": {
+    "message": "目前無法套用這個播放速度"
+  },
+  "labelLive": {
+    "message": "直播"
+  },
+  "labelMusic": {
+    "message": "音樂 / MV"
+  },
+  "labelReplay": {
+    "message": "直播重播"
+  },
+  "labelYouTube": {
+    "message": "YouTube：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelChannel": {
+    "message": "頻道：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelAi": {
+    "message": "$arg1$（AI）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ytCategory1": {
+    "message": "電影與動畫"
+  },
+  "ytCategory2": {
+    "message": "汽車"
+  },
+  "ytCategory10": {
+    "message": "音樂"
+  },
+  "ytCategory15": {
+    "message": "寵物與動物"
+  },
+  "ytCategory17": {
+    "message": "體育"
+  },
+  "ytCategory19": {
+    "message": "旅遊與活動"
+  },
+  "ytCategory20": {
+    "message": "遊戲"
+  },
+  "ytCategory22": {
+    "message": "人物與網誌"
+  },
+  "ytCategory23": {
+    "message": "喜劇"
+  },
+  "ytCategory24": {
+    "message": "娛樂"
+  },
+  "ytCategory25": {
+    "message": "新聞與政治"
+  },
+  "ytCategory26": {
+    "message": "DIY 與生活百科"
+  },
+  "ytCategory27": {
+    "message": "教育"
+  },
+  "ytCategory28": {
+    "message": "科學與技術"
+  },
+  "ytCategory29": {
+    "message": "非營利組織與行動主義"
+  },
+  "optionsTitle": {
+    "message": "AutoSPD 分類設定"
+  },
+  "optionsHeading": {
+    "message": "分類設定"
+  },
+  "optionsIntro": {
+    "message": "選擇影片要怎麼分類，再為每個分類設定播放速度。"
+  },
+  "modeLegend": {
+    "message": "分類方式"
+  },
+  "modeKeywordsTitle": {
+    "message": "關鍵字分類"
+  },
+  "modeKeywordsHint": {
+    "message": "依影片標題、標籤、頻道名稱比對你設定的分類與關鍵字，可以細分到你常看的內容類型。都沒有符合時，改用 YouTube 分類的速度。"
+  },
+  "modeYouTubeTitle": {
+    "message": "YouTube 分類"
+  },
+  "modeYouTubeHint": {
+    "message": "使用上傳者為影片選的 YouTube 分類。結果穩定、不受標題影響，但分類比較粗，例如大部分談話節目都在「娛樂」或「人物與網誌」。"
+  },
+  "modeAiTitle": {
+    "message": "AI 內容分析（實驗性）"
+  },
+  "modeAiHint": {
+    "message": "由 Chrome 內建的 AI 模型（Gemini Nano，在你的電腦上執行，資料不會上傳）判斷影片實際在講什麼，不受聳動標題影響，再對應到下方的分類。影片會先用關鍵字結果調速，約 1～2 秒後依 AI 判斷修正；每支影片只判斷一次。"
+  },
+  "aiDownloadButton": {
+    "message": "下載 AI 模型"
+  },
+  "keywordHelp": {
+    "message": "影片標題、標籤或頻道名稱含有關鍵字，或 YouTube 分類相符時，就套用該分類的速度。英文關鍵字以整個單字比對（例如 TED 不會比對到 tested），中文以字串比對。多個關鍵字用逗號、頓號或換行分隔。"
+  },
+  "addCategory": {
+    "message": "＋ 新增分類"
+  },
+  "resetCategories": {
+    "message": "還原預設分類"
+  },
+  "ytSpeedsHeading": {
+    "message": "YouTube 分類速度"
+  },
+  "ytHintYouTubeMode": {
+    "message": "沒有 YouTube 分類資訊的影片，會使用彈出視窗裡「未分類影片的預設速度」。"
+  },
+  "ytHintFallback": {
+    "message": "影片沒有符合上方任何分類時，依它的 YouTube 分類套用這裡的速度。沒有 YouTube 分類資訊時，才使用「未分類影片的預設速度」。"
+  },
+  "liveMusicHeading": {
+    "message": "直播與音樂"
+  },
+  "liveMusicHint": {
+    "message": "「固定 1x」優先於所有分類與頻道規則。你仍然可以自己手動調整速度。"
+  },
+  "fixedLiveTitle": {
+    "message": "直播固定 1x"
+  },
+  "fixedLiveHint": {
+    "message": "正在直播的影片。直播結束後的重播不受影響。"
+  },
+  "fixedMusicTitle": {
+    "message": "音樂 / MV 固定 1x"
+  },
+  "fixedMusicHint": {
+    "message": "YouTube 分類為音樂、YouTube 自動產生的「- Topic」音樂頻道，或標題、標籤含 MV、Official Video、歌詞、演唱會、直拍、인기가요 等字樣。"
+  },
+  "replayTitle": {
+    "message": "直播重播加速"
+  },
+  "replayHint": {
+    "message": "直播結束後的重播通常很長。沒有符合任何分類時，先用這個速度，才輪到 YouTube 分類的速度。頻道規則和分類仍然優先。"
+  },
+  "replaySpeedLabel": {
+    "message": "直播重播速度"
+  },
+  "channelRulesHeading": {
+    "message": "頻道規則"
+  },
+  "channelRulesHint": {
+    "message": "頻道規則優先於所有分類（直播、音樂的「固定 1x」除外）。在 YouTube 影片頁打開 AutoSPD 彈出視窗，就能為目前影片的頻道設定速度。"
+  },
+  "noChannelRules": {
+    "message": "還沒有頻道規則。"
+  },
+  "unsavedChanges": {
+    "message": "有未儲存的變更"
+  },
+  "enableCategory": {
+    "message": "啟用這個分類"
+  },
+  "enable": {
+    "message": "啟用"
+  },
+  "iconLabel": {
+    "message": "圖示"
+  },
+  "categoryNameLabel": {
+    "message": "分類名稱"
+  },
+  "playbackSpeedLabel": {
+    "message": "播放速度"
+  },
+  "deleteCategory": {
+    "message": "刪除分類"
+  },
+  "delete": {
+    "message": "刪除"
+  },
+  "keywordsLabel": {
+    "message": "關鍵字"
+  },
+  "keywordsPlaceholder": {
+    "message": "例如：開箱, unboxing, 評測"
+  },
+  "ytCategoryOptional": {
+    "message": "YouTube 分類（選填）"
+  },
+  "channelSpeedLabel": {
+    "message": "頻道速度"
+  },
+  "notSpecified": {
+    "message": "不指定"
+  },
+  "speedOfCategory": {
+    "message": "$arg1$的播放速度",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "nthCategory": {
+    "message": "第 $arg1$ 個分類",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryName": {
+    "message": "$arg1$：請輸入分類名稱。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryDuplicate": {
+    "message": "「$arg1$」重複了，請使用不同的分類名稱。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategorySpeed": {
+    "message": "「$arg1$」的速度必須介於 $arg2$ 到 $arg3$ 之間。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errCategoryMatchers": {
+    "message": "「$arg1$」至少要有一個關鍵字或指定 YouTube 分類，否則不會比對到任何影片。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errYtSpeed": {
+    "message": "YouTube 分類「$arg1$」的速度必須介於 $arg2$ 到 $arg3$ 之間。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errChannelSpeed": {
+    "message": "頻道「$arg1$」的速度必須介於 $arg2$ 到 $arg3$ 之間。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errReplaySpeed": {
+    "message": "直播重播的速度必須介於 $arg1$ 到 $arg2$ 之間。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "aiNoChrome": {
+    "message": "這個版本的 Chrome 不支援內建 AI。請更新 Chrome，或改用其他分類方式。"
+  },
+  "aiReady": {
+    "message": "✓ AI 模型已就緒"
+  },
+  "aiNeedsDownload": {
+    "message": "使用前需要先下載 AI 模型（數 GB，只需下載一次）。"
+  },
+  "aiDownloadingWait": {
+    "message": "AI 模型下載中，完成後就會開始使用…"
+  },
+  "aiNoHardware": {
+    "message": "這台電腦不符合 Chrome 內建 AI 的硬體需求，請改用其他分類方式。"
+  },
+  "aiCheckFailed": {
+    "message": "無法檢查 AI 模型：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadProgress": {
+    "message": "AI 模型下載中… $arg1$%",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadFailed": {
+    "message": "下載失敗：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmReset": {
+    "message": "確定要還原成預設分類嗎？你新增和修改過的分類都會被清除。"
+  },
+  "resetDone": {
+    "message": "已還原預設分類"
+  },
+  "resetFailed": {
+    "message": "還原失敗"
+  },
+  "savedSummary": {
+    "message": "已儲存 $arg1$ 個分類和 $arg2$ 個頻道規則，開啟中的 YouTube 分頁會立即套用。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errQuota": {
+    "message": "分類資料超過 Chrome 同步容量上限，請減少關鍵字或分類數量。"
+  },
+  "errSave": {
+    "message": "儲存失敗"
+  },
+  "errLoadSettings": {
+    "message": "無法載入設定"
+  }
+}

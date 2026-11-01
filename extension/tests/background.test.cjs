@@ -4,12 +4,10 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-// The worker loads yt-categories.js with importScripts; inline it the same way
-const backgroundSource = [
-    fs.readFileSync(path.join(__dirname, '..', 'yt-categories.js'), 'utf8'),
-    fs.readFileSync(path.join(__dirname, '..', 'background.js'), 'utf8')
-        .replace("importScripts('yt-categories.js');", '')
-].join('\n');
+const { joinSources } = require('./i18n-mock.cjs');
+
+// The worker's importScripts files, inlined in order, with Traditional Chinese messages
+const backgroundSource = joinSources('zh_TW', 'zh-TW', 'i18n.js', 'yt-categories.js', 'default-categories.js', 'background.js');
 
 function loadMatcher(storedData = {}) {
     const context = {

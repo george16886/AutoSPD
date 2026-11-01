@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,49 +12,49 @@
             <img class="brand-mark" src="icons/icon32.png" width="32" height="32" alt="">
             <div>
                 <h1>AutoSPD</h1>
-                <p>AI 智慧播放速度 for YouTube</p>
+                <p data-i18n="popupSubtitle"></p>
             </div>
         </header>
 
         <section class="video-card" aria-live="polite">
-            <p class="eyebrow">目前影片</p>
-            <p id="video-title" class="video-title">正在檢查 YouTube 分頁…</p>
-            <p id="video-status" class="video-status">讀取中</p>
+            <p class="eyebrow" data-i18n="currentVideo"></p>
+            <p id="video-title" class="video-title" data-i18n="checkingTab"></p>
+            <p id="video-status" class="video-status" data-i18n="loading"></p>
             <p id="video-meta" class="video-meta" hidden></p>
         </section>
 
         <section class="setting">
-            <label for="default-speed">未分類影片的預設速度</label>
+            <label for="default-speed" data-i18n="defaultSpeedLabel"></label>
             <div class="speed-control">
                 <input id="default-speed" type="number" min="0.25" max="2" step="0.05" value="1">
                 <span>x</span>
-                <button id="save-default" class="button button-secondary" type="button">儲存</button>
+                <button id="save-default" class="button button-secondary" type="button" data-i18n="save"></button>
             </div>
         </section>
 
         <section id="channel-rule" class="setting" hidden>
-            <label id="channel-rule-label" for="channel-speed">這個頻道一律使用</label>
+            <label id="channel-rule-label" for="channel-speed" data-i18n="channelRuleDefault"></label>
             <div class="speed-control">
                 <input id="channel-speed" type="number" min="0.25" max="2" step="0.05" value="1.5">
                 <span>x</span>
-                <button id="remove-channel-rule" class="button button-secondary" type="button" hidden>移除</button>
-                <button id="save-channel-rule" class="button" type="button">設定</button>
+                <button id="remove-channel-rule" class="button button-secondary" type="button" data-i18n="remove" hidden></button>
+                <button id="save-channel-rule" class="button" type="button" data-i18n="set"></button>
             </div>
         </section>
 
         <section class="setting">
-            <label for="manual-speed">只套用到目前影片</label>
+            <label for="manual-speed" data-i18n="manualLabel"></label>
             <div class="speed-control">
                 <input id="manual-speed" type="number" min="0.25" max="2" step="0.05" value="1">
                 <span>x</span>
-                <button id="apply-manual" class="button" type="button">套用</button>
+                <button id="apply-manual" class="button" type="button" data-i18n="apply"></button>
             </div>
         </section>
 
         <label class="toggle-row" for="auto-speed">
             <span>
-                <strong>自動分類調速</strong>
-                <small>依影片標題和分類規則套用速度</small>
+                <strong data-i18n="autoSpeedTitle"></strong>
+                <small data-i18n="autoSpeedHint"></small>
             </span>
             <input id="auto-speed" type="checkbox">
             <span class="toggle" aria-hidden="true"></span>
@@ -62,8 +62,8 @@
 
         <label class="toggle-row" for="hide-captions">
             <span>
-                <strong>自動關閉 CC 字幕</strong>
-                <small>影片開始時關閉 YouTube 自動開啟的字幕</small>
+                <strong data-i18n="hideCaptionsTitle"></strong>
+                <small data-i18n="hideCaptionsHint"></small>
             </span>
             <input id="hide-captions" type="checkbox">
             <span class="toggle" aria-hidden="true"></span>
@@ -71,18 +71,20 @@
 
         <label class="toggle-row" for="notifications">
             <span>
-                <strong>顯示速度提示</strong>
-                <small>換影片時在影片左上角顯示分類和速度</small>
+                <strong data-i18n="notificationsTitle"></strong>
+                <small data-i18n="notificationsHint"></small>
             </span>
             <input id="notifications" type="checkbox">
             <span class="toggle" aria-hidden="true"></span>
         </label>
 
-        <button id="open-options" class="link-button" type="button">管理分類與關鍵字 →</button>
+        <button id="open-options" class="link-button" type="button" data-i18n="manageCategories"></button>
 
         <p id="message" class="message" role="status"></p>
-        <footer>速度範圍：0.25x–2x</footer>
+        <footer data-i18n="speedRange"></footer>
     </main>
+    <script src="i18n.js"></script>
+    <script src="yt-categories.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>

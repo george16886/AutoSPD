@@ -1,14 +1,14 @@
 # Chrome 線上應用程式商店：上架資料
 
-送審時把下面的內容貼進開發者後台對應的欄位。圖片都在這個資料夾，由 `python tools/make-store-images.py` 產生；上傳用的 ZIP 由 `python tools/package.py` 產生在 `dist/`。
+送審時把下面的內容貼進開發者後台對應的欄位。這份是繁體中文；英文（預設語言）、簡中、日文、韓文的詳細說明與圖片見 [listing-translations.md](./listing-translations.md)。圖片都在這個資料夾，由 `python tools/make-store-images.py` 產生；上傳用的 ZIP 由 `python tools/package.py` 產生在 `dist/`。
 
 ## 商店資訊（Store listing）
 
-**名稱**（manifest 的 `name`，最多 75 字）
+**名稱**（來自 `_locales`，會自動帶入，最多 75 字）
 
 > AutoSPD for YouTube — AI 智慧播放速度
 
-**摘要**（manifest 的 `description`，最多 132 字，會自動帶入）
+**摘要**（來自 `_locales`，會自動帶入，最多 132 字）
 
 > 依影片內容自動調整 YouTube 播放速度：用關鍵字、YouTube 分類或本機 AI 判斷，支援頻道規則，直播與音樂固定 1x。
 

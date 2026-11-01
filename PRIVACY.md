@@ -1,6 +1,8 @@
 # AutoSPD for YouTube — AI 智慧播放速度 隱私權政策
 
-最後更新：2026 年 10 月 29 日
+最後更新：2026 年 11 月 2 日
+
+[English version](./PRIVACY.en.md)
 
 AutoSPD 是一個 Chrome 擴充功能，依 YouTube 影片的內容自動調整播放速度。本政策說明擴充功能會讀取、儲存哪些資料，以及這些資料的去向。
 

@@ -304,8 +304,7 @@
             if (!isAdShowing()) setVideoSpeed(activeVideo, speed);
 
             if (settings.notifications) {
-                const categoryName = state.category?.name || '未分類';
-                showToast(`AutoSPD：${categoryName} · ${speed}x`);
+                showToast(t('toastSpeed', state.category?.name || t('uncategorized'), speed));
             }
 
             // Channel rules and the fixed-1x rules decide on their own, so the model is not asked
@@ -362,7 +361,7 @@
             if (video && !isAdShowing()) setVideoSpeed(video, speed);
 
             if (speedChanged && settings.notifications) {
-                showToast(`AutoSPD：${state.category?.name || '未分類'} · ${speed}x`);
+                showToast(t('toastSpeed', state.category?.name || t('uncategorized'), speed));
             }
         } catch (error) {
             console.error('[AutoSPD] AI classification failed:', error);
@@ -389,7 +388,7 @@
         return {
             videoId: state.videoId,
             title: state.title,
-            categoryName: state.category?.name || (state.mode === 'disabled' ? '自動調速已關閉' : ''),
+            categoryName: state.category?.name || (state.mode === 'disabled' ? t('statusAutoOff') : ''),
             speed: state.speed,
             mode: state.mode,
             ytCategory: state.ytCategory,
@@ -408,11 +407,11 @@
             const speed = Number(message.speed);
             const video = getVideoElement();
             if (!getVideoId()) {
-                sendResponse({ error: '目前分頁不是影片頁' });
+                sendResponse({ error: t('statusNotVideo') });
                 return false;
             }
             if (!Number.isFinite(speed) || speed < 0.25 || speed > 2 || !video) {
-                sendResponse({ error: '目前無法套用這個播放速度' });
+                sendResponse({ error: t('errCannotApply') });
                 return false;
             }
 
@@ -423,7 +422,7 @@
             state.speed = speed;
             state.mode = 'manual';
             setVideoSpeed(video, speed);
-            showToast(`AutoSPD：已手動設定為 ${speed}x`);
+            showToast(t('toastManual', speed));
             sendResponse({ success: true, state: getPublicState() });
             return false;
         }

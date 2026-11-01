@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AutoSPD 分類設定</title>
+    <title data-i18n="optionsTitle"></title>
     <link rel="stylesheet" href="options.css">
 </head>
 <body>
@@ -11,55 +11,55 @@
         <header class="header">
             <img class="brand-mark" src="icons/icon48.png" width="48" height="48" alt="">
             <div>
-                <h1>分類設定</h1>
-                <p>選擇影片要怎麼分類，再為每個分類設定播放速度。</p>
+                <h1 data-i18n="optionsHeading"></h1>
+                <p data-i18n="optionsIntro"></p>
             </div>
         </header>
 
         <fieldset class="mode-section">
-            <legend>分類方式</legend>
+            <legend data-i18n="modeLegend"></legend>
             <label class="mode-option">
                 <input type="radio" name="classify-mode" value="keywords">
                 <span>
-                    <strong>關鍵字分類</strong>
-                    <small>依影片標題、標籤、頻道名稱比對你設定的分類與關鍵字，可以細分到你常看的內容類型。都沒有符合時，改用 YouTube 分類的速度。</small>
+                    <strong data-i18n="modeKeywordsTitle"></strong>
+                    <small data-i18n="modeKeywordsHint"></small>
                 </span>
             </label>
             <label class="mode-option">
                 <input type="radio" name="classify-mode" value="youtube">
                 <span>
-                    <strong>YouTube 分類</strong>
-                    <small>使用上傳者為影片選的 YouTube 分類。結果穩定、不受標題影響，但分類比較粗，例如大部分談話節目都在「娛樂」或「人物與網誌」。</small>
+                    <strong data-i18n="modeYouTubeTitle"></strong>
+                    <small data-i18n="modeYouTubeHint"></small>
                 </span>
             </label>
             <label class="mode-option">
                 <input type="radio" name="classify-mode" value="ai">
                 <span>
-                    <strong>AI 內容分析（實驗性）</strong>
-                    <small>由 Chrome 內建的 AI 模型（Gemini Nano，在你的電腦上執行，資料不會上傳）判斷影片實際在講什麼，不受聳動標題影響，再對應到下方的分類。影片會先用關鍵字結果調速，約 1～2 秒後依 AI 判斷修正；每支影片只判斷一次。</small>
+                    <strong data-i18n="modeAiTitle"></strong>
+                    <small data-i18n="modeAiHint"></small>
                 </span>
             </label>
             <div id="ai-status" class="ai-status" hidden>
                 <span id="ai-status-text"></span>
-                <button id="ai-download" class="button button-secondary" type="button" hidden>下載 AI 模型</button>
+                <button id="ai-download" class="button button-secondary" type="button" data-i18n="aiDownloadButton" hidden></button>
             </div>
         </fieldset>
 
         <section id="keyword-section">
             <section class="hint">
-                <p>影片標題、標籤或頻道名稱含有關鍵字，或 YouTube 分類相符時，就套用該分類的速度。英文關鍵字以整個單字比對（例如 <code>TED</code> 不會比對到 tested），中文以字串比對。多個關鍵字用逗號、頓號或換行分隔。</p>
+                <p data-i18n="keywordHelp"></p>
             </section>
 
             <div id="category-list" class="category-list"></div>
 
             <div class="actions">
-                <button id="add-category" class="button button-secondary" type="button">＋ 新增分類</button>
-                <button id="reset-categories" class="button button-ghost" type="button">還原預設分類</button>
+                <button id="add-category" class="button button-secondary" type="button" data-i18n="addCategory"></button>
+                <button id="reset-categories" class="button button-ghost" type="button" data-i18n="resetCategories"></button>
             </div>
         </section>
 
         <section id="youtube-section">
-            <h2>YouTube 分類速度</h2>
+            <h2 data-i18n="ytSpeedsHeading"></h2>
             <section class="hint">
                 <p id="youtube-hint"></p>
             </section>
@@ -67,31 +67,31 @@
         </section>
 
         <section class="channel-section">
-            <h2>直播與音樂</h2>
-            <p class="section-hint">「固定 1x」優先於所有分類與頻道規則。你仍然可以自己手動調整速度。</p>
+            <h2 data-i18n="liveMusicHeading"></h2>
+            <p class="section-hint" data-i18n="liveMusicHint"></p>
             <div class="fixed-list">
                 <label class="fixed-row">
                     <input id="fixed-live" type="checkbox">
                     <span>
-                        <strong>直播固定 1x</strong>
-                        <small>正在直播的影片。直播結束後的重播不受影響。</small>
+                        <strong data-i18n="fixedLiveTitle"></strong>
+                        <small data-i18n="fixedLiveHint"></small>
                     </span>
                 </label>
                 <label class="fixed-row">
                     <input id="fixed-music" type="checkbox">
                     <span>
-                        <strong>音樂 / MV 固定 1x</strong>
-                        <small>YouTube 分類為音樂、YouTube 自動產生的「- Topic」音樂頻道，或標題、標籤含 MV、Official Video、歌詞、演唱會、直拍、인기가요 等字樣。</small>
+                        <strong data-i18n="fixedMusicTitle"></strong>
+                        <small data-i18n="fixedMusicHint"></small>
                     </span>
                 </label>
                 <label class="fixed-row">
                     <input id="replay-enabled" type="checkbox">
                     <span>
-                        <strong>直播重播加速</strong>
-                        <small>直播結束後的重播通常很長。沒有符合任何分類時，用這個速度取代「未分類影片的預設速度」。頻道規則和分類仍然優先。</small>
+                        <strong data-i18n="replayTitle"></strong>
+                        <small data-i18n="replayHint"></small>
                     </span>
                     <span class="speed fixed-speed">
-                        <input id="replay-speed" type="number" min="0.25" max="2" step="0.05" aria-label="直播重播速度">
+                        <input id="replay-speed" type="number" min="0.25" max="2" step="0.05" data-i18n-aria-label="replaySpeedLabel">
                         <span>x</span>
                     </span>
                 </label>
@@ -99,16 +99,16 @@
         </section>
 
         <section class="channel-section">
-            <h2>頻道規則</h2>
-            <p class="section-hint">頻道規則優先於所有分類（直播、音樂的「固定 1x」除外）。在 YouTube 影片頁打開 AutoSPD 彈出視窗，就能為目前影片的頻道設定速度。</p>
+            <h2 data-i18n="channelRulesHeading"></h2>
+            <p class="section-hint" data-i18n="channelRulesHint"></p>
             <div id="channel-list" class="channel-list"></div>
-            <p id="channel-empty" class="section-hint" hidden>還沒有頻道規則。</p>
+            <p id="channel-empty" class="section-hint" data-i18n="noChannelRules" hidden></p>
         </section>
 
         <div class="actions actions-save">
             <span class="spacer"></span>
-            <span id="dirty" class="dirty" hidden>有未儲存的變更</span>
-            <button id="save" class="button" type="button">儲存</button>
+            <span id="dirty" class="dirty" data-i18n="unsavedChanges" hidden></span>
+            <button id="save" class="button" type="button" data-i18n="save"></button>
         </div>
         <p id="message" class="message" role="status"></p>
     </main>
@@ -116,26 +116,26 @@
     <template id="category-template">
         <article class="category">
             <div class="category-head">
-                <label class="switch" title="啟用這個分類">
+                <label class="switch" data-i18n-title="enableCategory">
                     <input class="field-enabled" type="checkbox">
                     <span class="toggle" aria-hidden="true"></span>
-                    <span class="visually-hidden">啟用</span>
+                    <span class="visually-hidden" data-i18n="enable"></span>
                 </label>
-                <input class="field-emoji" type="text" maxlength="4" aria-label="圖示">
-                <input class="field-name" type="text" maxlength="40" placeholder="分類名稱" aria-label="分類名稱">
+                <input class="field-emoji" type="text" maxlength="4" data-i18n-aria-label="iconLabel">
+                <input class="field-name" type="text" maxlength="40" data-i18n-placeholder="categoryNameLabel" data-i18n-aria-label="categoryNameLabel">
                 <label class="speed">
-                    <input class="field-speed" type="number" min="0.25" max="2" step="0.05" aria-label="播放速度">
+                    <input class="field-speed" type="number" min="0.25" max="2" step="0.05" data-i18n-aria-label="playbackSpeedLabel">
                     <span>x</span>
                 </label>
-                <button class="delete button button-ghost" type="button" aria-label="刪除分類">刪除</button>
+                <button class="delete button button-ghost" type="button" data-i18n="delete" data-i18n-aria-label="deleteCategory"></button>
             </div>
             <div class="category-body">
                 <label>
-                    <span>關鍵字</span>
-                    <textarea class="field-keywords" rows="2" placeholder="例如：開箱, unboxing, 評測"></textarea>
+                    <span data-i18n="keywordsLabel"></span>
+                    <textarea class="field-keywords" rows="2" data-i18n-placeholder="keywordsPlaceholder"></textarea>
                 </label>
                 <label>
-                    <span>YouTube 分類（選填）</span>
+                    <span data-i18n="ytCategoryOptional"></span>
                     <select class="field-yt-category"></select>
                 </label>
             </div>
@@ -146,13 +146,14 @@
         <div class="channel-row">
             <span class="channel-name"></span>
             <label class="speed">
-                <input class="field-channel-speed" type="number" min="0.25" max="2" step="0.05" aria-label="頻道速度">
+                <input class="field-channel-speed" type="number" min="0.25" max="2" step="0.05" data-i18n-aria-label="channelSpeedLabel">
                 <span>x</span>
             </label>
-            <button class="delete button button-ghost" type="button">刪除</button>
+            <button class="delete button button-ghost" type="button" data-i18n="delete"></button>
         </div>
     </template>
 
+    <script src="i18n.js"></script>
     <script src="yt-categories.js"></script>
     <script src="options.js"></script>
 </body>

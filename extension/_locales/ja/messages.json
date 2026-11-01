@@ -1,0 +1,602 @@
+{
+  "extName": {
+    "message": "AutoSPD for YouTube — AI スマート再生速度"
+  },
+  "extDescription": {
+    "message": "動画の内容に合わせて YouTube の再生速度を自動調整。キーワード、YouTube カテゴリ、端末内 AI で判定。チャンネルルール対応、ライブと音楽は 1x 固定。"
+  },
+  "popupSubtitle": {
+    "message": "YouTube 向け AI スマート再生速度"
+  },
+  "currentVideo": {
+    "message": "現在の動画"
+  },
+  "checkingTab": {
+    "message": "YouTube のタブを確認中…"
+  },
+  "loading": {
+    "message": "読み込み中"
+  },
+  "defaultSpeedLabel": {
+    "message": "未分類の動画の既定の速度"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "set": {
+    "message": "設定"
+  },
+  "remove": {
+    "message": "削除"
+  },
+  "apply": {
+    "message": "適用"
+  },
+  "channelRuleDefault": {
+    "message": "このチャンネルで常に使用"
+  },
+  "channelRuleLabel": {
+    "message": "「$arg1$」の動画で常に使用",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "channelRuleLabelSet": {
+    "message": "「$arg1$」の動画で常に使用（設定済み）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualLabel": {
+    "message": "この動画にのみ適用"
+  },
+  "autoSpeedTitle": {
+    "message": "自動速度調整"
+  },
+  "autoSpeedHint": {
+    "message": "動画の情報とルールに基づいて速度を適用"
+  },
+  "hideCaptionsTitle": {
+    "message": "CC 字幕を自動でオフ"
+  },
+  "hideCaptionsHint": {
+    "message": "YouTube が自動でオンにした字幕を動画の開始時にオフ"
+  },
+  "notificationsTitle": {
+    "message": "速度の通知を表示"
+  },
+  "notificationsHint": {
+    "message": "動画の切り替え時に左上へカテゴリと速度を表示"
+  },
+  "manageCategories": {
+    "message": "カテゴリとキーワードを管理 →"
+  },
+  "speedRange": {
+    "message": "速度の範囲：0.25x～2x"
+  },
+  "openYouTube": {
+    "message": "このタブで YouTube の動画を開いてください"
+  },
+  "notConnected": {
+    "message": "未接続"
+  },
+  "loadingVideoInfo": {
+    "message": "動画の情報を読み込み中…"
+  },
+  "playerUnreachable": {
+    "message": "YouTube プレーヤーに接続できません"
+  },
+  "reloadTab": {
+    "message": "YouTube のタブを再読み込みしてお試しください"
+  },
+  "loadFailed": {
+    "message": "読み込みに失敗しました"
+  },
+  "noVideoToControl": {
+    "message": "操作できる YouTube の動画がありません。"
+  },
+  "speedRangeError": {
+    "message": "0.25～2 の速度を入力してください。"
+  },
+  "metaYouTubeCategory": {
+    "message": "YouTube カテゴリ：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "metaChannel": {
+    "message": "チャンネル：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadable": {
+    "message": "AI モデルが未ダウンロードです。設定ページからダウンロードしてください"
+  },
+  "aiDownloading": {
+    "message": "AI モデルをダウンロード中"
+  },
+  "aiUnavailable": {
+    "message": "このパソコンでは AI 分析を使用できません"
+  },
+  "aiUnsupported": {
+    "message": "このバージョンの Chrome は AI 分析に対応していません"
+  },
+  "aiTimeout": {
+    "message": "AI 分析がタイムアウトしました"
+  },
+  "aiFailed": {
+    "message": "AI 分析に失敗しました（$arg1$）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusAutoOff": {
+    "message": "自動速度調整はオフです"
+  },
+  "statusNotVideo": {
+    "message": "このタブは動画ページではありません"
+  },
+  "statusError": {
+    "message": "適用できませんでした。ページを再読み込みしてください"
+  },
+  "statusDetecting": {
+    "message": "動画の種類を判定中…"
+  },
+  "autoSpeedOn": {
+    "message": "自動速度調整をオンにしました"
+  },
+  "saveFailed": {
+    "message": "設定を保存できませんでした"
+  },
+  "noticeOn": {
+    "message": "速度の通知をオンにしました"
+  },
+  "noticeOff": {
+    "message": "速度の通知をオフにしました"
+  },
+  "captionsOn": {
+    "message": "今後開く動画で字幕を自動でオフにします"
+  },
+  "captionsOff": {
+    "message": "字幕の自動オフを停止しました"
+  },
+  "channelRuleSaved": {
+    "message": "「$arg1$」の動画は今後 $arg2$x を使用します",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "channelRuleRemoved": {
+    "message": "「$arg1$」のチャンネルルールを削除しました",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultSpeedSaved": {
+    "message": "未分類の動画の既定の速度を $arg1$x に保存しました",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualApplied": {
+    "message": "この動画を $arg1$x に設定しました",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualFailed": {
+    "message": "再生速度を適用できませんでした"
+  },
+  "toastSpeed": {
+    "message": "AutoSPD：$arg1$ · $arg2$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "toastManual": {
+    "message": "AutoSPD：手動で $arg1$x に設定しました",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uncategorized": {
+    "message": "未分類"
+  },
+  "errCannotApply": {
+    "message": "現在この再生速度は適用できません"
+  },
+  "labelLive": {
+    "message": "ライブ"
+  },
+  "labelMusic": {
+    "message": "音楽 / MV"
+  },
+  "labelReplay": {
+    "message": "ライブのアーカイブ"
+  },
+  "labelYouTube": {
+    "message": "YouTube：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelChannel": {
+    "message": "チャンネル：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelAi": {
+    "message": "$arg1$（AI）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ytCategory1": {
+    "message": "映画とアニメ"
+  },
+  "ytCategory2": {
+    "message": "自動車と乗り物"
+  },
+  "ytCategory10": {
+    "message": "音楽"
+  },
+  "ytCategory15": {
+    "message": "ペットと動物"
+  },
+  "ytCategory17": {
+    "message": "スポーツ"
+  },
+  "ytCategory19": {
+    "message": "旅行とイベント"
+  },
+  "ytCategory20": {
+    "message": "ゲーム"
+  },
+  "ytCategory22": {
+    "message": "ブログ"
+  },
+  "ytCategory23": {
+    "message": "コメディー"
+  },
+  "ytCategory24": {
+    "message": "エンターテイメント"
+  },
+  "ytCategory25": {
+    "message": "ニュースと政治"
+  },
+  "ytCategory26": {
+    "message": "ハウツーとスタイル"
+  },
+  "ytCategory27": {
+    "message": "教育"
+  },
+  "ytCategory28": {
+    "message": "科学と技術"
+  },
+  "ytCategory29": {
+    "message": "非営利団体と社会活動"
+  },
+  "optionsTitle": {
+    "message": "AutoSPD カテゴリ設定"
+  },
+  "optionsHeading": {
+    "message": "カテゴリ設定"
+  },
+  "optionsIntro": {
+    "message": "動画の分類方法を選び、カテゴリごとに再生速度を設定します。"
+  },
+  "modeLegend": {
+    "message": "分類方法"
+  },
+  "modeKeywordsTitle": {
+    "message": "キーワード分類"
+  },
+  "modeKeywordsHint": {
+    "message": "動画のタイトル、タグ、チャンネル名をカテゴリとキーワードに照合します。よく見る内容に合わせて細かく分類できます。一致しない場合は YouTube カテゴリの速度を使います。"
+  },
+  "modeYouTubeTitle": {
+    "message": "YouTube カテゴリ"
+  },
+  "modeYouTubeHint": {
+    "message": "投稿者が選んだ YouTube カテゴリを使います。結果は安定しタイトルの影響を受けませんが、分類は大まかです。トーク番組の多くは「エンターテイメント」や「ブログ」に入ります。"
+  },
+  "modeAiTitle": {
+    "message": "AI コンテンツ分析（試験運用）"
+  },
+  "modeAiHint": {
+    "message": "Chrome 内蔵の AI モデル（Gemini Nano。パソコン上で動作し、データはアップロードされません）が動画の実際の内容を判定し、煽るようなタイトルに惑わされず下のカテゴリに割り当てます。動画はまずキーワードの結果で速度を設定し、1～2 秒後に AI の判定で修正します。分析は動画ごとに 1 回だけです。"
+  },
+  "aiDownloadButton": {
+    "message": "AI モデルをダウンロード"
+  },
+  "keywordHelp": {
+    "message": "タイトル、タグ、チャンネル名にキーワードが含まれるか、YouTube カテゴリが一致すると、そのカテゴリの速度を適用します。英語のキーワードは単語単位で照合し（TED は tested に一致しません）、日本語は文字列で照合します。キーワードはカンマ、読点、改行で区切ります。"
+  },
+  "addCategory": {
+    "message": "+ カテゴリを追加"
+  },
+  "resetCategories": {
+    "message": "既定のカテゴリに戻す"
+  },
+  "ytSpeedsHeading": {
+    "message": "YouTube カテゴリの速度"
+  },
+  "ytHintYouTubeMode": {
+    "message": "YouTube カテゴリの情報がない動画には、ポップアップの「未分類の動画の既定の速度」を使います。"
+  },
+  "ytHintFallback": {
+    "message": "上のどのカテゴリにも一致しない動画には、YouTube カテゴリに応じてここの速度を適用します。YouTube カテゴリの情報がない場合のみ「未分類の動画の既定の速度」を使います。"
+  },
+  "liveMusicHeading": {
+    "message": "ライブと音楽"
+  },
+  "liveMusicHint": {
+    "message": "「1x 固定」はすべてのカテゴリとチャンネルルールより優先されます。手動で速度を変更することはできます。"
+  },
+  "fixedLiveTitle": {
+    "message": "ライブを 1x に固定"
+  },
+  "fixedLiveHint": {
+    "message": "配信中の動画が対象です。終了後のアーカイブには影響しません。"
+  },
+  "fixedMusicTitle": {
+    "message": "音楽 / MV を 1x に固定"
+  },
+  "fixedMusicHint": {
+    "message": "YouTube の音楽カテゴリ、自動生成の「- Topic」チャンネル、またはタイトルやタグに MV、Official Video、歌ってみた、인기가요 などを含む動画。"
+  },
+  "replayTitle": {
+    "message": "ライブのアーカイブを高速化"
+  },
+  "replayHint": {
+    "message": "配信のアーカイブは長いことが多いです。どのカテゴリにも一致しないとき、YouTube カテゴリの速度より先にこの速度を使います。チャンネルルールとカテゴリが優先されます。"
+  },
+  "replaySpeedLabel": {
+    "message": "ライブのアーカイブの速度"
+  },
+  "channelRulesHeading": {
+    "message": "チャンネルルール"
+  },
+  "channelRulesHint": {
+    "message": "チャンネルルールはすべてのカテゴリより優先されます（ライブと音楽の「1x 固定」を除く）。動画ページで AutoSPD のポップアップを開くと、そのチャンネルの速度を設定できます。"
+  },
+  "noChannelRules": {
+    "message": "チャンネルルールはまだありません。"
+  },
+  "unsavedChanges": {
+    "message": "未保存の変更があります"
+  },
+  "enableCategory": {
+    "message": "このカテゴリを有効にする"
+  },
+  "enable": {
+    "message": "有効"
+  },
+  "iconLabel": {
+    "message": "アイコン"
+  },
+  "categoryNameLabel": {
+    "message": "カテゴリ名"
+  },
+  "playbackSpeedLabel": {
+    "message": "再生速度"
+  },
+  "deleteCategory": {
+    "message": "カテゴリを削除"
+  },
+  "delete": {
+    "message": "削除"
+  },
+  "keywordsLabel": {
+    "message": "キーワード"
+  },
+  "keywordsPlaceholder": {
+    "message": "例：開封, レビュー, unboxing"
+  },
+  "ytCategoryOptional": {
+    "message": "YouTube カテゴリ（任意）"
+  },
+  "channelSpeedLabel": {
+    "message": "チャンネルの速度"
+  },
+  "notSpecified": {
+    "message": "指定なし"
+  },
+  "speedOfCategory": {
+    "message": "$arg1$の再生速度",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "nthCategory": {
+    "message": "$arg1$ 番目のカテゴリ",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryName": {
+    "message": "$arg1$：カテゴリ名を入力してください。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryDuplicate": {
+    "message": "「$arg1$」が重複しています。別の名前にしてください。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategorySpeed": {
+    "message": "「$arg1$」の速度は $arg2$～$arg3$ にしてください。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errCategoryMatchers": {
+    "message": "「$arg1$」にはキーワードか YouTube カテゴリが必要です。ないと動画に一致しません。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errYtSpeed": {
+    "message": "YouTube カテゴリ「$arg1$」の速度は $arg2$～$arg3$ にしてください。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errChannelSpeed": {
+    "message": "チャンネル「$arg1$」の速度は $arg2$～$arg3$ にしてください。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errReplaySpeed": {
+    "message": "ライブのアーカイブの速度は $arg1$～$arg2$ にしてください。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "aiNoChrome": {
+    "message": "このバージョンの Chrome は内蔵 AI に対応していません。Chrome を更新するか、別の分類方法を使ってください。"
+  },
+  "aiReady": {
+    "message": "✓ AI モデルの準備ができました"
+  },
+  "aiNeedsDownload": {
+    "message": "先に AI モデルのダウンロードが必要です（数 GB、初回のみ）。"
+  },
+  "aiDownloadingWait": {
+    "message": "AI モデルをダウンロード中です。完了すると使用を開始します…"
+  },
+  "aiNoHardware": {
+    "message": "このパソコンは Chrome 内蔵 AI のハードウェア要件を満たしていません。別の分類方法を使ってください。"
+  },
+  "aiCheckFailed": {
+    "message": "AI モデルを確認できませんでした：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadProgress": {
+    "message": "AI モデルをダウンロード中… $arg1$%",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadFailed": {
+    "message": "ダウンロードに失敗しました：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmReset": {
+    "message": "既定のカテゴリに戻しますか？追加・編集したカテゴリは消去されます。"
+  },
+  "resetDone": {
+    "message": "既定のカテゴリに戻しました"
+  },
+  "resetFailed": {
+    "message": "復元できませんでした"
+  },
+  "savedSummary": {
+    "message": "カテゴリ $arg1$ 件とチャンネルルール $arg2$ 件を保存しました。開いている YouTube タブにすぐ適用されます。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errQuota": {
+    "message": "カテゴリのデータが Chrome の同期容量の上限を超えています。キーワードやカテゴリを減らしてください。"
+  },
+  "errSave": {
+    "message": "保存できませんでした"
+  },
+  "errLoadSettings": {
+    "message": "設定を読み込めませんでした"
+  }
+}

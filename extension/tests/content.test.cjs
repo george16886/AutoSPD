@@ -4,11 +4,10 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-// The manifest loads yt-categories.js before content.js in the same world
-const contentSource = [
-    fs.readFileSync(path.join(__dirname, '..', 'yt-categories.js'), 'utf8'),
-    fs.readFileSync(path.join(__dirname, '..', 'content.js'), 'utf8')
-].join('\n');
+const { joinSources } = require('./i18n-mock.cjs');
+
+// The manifest's content scripts, in order, with Traditional Chinese messages
+const contentSource = joinSources('zh_TW', 'zh-TW', 'i18n.js', 'yt-categories.js', 'content.js');
 
 function createVideo() {
     const listeners = new Map();

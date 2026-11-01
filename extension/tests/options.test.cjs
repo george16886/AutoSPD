@@ -4,13 +4,12 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-const optionsSource = fs.readFileSync(
-    path.join(__dirname, '..', 'options.js'),
-    'utf8'
-);
+const { joinSources } = require('./i18n-mock.cjs');
+
+const optionsSource = joinSources('zh_TW', 'zh-TW', 'i18n.js', 'yt-categories.js', 'options.js');
 
 function loadOptions() {
-    const context = {};
+    const context = { chrome: {} };
     vm.runInNewContext(optionsSource, context);
     return context;
 }

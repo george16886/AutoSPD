@@ -3,24 +3,9 @@
  * Handles storage sync, message routing, and category matching
  */
 
-importScripts('yt-categories.js');
+importScripts('i18n.js', 'yt-categories.js', 'default-categories.js');
 
-// Default categories (same as webapp)
-const DEFAULT_CATEGORIES = [
-    { id: 'sports', name: '球賽 / 體育', emoji: '⚽', speed: 1.0, keywords: ['足球', '籃球', 'NBA', 'MLB', '世界盃', '比賽', '賽事', '球賽', 'sports', 'match'], ytCategoryIds: ['17'], enabled: true },
-    { id: 'music', name: '音樂 / MV', emoji: '🎵', speed: 1.0, keywords: ['MV', '音樂', 'Music Video', '演唱會', 'concert', '歌曲', 'song', 'lyrics'], ytCategoryIds: ['10'], enabled: true },
-    { id: 'science', name: '科普知識', emoji: '🔬', speed: 1.25, keywords: ['科普', '科學', 'science', '知識', '物理', '化學', 'TED', '冷知識'], ytCategoryIds: ['28'], enabled: true },
-    { id: 'storytelling', name: '說故事', emoji: '📖', speed: 1.5, keywords: ['說故事', '故事', 'story', 'storytime', '都市傳說', '說書'], ytCategoryIds: [], enabled: true },
-    { id: 'unboxing', name: '開箱影片', emoji: '📦', speed: 1.5, keywords: ['開箱', 'unboxing', 'review', '評測', '體驗', '3C'], ytCategoryIds: [], enabled: true },
-    { id: 'gaming', name: '遊戲實況', emoji: '🎮', speed: 1.25, keywords: ['遊戲', 'game', 'gaming', '實況', 'gameplay', '攻略'], ytCategoryIds: ['20'], enabled: true },
-    { id: 'education', name: '教學課程', emoji: '📚', speed: 1.25, keywords: ['教學', 'tutorial', '課程', 'course', '學習', 'how to'], ytCategoryIds: ['27'], enabled: true },
-    { id: 'cooking', name: '料理烹飪', emoji: '🍳', speed: 1.5, keywords: ['料理', '烹飪', 'cooking', 'recipe', '食譜', '美食'], ytCategoryIds: [], enabled: true },
-    { id: 'fitness', name: '健身運動', emoji: '💪', speed: 1.0, keywords: ['健身', '運動', 'workout', 'fitness', 'exercise', '瑜珈'], ytCategoryIds: [], enabled: true },
-    { id: 'news', name: '新聞時事', emoji: '📰', speed: 1.5, keywords: ['新聞', 'news', '時事', '政治', '經濟', '國際'], ytCategoryIds: ['25'], enabled: true },
-    { id: 'movie_review', name: '電影評論', emoji: '🎬', speed: 1.25, keywords: ['電影', 'movie', 'film', '影評', '預告'], ytCategoryIds: ['1'], enabled: true },
-    { id: 'travel', name: '旅遊 Vlog', emoji: '✈️', speed: 1.25, keywords: ['旅遊', 'travel', 'vlog', '旅行', '景點'], ytCategoryIds: ['19'], enabled: true },
-    { id: 'investigation', name: '案件 / 調查解說', emoji: '🔍', speed: 1.5, keywords: ['調查', '案件', '命案', '懸案', '說案', '真實案件', '真相', '揭秘', '內幕', 'true crime'], ytCategoryIds: [], enabled: true }
-];
+const DEFAULT_CATEGORIES = buildDefaultCategories(chrome.i18n.getUILanguage());
 
 const DEFAULT_SETTINGS = {
     autoSpeed: true,
@@ -194,7 +179,7 @@ function youTubeCategoryMatch(videoInfo, settings) {
     if (!isValidSpeed(speed)) return null;
     return {
         speed,
-        category: { id: `yt_${ytCategory.id}`, name: `YouTube：${ytCategory.zh}` },
+        category: { id: `yt_${ytCategory.id}`, name: t('labelYouTube', t(`ytCategory${ytCategory.id}`)) },
         score: 0
     };
 }
@@ -203,7 +188,7 @@ function youTubeCategoryMatch(videoInfo, settings) {
 function defaultMatch(settings, videoInfo) {
     const replaySpeed = Number(settings.liveReplaySpeed);
     if (settings.liveReplayEnabled && isLiveReplay(videoInfo) && isValidSpeed(replaySpeed)) {
-        return { speed: replaySpeed, category: { id: 'live_replay', name: '直播重播' }, score: 0 };
+        return { speed: replaySpeed, category: { id: 'live_replay', name: t('labelReplay') }, score: 0 };
     }
     const fromYouTube = youTubeCategoryMatch(videoInfo, settings);
     if (fromYouTube) return fromYouTube;
@@ -238,10 +223,10 @@ function isMusicVideo(videoInfo) {
 
 function findFixedNormalSpeed(videoInfo, settings) {
     if (settings.fixedNormalForLive && videoInfo.isLive === true) {
-        return { id: 'fixed_live', name: '直播' };
+        return { id: 'fixed_live', name: t('labelLive') };
     }
     if (settings.fixedNormalForMusic && isMusicVideo(videoInfo)) {
-        return { id: 'fixed_music', name: '音樂 / MV' };
+        return { id: 'fixed_music', name: t('labelMusic') };
     }
     return null;
 }
@@ -275,7 +260,7 @@ async function matchVideoToCategory(videoInfo) {
     if (channelRule) {
         return {
             speed: channelRule.speed,
-            category: { id: 'channel', name: `頻道：${channelRule.channel}` },
+            category: { id: 'channel', name: t('labelChannel', channelRule.channel) },
             score: 0
         };
     }
@@ -291,7 +276,7 @@ async function matchVideoToCategory(videoInfo) {
         const cat = categories.find(item => item.id === videoInfo.aiCategoryId);
         const speed = Number(cat?.speed);
         if (cat && cat.enabled !== false && isValidSpeed(speed)) {
-            return { speed, category: { ...cat, name: `${cat.name}（AI）` }, score: 0 };
+            return { speed, category: { ...cat, name: t('labelAi', cat.name) }, score: 0 };
         }
     }
 

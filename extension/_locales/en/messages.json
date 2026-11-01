@@ -1,0 +1,602 @@
+{
+  "extName": {
+    "message": "AutoSPD for YouTube — AI Smart Playback Speed"
+  },
+  "extDescription": {
+    "message": "Sets YouTube playback speed by video content: keywords, YouTube categories or on-device AI. Channel rules; live and music stay 1x."
+  },
+  "popupSubtitle": {
+    "message": "AI smart playback speed for YouTube"
+  },
+  "currentVideo": {
+    "message": "Current video"
+  },
+  "checkingTab": {
+    "message": "Checking the YouTube tab…"
+  },
+  "loading": {
+    "message": "Loading"
+  },
+  "defaultSpeedLabel": {
+    "message": "Default speed for uncategorized videos"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "set": {
+    "message": "Set"
+  },
+  "remove": {
+    "message": "Remove"
+  },
+  "apply": {
+    "message": "Apply"
+  },
+  "channelRuleDefault": {
+    "message": "Always use for this channel"
+  },
+  "channelRuleLabel": {
+    "message": "Always use for \"$arg1$\"",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "channelRuleLabelSet": {
+    "message": "Always use for \"$arg1$\" (set)",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualLabel": {
+    "message": "Apply to this video only"
+  },
+  "autoSpeedTitle": {
+    "message": "Automatic speed"
+  },
+  "autoSpeedHint": {
+    "message": "Set the speed from the video and your rules"
+  },
+  "hideCaptionsTitle": {
+    "message": "Turn off CC captions"
+  },
+  "hideCaptionsHint": {
+    "message": "Turn off captions YouTube switches on by itself"
+  },
+  "notificationsTitle": {
+    "message": "Show speed notice"
+  },
+  "notificationsHint": {
+    "message": "Show the category and speed on the video when it changes"
+  },
+  "manageCategories": {
+    "message": "Manage categories and keywords →"
+  },
+  "speedRange": {
+    "message": "Speed range: 0.25x–2x"
+  },
+  "openYouTube": {
+    "message": "Open a YouTube video in this tab first"
+  },
+  "notConnected": {
+    "message": "Not connected"
+  },
+  "loadingVideoInfo": {
+    "message": "Loading video info…"
+  },
+  "playerUnreachable": {
+    "message": "Can't reach the YouTube player"
+  },
+  "reloadTab": {
+    "message": "Reload the YouTube tab and try again"
+  },
+  "loadFailed": {
+    "message": "Couldn't load"
+  },
+  "noVideoToControl": {
+    "message": "There's no YouTube video to control."
+  },
+  "speedRangeError": {
+    "message": "Enter a speed between 0.25 and 2."
+  },
+  "metaYouTubeCategory": {
+    "message": "YouTube category: $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "metaChannel": {
+    "message": "Channel: $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadable": {
+    "message": "AI model not downloaded; download it in Settings"
+  },
+  "aiDownloading": {
+    "message": "AI model downloading"
+  },
+  "aiUnavailable": {
+    "message": "This computer can't run AI analysis"
+  },
+  "aiUnsupported": {
+    "message": "This Chrome version doesn't support AI analysis"
+  },
+  "aiTimeout": {
+    "message": "AI analysis timed out"
+  },
+  "aiFailed": {
+    "message": "AI analysis failed ($arg1$)",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusAutoOff": {
+    "message": "Automatic speed is off"
+  },
+  "statusNotVideo": {
+    "message": "This tab isn't a video page"
+  },
+  "statusError": {
+    "message": "Couldn't apply; reload the page"
+  },
+  "statusDetecting": {
+    "message": "Working out the video type…"
+  },
+  "autoSpeedOn": {
+    "message": "Automatic speed on"
+  },
+  "saveFailed": {
+    "message": "Couldn't save the setting"
+  },
+  "noticeOn": {
+    "message": "Speed notice on"
+  },
+  "noticeOff": {
+    "message": "Speed notice off"
+  },
+  "captionsOn": {
+    "message": "Captions will be turned off on videos you open next"
+  },
+  "captionsOff": {
+    "message": "Stopped turning captions off"
+  },
+  "channelRuleSaved": {
+    "message": "Videos from \"$arg1$\" will now use $arg2$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "channelRuleRemoved": {
+    "message": "Removed the rule for \"$arg1$\"",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultSpeedSaved": {
+    "message": "Default speed saved as $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualApplied": {
+    "message": "This video is now at $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualFailed": {
+    "message": "Couldn't apply the speed"
+  },
+  "toastSpeed": {
+    "message": "AutoSPD: $arg1$ · $arg2$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "toastManual": {
+    "message": "AutoSPD: set to $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uncategorized": {
+    "message": "Uncategorized"
+  },
+  "errCannotApply": {
+    "message": "Can't apply this speed right now"
+  },
+  "labelLive": {
+    "message": "Live"
+  },
+  "labelMusic": {
+    "message": "Music / MV"
+  },
+  "labelReplay": {
+    "message": "Live replay"
+  },
+  "labelYouTube": {
+    "message": "YouTube: $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelChannel": {
+    "message": "Channel: $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelAi": {
+    "message": "$arg1$ (AI)",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ytCategory1": {
+    "message": "Film & Animation"
+  },
+  "ytCategory2": {
+    "message": "Autos & Vehicles"
+  },
+  "ytCategory10": {
+    "message": "Music"
+  },
+  "ytCategory15": {
+    "message": "Pets & Animals"
+  },
+  "ytCategory17": {
+    "message": "Sports"
+  },
+  "ytCategory19": {
+    "message": "Travel & Events"
+  },
+  "ytCategory20": {
+    "message": "Gaming"
+  },
+  "ytCategory22": {
+    "message": "People & Blogs"
+  },
+  "ytCategory23": {
+    "message": "Comedy"
+  },
+  "ytCategory24": {
+    "message": "Entertainment"
+  },
+  "ytCategory25": {
+    "message": "News & Politics"
+  },
+  "ytCategory26": {
+    "message": "Howto & Style"
+  },
+  "ytCategory27": {
+    "message": "Education"
+  },
+  "ytCategory28": {
+    "message": "Science & Technology"
+  },
+  "ytCategory29": {
+    "message": "Nonprofits & Activism"
+  },
+  "optionsTitle": {
+    "message": "AutoSPD category settings"
+  },
+  "optionsHeading": {
+    "message": "Category settings"
+  },
+  "optionsIntro": {
+    "message": "Choose how videos are classified, then set a playback speed for each category."
+  },
+  "modeLegend": {
+    "message": "Classification method"
+  },
+  "modeKeywordsTitle": {
+    "message": "Keywords"
+  },
+  "modeKeywordsHint": {
+    "message": "Match the video's title, tags and channel against your categories and keywords, as specific as the content you watch. If nothing matches, the YouTube category's speed is used."
+  },
+  "modeYouTubeTitle": {
+    "message": "YouTube categories"
+  },
+  "modeYouTubeHint": {
+    "message": "Use the YouTube category the uploader chose. Stable and unaffected by titles, but broad: most talk shows sit in Entertainment or People & Blogs."
+  },
+  "modeAiTitle": {
+    "message": "AI content analysis (experimental)"
+  },
+  "modeAiHint": {
+    "message": "Chrome's built-in AI model (Gemini Nano, running on your computer; nothing is uploaded) works out what a video is really about, ignoring sensational titles, and picks one of your categories below. The video starts at the keyword speed and is corrected after a second or two. Each video is analyzed once."
+  },
+  "aiDownloadButton": {
+    "message": "Download AI model"
+  },
+  "keywordHelp": {
+    "message": "A category applies when the title, tags or channel contain one of its keywords, or its YouTube category matches. English keywords match whole words (TED won't match \"tested\"); other languages match text. Separate keywords with commas or new lines."
+  },
+  "addCategory": {
+    "message": "+ Add category"
+  },
+  "resetCategories": {
+    "message": "Restore default categories"
+  },
+  "ytSpeedsHeading": {
+    "message": "YouTube category speeds"
+  },
+  "ytHintYouTubeMode": {
+    "message": "Videos with no YouTube category use \"Default speed for uncategorized videos\" in the popup."
+  },
+  "ytHintFallback": {
+    "message": "When a video matches none of the categories above, these speeds apply by its YouTube category. \"Default speed for uncategorized videos\" is only used when YouTube reports no category."
+  },
+  "liveMusicHeading": {
+    "message": "Live and music"
+  },
+  "liveMusicHint": {
+    "message": "\"Fixed 1x\" beats every category and channel rule. You can still change the speed by hand."
+  },
+  "fixedLiveTitle": {
+    "message": "Keep live streams at 1x"
+  },
+  "fixedLiveHint": {
+    "message": "Videos that are live right now. Replays of finished streams aren't affected."
+  },
+  "fixedMusicTitle": {
+    "message": "Keep music / MV at 1x"
+  },
+  "fixedMusicHint": {
+    "message": "YouTube's Music category, auto-generated \"- Topic\" channels, or titles and tags with terms like MV, Official Video, lyrics, concert, fancam or Inkigayo."
+  },
+  "replayTitle": {
+    "message": "Speed up live replays"
+  },
+  "replayHint": {
+    "message": "Replays of finished streams are usually long. When no category matches, this speed applies before the YouTube category speed. Channel rules and categories still win."
+  },
+  "replaySpeedLabel": {
+    "message": "Live replay speed"
+  },
+  "channelRulesHeading": {
+    "message": "Channel rules"
+  },
+  "channelRulesHint": {
+    "message": "Channel rules beat every category, except fixed 1x for live and music. Open the AutoSPD popup on a video page to set a speed for that channel."
+  },
+  "noChannelRules": {
+    "message": "No channel rules yet."
+  },
+  "unsavedChanges": {
+    "message": "Unsaved changes"
+  },
+  "enableCategory": {
+    "message": "Enable this category"
+  },
+  "enable": {
+    "message": "Enable"
+  },
+  "iconLabel": {
+    "message": "Icon"
+  },
+  "categoryNameLabel": {
+    "message": "Category name"
+  },
+  "playbackSpeedLabel": {
+    "message": "Playback speed"
+  },
+  "deleteCategory": {
+    "message": "Delete category"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "keywordsLabel": {
+    "message": "Keywords"
+  },
+  "keywordsPlaceholder": {
+    "message": "e.g. unboxing, review, hands-on"
+  },
+  "ytCategoryOptional": {
+    "message": "YouTube category (optional)"
+  },
+  "channelSpeedLabel": {
+    "message": "Channel speed"
+  },
+  "notSpecified": {
+    "message": "None"
+  },
+  "speedOfCategory": {
+    "message": "Playback speed for $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "nthCategory": {
+    "message": "Category $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryName": {
+    "message": "$arg1$: enter a category name.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryDuplicate": {
+    "message": "\"$arg1$\" is a duplicate; use a different name.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategorySpeed": {
+    "message": "Speed for \"$arg1$\" must be between $arg2$ and $arg3$.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errCategoryMatchers": {
+    "message": "\"$arg1$\" needs a keyword or a YouTube category, or it will never match a video.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errYtSpeed": {
+    "message": "Speed for YouTube category \"$arg1$\" must be between $arg2$ and $arg3$.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errChannelSpeed": {
+    "message": "Speed for channel \"$arg1$\" must be between $arg2$ and $arg3$.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errReplaySpeed": {
+    "message": "Live replay speed must be between $arg1$ and $arg2$.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "aiNoChrome": {
+    "message": "This Chrome version doesn't support built-in AI. Update Chrome or use another method."
+  },
+  "aiReady": {
+    "message": "✓ AI model ready"
+  },
+  "aiNeedsDownload": {
+    "message": "The AI model must be downloaded first (several GB, once only)."
+  },
+  "aiDownloadingWait": {
+    "message": "AI model downloading; it will be used when finished…"
+  },
+  "aiNoHardware": {
+    "message": "This computer doesn't meet Chrome's built-in AI requirements. Use another method."
+  },
+  "aiCheckFailed": {
+    "message": "Couldn't check the AI model: $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadProgress": {
+    "message": "AI model downloading… $arg1$%",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadFailed": {
+    "message": "Download failed: $arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmReset": {
+    "message": "Restore the default categories? Categories you added or edited will be cleared."
+  },
+  "resetDone": {
+    "message": "Default categories restored"
+  },
+  "resetFailed": {
+    "message": "Couldn't restore"
+  },
+  "savedSummary": {
+    "message": "Saved $arg1$ categories and $arg2$ channel rules. Open YouTube tabs apply them right away.",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errQuota": {
+    "message": "Categories exceed Chrome's sync storage limit. Remove some keywords or categories."
+  },
+  "errSave": {
+    "message": "Couldn't save"
+  },
+  "errLoadSettings": {
+    "message": "Couldn't load settings"
+  }
+}

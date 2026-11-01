@@ -29,6 +29,9 @@ AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的�
 │   ├── content.js        # YouTube 影片偵測與播放速度套用
 │   ├── page-bridge.js    # 在頁面環境讀取播放器資料（標題、標籤、YouTube 分類）
 │   ├── yt-categories.js  # YouTube 影片分類清單（背景、內容腳本、設定頁共用）
+│   ├── default-categories.js  # 各語言的預設分類與關鍵字
+│   ├── i18n.js           # 翻譯輔助函式
+│   ├── _locales/         # 介面翻譯（由 tools/make-locales.py 產生）
 │   ├── content.css       # 播放頁提示樣式
 │   ├── popup.html        # 擴充功能操作介面
 │   ├── popup.css
@@ -44,15 +47,22 @@ AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的�
 │   └── js/               # Firebase、登入、狀態、UI 與應用程式邏輯
 ├── store/                # Chrome 線上應用程式商店的上架文案、截圖與宣傳圖
 ├── tools/
+│   ├── make-locales.py   # 五種語言的翻譯表，產生 extension/_locales
 │   ├── make-icons.py     # 由 16×16 像素圖產生圖示與 logo（需要 Pillow）
 │   ├── make-store-images.py  # 產生商店截圖與宣傳圖（需要 Pillow 與 Chrome）
 │   ├── make-promo-video.py   # 產生商店宣傳影片（需要 Pillow 與 PyAV）
 │   └── package.py        # 打包上傳用的 ZIP 到 dist/（不含測試）
-├── PRIVACY.md            # 隱私權政策
+├── PRIVACY.md            # 隱私權政策（英文版：PRIVACY.en.md）
 ├── goal.md               # 原始產品需求與設計提示
 └── youtube-speed-controller-proposal.md
                           # 系統設計與開發提案
 ```
+
+## 多語言
+
+介面支援 English、繁體中文、簡體中文、日本語、한국어，依瀏覽器語言自動切換，其他語言顯示英文。預設分類的名稱和關鍵字也依語言提供，只在第一次安裝時寫入。
+
+要修改文字或新增語言，編輯 `tools/make-locales.py` 後執行 `python tools/make-locales.py`，測試會檢查每個語言的文字都齊全，以及程式用到的文字都存在。
 
 ## 網站本機預覽
 

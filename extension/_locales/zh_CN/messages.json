@@ -1,0 +1,602 @@
+{
+  "extName": {
+    "message": "AutoSPD for YouTube — AI 智能播放速度"
+  },
+  "extDescription": {
+    "message": "根据视频内容自动调整 YouTube 播放速度：通过关键词、YouTube 分类或本地 AI 判断，支持频道规则，直播与音乐固定 1x。"
+  },
+  "popupSubtitle": {
+    "message": "AI 智能播放速度 for YouTube"
+  },
+  "currentVideo": {
+    "message": "当前视频"
+  },
+  "checkingTab": {
+    "message": "正在检查 YouTube 标签页…"
+  },
+  "loading": {
+    "message": "读取中"
+  },
+  "defaultSpeedLabel": {
+    "message": "未分类视频的默认速度"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "set": {
+    "message": "设置"
+  },
+  "remove": {
+    "message": "移除"
+  },
+  "apply": {
+    "message": "应用"
+  },
+  "channelRuleDefault": {
+    "message": "此频道始终使用"
+  },
+  "channelRuleLabel": {
+    "message": "“$arg1$”的视频始终使用",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "channelRuleLabelSet": {
+    "message": "“$arg1$”的视频始终使用（已设置）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualLabel": {
+    "message": "仅应用于当前视频"
+  },
+  "autoSpeedTitle": {
+    "message": "自动分类调速"
+  },
+  "autoSpeedHint": {
+    "message": "根据视频标题和分类规则应用速度"
+  },
+  "hideCaptionsTitle": {
+    "message": "自动关闭 CC 字幕"
+  },
+  "hideCaptionsHint": {
+    "message": "视频开始时关闭 YouTube 自动开启的字幕"
+  },
+  "notificationsTitle": {
+    "message": "显示速度提示"
+  },
+  "notificationsHint": {
+    "message": "切换视频时在视频左上角显示分类和速度"
+  },
+  "manageCategories": {
+    "message": "管理分类与关键词 →"
+  },
+  "speedRange": {
+    "message": "速度范围：0.25x–2x"
+  },
+  "openYouTube": {
+    "message": "请先在此标签页打开 YouTube 视频"
+  },
+  "notConnected": {
+    "message": "尚未连接"
+  },
+  "loadingVideoInfo": {
+    "message": "正在加载视频信息…"
+  },
+  "playerUnreachable": {
+    "message": "无法连接到 YouTube 播放器"
+  },
+  "reloadTab": {
+    "message": "请刷新 YouTube 标签页后重试"
+  },
+  "loadFailed": {
+    "message": "加载失败"
+  },
+  "noVideoToControl": {
+    "message": "当前没有可控制的 YouTube 视频。"
+  },
+  "speedRangeError": {
+    "message": "请输入 0.25 到 2 之间的速度。"
+  },
+  "metaYouTubeCategory": {
+    "message": "YouTube 分类：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "metaChannel": {
+    "message": "频道：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadable": {
+    "message": "AI 模型尚未下载，请到设置页下载"
+  },
+  "aiDownloading": {
+    "message": "AI 模型下载中"
+  },
+  "aiUnavailable": {
+    "message": "这台电脑无法使用 AI 分析"
+  },
+  "aiUnsupported": {
+    "message": "此版本的 Chrome 不支持 AI 分析"
+  },
+  "aiTimeout": {
+    "message": "AI 分析超时"
+  },
+  "aiFailed": {
+    "message": "AI 分析失败（$arg1$）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusAutoOff": {
+    "message": "自动调速已关闭"
+  },
+  "statusNotVideo": {
+    "message": "当前标签页不是视频页"
+  },
+  "statusError": {
+    "message": "应用失败，请刷新页面"
+  },
+  "statusDetecting": {
+    "message": "正在判断视频类型…"
+  },
+  "autoSpeedOn": {
+    "message": "自动调速已开启"
+  },
+  "saveFailed": {
+    "message": "设置保存失败"
+  },
+  "noticeOn": {
+    "message": "速度提示已开启"
+  },
+  "noticeOff": {
+    "message": "速度提示已关闭"
+  },
+  "captionsOn": {
+    "message": "之后打开的视频会自动关闭字幕"
+  },
+  "captionsOff": {
+    "message": "已停止自动关闭字幕"
+  },
+  "channelRuleSaved": {
+    "message": "“$arg1$”的视频之后都会使用 $arg2$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "channelRuleRemoved": {
+    "message": "已移除“$arg1$”的频道规则",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultSpeedSaved": {
+    "message": "未分类视频默认速度已保存为 $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualApplied": {
+    "message": "当前视频已设置为 $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "manualFailed": {
+    "message": "无法应用播放速度"
+  },
+  "toastSpeed": {
+    "message": "AutoSPD：$arg1$ · $arg2$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "toastManual": {
+    "message": "AutoSPD：已手动设置为 $arg1$x",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uncategorized": {
+    "message": "未分类"
+  },
+  "errCannotApply": {
+    "message": "当前无法应用此播放速度"
+  },
+  "labelLive": {
+    "message": "直播"
+  },
+  "labelMusic": {
+    "message": "音乐 / MV"
+  },
+  "labelReplay": {
+    "message": "直播回放"
+  },
+  "labelYouTube": {
+    "message": "YouTube：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelChannel": {
+    "message": "频道：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "labelAi": {
+    "message": "$arg1$（AI）",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "ytCategory1": {
+    "message": "电影与动画"
+  },
+  "ytCategory2": {
+    "message": "汽车"
+  },
+  "ytCategory10": {
+    "message": "音乐"
+  },
+  "ytCategory15": {
+    "message": "宠物与动物"
+  },
+  "ytCategory17": {
+    "message": "体育"
+  },
+  "ytCategory19": {
+    "message": "旅游与活动"
+  },
+  "ytCategory20": {
+    "message": "游戏"
+  },
+  "ytCategory22": {
+    "message": "人物与博客"
+  },
+  "ytCategory23": {
+    "message": "喜剧"
+  },
+  "ytCategory24": {
+    "message": "娱乐"
+  },
+  "ytCategory25": {
+    "message": "新闻与政治"
+  },
+  "ytCategory26": {
+    "message": "DIY 与生活百科"
+  },
+  "ytCategory27": {
+    "message": "教育"
+  },
+  "ytCategory28": {
+    "message": "科学与技术"
+  },
+  "ytCategory29": {
+    "message": "非营利组织与社会活动"
+  },
+  "optionsTitle": {
+    "message": "AutoSPD 分类设置"
+  },
+  "optionsHeading": {
+    "message": "分类设置"
+  },
+  "optionsIntro": {
+    "message": "选择视频的分类方式，再为每个分类设置播放速度。"
+  },
+  "modeLegend": {
+    "message": "分类方式"
+  },
+  "modeKeywordsTitle": {
+    "message": "关键词分类"
+  },
+  "modeKeywordsHint": {
+    "message": "根据视频标题、标签、频道名称匹配你设置的分类与关键词，可以细分到你常看的内容类型。都不匹配时，改用 YouTube 分类的速度。"
+  },
+  "modeYouTubeTitle": {
+    "message": "YouTube 分类"
+  },
+  "modeYouTubeHint": {
+    "message": "使用上传者为视频选择的 YouTube 分类。结果稳定、不受标题影响，但分类较粗，例如大部分谈话节目都在“娱乐”或“人物与博客”。"
+  },
+  "modeAiTitle": {
+    "message": "AI 内容分析（实验性）"
+  },
+  "modeAiHint": {
+    "message": "由 Chrome 内置的 AI 模型（Gemini Nano，在你的电脑上运行，数据不会上传）判断视频实际在讲什么，不受耸动标题影响，再对应到下方的分类。视频会先按关键词结果调速，约 1～2 秒后根据 AI 判断修正；每个视频只判断一次。"
+  },
+  "aiDownloadButton": {
+    "message": "下载 AI 模型"
+  },
+  "keywordHelp": {
+    "message": "视频标题、标签或频道名称含有关键词，或 YouTube 分类相符时，就应用该分类的速度。英文关键词按整个单词匹配（例如 TED 不会匹配 tested），中文按字符串匹配。多个关键词用逗号、顿号或换行分隔。"
+  },
+  "addCategory": {
+    "message": "＋ 新增分类"
+  },
+  "resetCategories": {
+    "message": "恢复默认分类"
+  },
+  "ytSpeedsHeading": {
+    "message": "YouTube 分类速度"
+  },
+  "ytHintYouTubeMode": {
+    "message": "没有 YouTube 分类信息的视频，会使用弹出窗口里的“未分类视频的默认速度”。"
+  },
+  "ytHintFallback": {
+    "message": "视频不符合上方任何分类时，根据其 YouTube 分类应用这里的速度。没有 YouTube 分类信息时，才使用“未分类视频的默认速度”。"
+  },
+  "liveMusicHeading": {
+    "message": "直播与音乐"
+  },
+  "liveMusicHint": {
+    "message": "“固定 1x”优先于所有分类与频道规则。你仍然可以手动调整速度。"
+  },
+  "fixedLiveTitle": {
+    "message": "直播固定 1x"
+  },
+  "fixedLiveHint": {
+    "message": "正在直播的视频。直播结束后的回放不受影响。"
+  },
+  "fixedMusicTitle": {
+    "message": "音乐 / MV 固定 1x"
+  },
+  "fixedMusicHint": {
+    "message": "YouTube 分类为音乐、YouTube 自动生成的“- Topic”音乐频道，或标题、标签含 MV、Official Video、歌词、演唱会、直拍、인기가요 等字样。"
+  },
+  "replayTitle": {
+    "message": "直播回放加速"
+  },
+  "replayHint": {
+    "message": "直播结束后的回放通常很长。不符合任何分类时，先用这个速度，才轮到 YouTube 分类的速度。频道规则和分类仍然优先。"
+  },
+  "replaySpeedLabel": {
+    "message": "直播回放速度"
+  },
+  "channelRulesHeading": {
+    "message": "频道规则"
+  },
+  "channelRulesHint": {
+    "message": "频道规则优先于所有分类（直播、音乐的“固定 1x”除外）。在 YouTube 视频页打开 AutoSPD 弹出窗口，即可为当前视频的频道设置速度。"
+  },
+  "noChannelRules": {
+    "message": "还没有频道规则。"
+  },
+  "unsavedChanges": {
+    "message": "有未保存的更改"
+  },
+  "enableCategory": {
+    "message": "启用此分类"
+  },
+  "enable": {
+    "message": "启用"
+  },
+  "iconLabel": {
+    "message": "图标"
+  },
+  "categoryNameLabel": {
+    "message": "分类名称"
+  },
+  "playbackSpeedLabel": {
+    "message": "播放速度"
+  },
+  "deleteCategory": {
+    "message": "删除分类"
+  },
+  "delete": {
+    "message": "删除"
+  },
+  "keywordsLabel": {
+    "message": "关键词"
+  },
+  "keywordsPlaceholder": {
+    "message": "例如：开箱, unboxing, 评测"
+  },
+  "ytCategoryOptional": {
+    "message": "YouTube 分类（选填）"
+  },
+  "channelSpeedLabel": {
+    "message": "频道速度"
+  },
+  "notSpecified": {
+    "message": "不指定"
+  },
+  "speedOfCategory": {
+    "message": "$arg1$的播放速度",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "nthCategory": {
+    "message": "第 $arg1$ 个分类",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryName": {
+    "message": "$arg1$：请输入分类名称。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategoryDuplicate": {
+    "message": "“$arg1$”重复了，请使用不同的分类名称。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errCategorySpeed": {
+    "message": "“$arg1$”的速度必须介于 $arg2$ 到 $arg3$ 之间。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errCategoryMatchers": {
+    "message": "“$arg1$”至少要有一个关键词或指定 YouTube 分类，否则不会匹配到任何视频。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errYtSpeed": {
+    "message": "YouTube 分类“$arg1$”的速度必须介于 $arg2$ 到 $arg3$ 之间。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errChannelSpeed": {
+    "message": "频道“$arg1$”的速度必须介于 $arg2$ 到 $arg3$ 之间。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      },
+      "arg3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errReplaySpeed": {
+    "message": "直播回放的速度必须介于 $arg1$ 到 $arg2$ 之间。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "aiNoChrome": {
+    "message": "此版本的 Chrome 不支持内置 AI。请更新 Chrome，或改用其他分类方式。"
+  },
+  "aiReady": {
+    "message": "✓ AI 模型已就绪"
+  },
+  "aiNeedsDownload": {
+    "message": "使用前需要先下载 AI 模型（数 GB，只需下载一次）。"
+  },
+  "aiDownloadingWait": {
+    "message": "AI 模型下载中，完成后就会开始使用…"
+  },
+  "aiNoHardware": {
+    "message": "这台电脑不符合 Chrome 内置 AI 的硬件要求，请改用其他分类方式。"
+  },
+  "aiCheckFailed": {
+    "message": "无法检查 AI 模型：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadProgress": {
+    "message": "AI 模型下载中… $arg1$%",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "aiDownloadFailed": {
+    "message": "下载失败：$arg1$",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmReset": {
+    "message": "确定要恢复默认分类吗？你新增和修改过的分类都会被清除。"
+  },
+  "resetDone": {
+    "message": "已恢复默认分类"
+  },
+  "resetFailed": {
+    "message": "恢复失败"
+  },
+  "savedSummary": {
+    "message": "已保存 $arg1$ 个分类和 $arg2$ 个频道规则，打开的 YouTube 标签页会立即应用。",
+    "placeholders": {
+      "arg1": {
+        "content": "$1"
+      },
+      "arg2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errQuota": {
+    "message": "分类数据超过 Chrome 同步容量上限，请减少关键词或分类数量。"
+  },
+  "errSave": {
+    "message": "保存失败"
+  },
+  "errLoadSettings": {
+    "message": "无法加载设置"
+  }
+}
