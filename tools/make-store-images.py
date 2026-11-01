@@ -32,7 +32,8 @@ LOCALES = {
         "promo": ("AI 智慧播放速度", "for YouTube ・ 依影片內容自動調速"),
         "headline": "依影片內容自動調速",
         "points": ["說書、案件解說自動加速", "直播、音樂與 MV 維持 1x", "常看的頻道可直接指定速度", "自動關閉 CC 字幕"],
-        "video": ("「再給我一次機會，我還是會殺」！向岳母借40萬後爆發滅門悲劇", "案件 / 調查解說（AI）", "某調查頻道"),
+        "video": ("消失的第七位房客：一樁懸案的真相", "案件 / 調查解說（AI）", "範例頻道"),
+        "channels": ("範例頻道", "籃球解說頻道"),
     },
     "en": {
         "ui": "en", "bold": "arialbd.ttf", "regular": "arial.ttf",
@@ -40,6 +41,7 @@ LOCALES = {
         "headline": "Speed that fits the video",
         "points": ["Talk and true crime speed up", "Live, music and MVs stay at 1x", "Set a speed for your channels", "Turns off CC captions"],
         "video": ("The Seventh Tenant: Inside an Unsolved Disappearance", "True crime / Investigations (AI)", "Sample Channel"),
+        "channels": ("Sample Channel", "Hoops Talk"),
     },
     "zh_CN": {
         "ui": "zh-CN", "bold": "msyhbd.ttc", "regular": "msyh.ttc",
@@ -47,6 +49,7 @@ LOCALES = {
         "headline": "根据视频内容自动调速",
         "points": ["说书、案件解说自动加速", "直播、音乐与 MV 保持 1x", "常看的频道可直接指定速度", "自动关闭 CC 字幕"],
         "video": ("消失的第七位房客：一桩悬案的真相", "案件 / 调查解说（AI）", "示例频道"),
+        "channels": ("示例频道", "篮球解说频道"),
     },
     "ja": {
         "ui": "ja", "bold": "YuGothB.ttc", "regular": "YuGothM.ttc",
@@ -54,6 +57,7 @@ LOCALES = {
         "headline": "動画の内容で速度を自動調整",
         "points": ["解説や朗読は自動で高速に", "ライブ・音楽・MV は 1x のまま", "よく見るチャンネルは速度を指定", "CC 字幕を自動でオフ"],
         "video": ("七人目の住人の失踪：未解決事件の真相", "事件・調査解説（AI）", "サンプルチャンネル"),
+        "channels": ("サンプルチャンネル", "バスケ解説チャンネル"),
     },
     "ko": {
         "ui": "ko", "bold": "malgunbd.ttf", "regular": "malgun.ttf",
@@ -61,6 +65,7 @@ LOCALES = {
         "headline": "영상 내용에 맞춰 자동 조절",
         "points": ["해설·사건 영상은 자동으로 빠르게", "라이브·음악·MV는 1x 유지", "자주 보는 채널은 속도 지정", "CC 자막 자동 끄기"],
         "video": ("일곱 번째 세입자의 실종: 미제 사건의 진실", "사건·탐사 (AI)", "샘플 채널"),
+        "channels": ("샘플 채널", "농구 해설 채널"),
     },
 }
 
@@ -138,6 +143,8 @@ def promo_small(locale):
 def stub_script(locale_name, settings, video_state):
     locale = LOCALES[locale_name]
     messages = (EXTENSION / "_locales" / locale_name / "messages.json").read_text(encoding="utf-8")
+    rules = [{**rule, "channel": name} for rule, name in zip(settings.get("channelRules", []), locale["channels"])]
+    settings = {**settings, "channelRules": rules}
     return (
         "<script>window.LanguageModel={availability:async()=>'available'};"
         "window.confirm=()=>false;"
@@ -174,7 +181,7 @@ def render_page(workdir, page, stub, size, extra_css="", scale=1):
 
 SETTINGS = {
     "classifyMode": "ai",
-    "channelRules": [{"channel": "Wayne調查", "speed": 1.5}, {"channel": "澤北SG", "speed": 1.75}],
+    "channelRules": [{"speed": 1.5}, {"speed": 1.75}],  # names come from the language
     "fixedNormalForLive": True,
     "fixedNormalForMusic": True,
     "liveReplayEnabled": True,

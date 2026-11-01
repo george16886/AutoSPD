@@ -1,4 +1,5 @@
-"""Render the Chrome Web Store promo video: store/promo-video.mp4.
+"""Render the Chrome Web Store promo videos, one per language: Traditional
+Chinese in store/promo-video.mp4, the others in store/<locale>/promo-video.mp4.
 
 About 40 seconds, 1920x1080, 30 fps, H.264, no audio track. The Web Store
 takes a YouTube link, so upload the file to YouTube (unlisted is fine) and
@@ -9,13 +10,15 @@ text, one short line per screen, a flat background, and pages rendered at 1.5x.
 The player in the demo is a generic, made-up one: no YouTube logo or
 interface, and fictional video titles.
 
-Needs Pillow, PyAV (pip install av), Google Chrome and the Microsoft JhengHei
-font. Run from the repository root:  python tools/make-promo-video.py
+Needs Pillow, PyAV (pip install av), Google Chrome and the Windows CJK fonts
+listed in make-store-images.py. Run from the repository root:
+    python tools/make-promo-video.py [locale ...]
 """
 
 import importlib.util
 import random
 import shutil
+import sys
 import tempfile
 from functools import lru_cache
 from pathlib import Path
@@ -26,8 +29,6 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 EXTENSION = ROOT / "extension"
 STORE = ROOT / "store"
-FONT_BOLD = r"C:\Windows\Fonts\msjhbd.ttc"
-FONT = r"C:\Windows\Fonts\msjh.ttc"
 
 W, H, FPS = 1920, 1080, 30
 
@@ -40,6 +41,90 @@ SOFT = (214, 210, 238)
 # Sizes: readable when the video plays in the store's small frame
 HEADING = 72
 CAPTION = 52
+
+# All on-screen text. Keep lines short: one heading and one line per screen.
+COPY = {
+    "zh_TW": {
+        "tagline": "AI 智慧播放速度 for YouTube",
+        "problem": ("每支影片都要手動切速度？", "說書想快一點，聽歌要正常速度"),
+        "talk": ("案件解說", "AI 判斷內容，自動 1.5x", "AutoSPD：案件 / 調查解說（AI） · 1.5x"),
+        "music": ("音樂 MV", "音樂和直播維持 1x", "AutoSPD：音樂 / MV · 1x"),
+        "features": [
+            ("三種分類方式", "關鍵字、YouTube 分類、本機 AI"),
+            ("每種分類各自設速度", "YouTube 15 種分類都能調"),
+            ("直播與音樂維持 1x", "長篇重播自動加速"),
+            ("常看的頻道一鍵指定", "在影片頁直接設定"),
+        ],
+        "privacy": ("資料不離開你的電腦", "不上傳、不追蹤、不記錄觀看紀錄", "AI 在你的電腦上執行"),
+        "outro": ("AI 智慧播放速度", "Chrome 線上應用程式商店 免費安裝"),
+        "popup_height": 372,
+    },
+    "en": {
+        "tagline": "AI smart playback speed for YouTube",
+        "problem": ("Changing speed by hand, every video?", "Faster for talk, normal for music"),
+        "talk": ("True crime explained", "AI reads the content: 1.5x", "AutoSPD: True crime / Investigations (AI) · 1.5x"),
+        "music": ("Music video", "Music and live stay at 1x", "AutoSPD: Music / MV · 1x"),
+        "features": [
+            ("Three ways to classify", "Keywords, YouTube categories, on-device AI"),
+            ("A speed for every category", "All 15 YouTube categories"),
+            ("Live and music stay at 1x", "Long replays speed up"),
+            ("One click for your channels", "Set it right on the video page"),
+        ],
+        "privacy": ("Your data stays on your computer", "No uploads, no tracking, no watch history", "AI runs on your computer"),
+        "outro": ("AI smart playback speed", "Free on the Chrome Web Store"),
+        "popup_height": 402,
+    },
+    "zh_CN": {
+        "tagline": "AI 智能播放速度 for YouTube",
+        "problem": ("每个视频都要手动切速度？", "说书想快一点，听歌要正常速度"),
+        "talk": ("案件解说", "AI 判断内容，自动 1.5x", "AutoSPD：案件 / 调查解说（AI） · 1.5x"),
+        "music": ("音乐 MV", "音乐和直播保持 1x", "AutoSPD：音乐 / MV · 1x"),
+        "features": [
+            ("三种分类方式", "关键词、YouTube 分类、本地 AI"),
+            ("每种分类各自设速度", "YouTube 15 种分类都能调"),
+            ("直播与音乐保持 1x", "长篇回放自动加速"),
+            ("常看的频道一键指定", "在视频页直接设置"),
+        ],
+        "privacy": ("数据不离开你的电脑", "不上传、不跟踪、不记录观看记录", "AI 在你的电脑上运行"),
+        "outro": ("AI 智能播放速度", "Chrome 应用商店 免费安装"),
+        "popup_height": 372,
+    },
+    "ja": {
+        "tagline": "YouTube 向け AI スマート再生速度",
+        "problem": ("動画のたびに手動で速度を変更？", "解説は速く、音楽は普通の速度で"),
+        "talk": ("事件解説", "AI が内容を判定して自動で 1.5x", "AutoSPD：事件・調査解説（AI） · 1.5x"),
+        "music": ("音楽 MV", "音楽とライブは 1x のまま", "AutoSPD：音楽 / MV · 1x"),
+        "features": [
+            ("3 つの分類方法", "キーワード、YouTube カテゴリ、端末内 AI"),
+            ("カテゴリごとに速度を設定", "YouTube の全 15 カテゴリに対応"),
+            ("ライブと音楽は 1x のまま", "長いアーカイブは自動で高速化"),
+            ("よく見るチャンネルを指定", "動画ページからすぐ設定"),
+        ],
+        "privacy": ("データはパソコンの外に出ません", "アップロードなし、追跡なし、視聴履歴なし", "AI はパソコン上で動作"),
+        "outro": ("AI スマート再生速度", "Chrome ウェブストアから無料で追加"),
+        "popup_height": 388,
+    },
+    "ko": {
+        "tagline": "YouTube용 AI 스마트 재생 속도",
+        "problem": ("영상마다 직접 속도를 바꾸시나요?", "해설은 빠르게, 음악은 보통 속도로"),
+        "talk": ("사건 해설", "AI가 내용을 판단해 자동 1.5x", "AutoSPD: 사건·탐사 (AI) · 1.5x"),
+        "music": ("음악 MV", "음악과 라이브는 1x 유지", "AutoSPD: 음악 / MV · 1x"),
+        "features": [
+            ("세 가지 분류 방식", "키워드, YouTube 카테고리, 기기 내 AI"),
+            ("카테고리별 속도 설정", "YouTube 15개 카테고리 모두 지원"),
+            ("라이브와 음악은 1x 유지", "긴 다시보기는 자동으로 빠르게"),
+            ("자주 보는 채널 바로 지정", "영상 페이지에서 바로 설정"),
+        ],
+        "privacy": ("데이터는 컴퓨터 밖으로 나가지 않습니다", "업로드 없음, 추적 없음, 시청 기록 없음", "AI는 컴퓨터에서 실행"),
+        "outro": ("AI 스마트 재생 속도", "Chrome 웹 스토어에서 무료 설치"),
+        "popup_height": 372,
+    },
+}
+
+# The language being rendered
+LOCALE = "zh_TW"
+FONT_BOLD = FONT = ""
+TEXT = COPY[LOCALE]
 
 _spec = importlib.util.spec_from_file_location("store_images", ROOT / "tools" / "make-store-images.py")
 store_images = importlib.util.module_from_spec(_spec)
@@ -165,15 +250,15 @@ def scene_intro(t):
     logo = glowing_icon(size)
     frame.alpha_composite(logo, ((W - logo.width) // 2, 400 - logo.height // 2))
     center(frame, text("AutoSPD", 120), 640, ramp(t, 0.9, 0.6), dy=20)
-    center(frame, text("AI 智慧播放速度 for YouTube", CAPTION, CYAN), 800, ramp(t, 1.4, 0.6), dy=20)
+    center(frame, text(TEXT["tagline"], CAPTION, CYAN), 800, ramp(t, 1.4, 0.6), dy=20)
     return frame
 
 
 def scene_problem(t):
     frame = background().copy()
-    center(frame, text("每支影片都要手動切速度？", HEADING), 24, ramp(t, 0.0, 0.5))
+    center(frame, text(TEXT["problem"][0], HEADING), 24, ramp(t, 0.0, 0.5))
     draw_player(frame, palette=TALK_PALETTE, speed=1, clock=t, progress=0.08 + t * 0.004)
-    center(frame, text("說書想快一點，聽歌要正常速度", CAPTION, SOFT), 860, ramp(t, 1.0, 0.5))
+    center(frame, text(TEXT["problem"][1], CAPTION, SOFT), 860, ramp(t, 1.0, 0.5))
     return frame
 
 
@@ -186,26 +271,21 @@ def scene_demo(t):
         speed = 1 + 0.5 * ramp(t, 1.2, 0.8)
         clock = 3.5 + t + 0.5 * max(0.0, t - 1.6)  # the video clock runs faster at 1.5x
         draw_player(frame, palette=TALK_PALETTE, speed=round(speed * 4) / 4, clock=clock,
-                    progress=0.1 + t * 0.012 * speed, toast="AutoSPD：案件 / 調查解說（AI） · 1.5x",
+                    progress=0.1 + t * 0.012 * speed, toast=TEXT["talk"][2],
                     toast_alpha=ramp(t, 1.0, 0.3) * (1 - ramp(t, 4.8, 0.4)))
-        heading, caption, alpha = "案件解說", "AI 判斷內容，自動 1.5x", ramp(t, 1.4, 0.5)
+        heading, caption, alpha = TEXT["talk"][0], TEXT["talk"][1], ramp(t, 1.4, 0.5)
     else:
         local = t - DEMO_SWITCH
         draw_player(frame, palette=MUSIC_PALETTE, speed=1, clock=local, progress=0.02 + local * 0.01,
-                    toast="AutoSPD：音樂 / MV · 1x", toast_alpha=ramp(local, 0.5, 0.3) * (1 - ramp(local, 4.6, 0.4)))
-        heading, caption, alpha = "音樂 MV", "音樂和直播維持 1x", ramp(local, 0.8, 0.5)
+                    toast=TEXT["music"][2], toast_alpha=ramp(local, 0.5, 0.3) * (1 - ramp(local, 4.6, 0.4)))
+        heading, caption, alpha = TEXT["music"][0], TEXT["music"][1], ramp(local, 0.8, 0.5)
     center(frame, text(heading, HEADING), 24)
     center(frame, text(caption, CAPTION, CYAN), 860, alpha)
     return frame
 
 
 FEATURE_SECONDS = 3.5
-FEATURES = [
-    ("三種分類方式", "關鍵字、YouTube 分類、本機 AI", "ai"),
-    ("每種分類各自設速度", "YouTube 15 種分類都能調", "youtube"),
-    ("直播與音樂維持 1x", "長篇重播自動加速", "live"),
-    ("常看的頻道一鍵指定", "在影片頁直接設定", "popup"),
-]
+FEATURE_SHOTS = ("ai", "youtube", "live", "popup")
 SHOT_TOP = 196
 SHOT_HEIGHT = 860
 _shots = {}
@@ -213,7 +293,7 @@ _shots = {}
 
 def load_shots():
     """Render the real pages at 1.5x (popup at 2x) so text stays sharp at this size."""
-    locale_name = "zh_TW"
+    locale_name = LOCALE
     state = store_images.video_state(store_images.LOCALES[locale_name])
     settings = store_images.SETTINGS
     shots = {
@@ -234,7 +314,7 @@ def load_shots():
             page = store_images.render_page(workdir, "options.html", stub, (1280, 800), css, scale=1.5)
             _shots[key] = framed(page.resize((1376, SHOT_HEIGHT), Image.LANCZOS))
         stub = store_images.stub_script(locale_name, {**settings, "channelRules": []}, state)
-        popup = store_images.render_page(workdir, "popup.html", stub, (340, 395), scale=2)
+        popup = store_images.render_page(workdir, "popup.html", stub, (340, TEXT["popup_height"]), scale=2)
         _shots["popup"] = framed(popup.resize((popup.width * SHOT_HEIGHT // popup.height, SHOT_HEIGHT), Image.LANCZOS))
 
 
@@ -246,10 +326,11 @@ def framed(image):
 
 def scene_features(t):
     frame = background().copy()
-    index = min(int(t // FEATURE_SECONDS), len(FEATURES) - 1)
+    index = min(int(t // FEATURE_SECONDS), len(FEATURE_SHOTS) - 1)
     local = t - index * FEATURE_SECONDS
-    title, line, shot = FEATURES[index]
-    alpha = ramp(local, 0.0, 0.35) * (1 - (ramp(local, FEATURE_SECONDS - 0.25, 0.25) if index < len(FEATURES) - 1 else 0))
+    title, line = TEXT["features"][index]
+    shot = FEATURE_SHOTS[index]
+    alpha = ramp(local, 0.0, 0.35) * (1 - (ramp(local, FEATURE_SECONDS - 0.25, 0.25) if index < len(FEATURE_SHOTS) - 1 else 0))
     center(frame, text(title, HEADING), 14, alpha)
     center(frame, text(line, 46, CYAN), 112, alpha)
     center(frame, _shots[shot], SHOT_TOP, alpha, dy=24)
@@ -285,9 +366,9 @@ def lock_icon(scale):
 def scene_privacy(t):
     frame = background().copy()
     center(frame, lock_icon(16), 170, ramp(t, 0.0, 0.5))
-    center(frame, text("資料不離開你的電腦", 88), 420, ramp(t, 0.3, 0.5), dy=20)
-    center(frame, text("不上傳、不追蹤、不記錄觀看紀錄", CAPTION, CYAN), 600, ramp(t, 0.9, 0.5), dy=20)
-    center(frame, text("AI 在你的電腦上執行", CAPTION, SOFT), 700, ramp(t, 1.4, 0.5), dy=20)
+    center(frame, text(TEXT["privacy"][0], 80), 420, ramp(t, 0.3, 0.5), dy=20)
+    center(frame, text(TEXT["privacy"][1], CAPTION, CYAN), 600, ramp(t, 0.9, 0.5), dy=20)
+    center(frame, text(TEXT["privacy"][2], CAPTION, SOFT), 700, ramp(t, 1.4, 0.5), dy=20)
     return frame
 
 
@@ -296,8 +377,8 @@ def scene_outro(t):
     logo = glowing_icon(256)
     frame.alpha_composite(faded(logo, ramp(t, 0.0, 0.5)), ((W - logo.width) // 2, 120))
     center(frame, text("AutoSPD for YouTube", 104), 480, ramp(t, 0.2, 0.5), dy=20)
-    center(frame, text("AI 智慧播放速度", 64, CYAN), 640, ramp(t, 0.4, 0.5), dy=20)
-    center(frame, text("Chrome 線上應用程式商店 免費安裝", CAPTION, SOFT), 800, ramp(t, 0.8, 0.5), dy=20)
+    center(frame, text(TEXT["outro"][0], 64, CYAN), 640, ramp(t, 0.4, 0.5), dy=20)
+    center(frame, text(TEXT["outro"][1], CAPTION, SOFT), 800, ramp(t, 0.8, 0.5), dy=20)
     return frame
 
 
@@ -305,7 +386,7 @@ SCENES = [
     (scene_intro, 3.5),
     (scene_problem, 4.0),
     (scene_demo, 11.0),
-    (scene_features, FEATURE_SECONDS * len(FEATURES)),
+    (scene_features, FEATURE_SECONDS * len(FEATURE_SHOTS)),
     (scene_privacy, 4.0),
     (scene_outro, 4.0),
 ]
@@ -328,10 +409,30 @@ def frame_at(seconds):
     raise ValueError(seconds)
 
 
-def main():
+def use_locale(locale):
+    """Switch fonts, copy and page captures to a language, and check its text fits."""
+    global LOCALE, TEXT, FONT_BOLD, FONT
+    LOCALE, TEXT = locale, COPY[locale]
+    fonts = store_images.LOCALES[locale]
+    FONT_BOLD = store_images.FONTS + fonts["bold"]
+    FONT = store_images.FONTS + fonts["regular"]
+    text.cache_clear()
     load_shots()
+    lines = [(TEXT["problem"][0], HEADING), (TEXT["problem"][1], CAPTION), (TEXT["talk"][0], HEADING), (TEXT["talk"][1], CAPTION),
+             (TEXT["music"][0], HEADING), (TEXT["music"][1], CAPTION), (TEXT["privacy"][0], 80), (TEXT["privacy"][1], CAPTION),
+             (TEXT["privacy"][2], CAPTION), (TEXT["tagline"], CAPTION), (TEXT["outro"][0], 64), (TEXT["outro"][1], CAPTION)]
+    lines += [(title, HEADING) for title, _ in TEXT["features"]] + [(line, 46) for _, line in TEXT["features"]]
+    for content, size in lines:
+        assert text(content, size).width <= W - 80, (locale, content)
+    assert text(TEXT["talk"][2], 40).width + 52 + 30 <= PLAYER_W, (locale, "toast")
+
+
+def render_video(locale):
+    use_locale(locale)
     total = sum(length for _, length in SCENES)
-    out_path = STORE / "promo-video.mp4"
+    folder = STORE if locale == "zh_TW" else STORE / locale
+    folder.mkdir(parents=True, exist_ok=True)
+    out_path = folder / "promo-video.mp4"
     container = av.open(str(out_path), "w")
     stream = container.add_stream("libx264", rate=FPS)
     stream.width, stream.height, stream.pix_fmt = W, H, "yuv420p"
@@ -342,8 +443,6 @@ def main():
         image = frame_at(index / FPS)
         for packet in stream.encode(av.VideoFrame.from_image(image)):
             container.mux(packet)
-        if index % (FPS * 5) == 0:
-            print(f"  {index / FPS:4.1f}s / {total:.1f}s")
     for packet in stream.encode():
         container.mux(packet)
     container.close()
@@ -351,4 +450,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    for name in sys.argv[1:] or COPY:
+        render_video(name)
