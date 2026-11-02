@@ -27,7 +27,8 @@ AutoSPD 是一個 Chrome 擴充功能，依影片內容自動調整 YouTube 的�
 │   ├── icons/            # 擴充功能圖示（16、32、48、128 px）
 │   ├── background.js     # 擴充功能背景服務工作者與分類邏輯
 │   ├── content.js        # YouTube 影片偵測與播放速度套用
-│   ├── page-bridge.js    # 在頁面環境讀取播放器資料（標題、標籤、YouTube 分類）
+│   ├── page-bridge.js    # 在頁面環境讀取播放器資料（標題、標籤、YouTube 分類）並設定速度
+│   ├── ai-classifier.js  # 在隔離環境呼叫 Chrome 內建 AI，頁面程式碰不到
 │   ├── yt-categories.js  # YouTube 影片分類清單（背景、內容腳本、設定頁共用）
 │   ├── default-categories.js  # 各語言的預設分類與關鍵字
 │   ├── i18n.js           # 翻譯輔助函式

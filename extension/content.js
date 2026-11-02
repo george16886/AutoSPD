@@ -30,37 +30,6 @@
     let captionTimers = [];
     let captionsHandledVideoId = null;
 
-    // AI requests go to page-bridge.js, which can reach Chrome's built-in model
-    const AI_TIMEOUT_MS = 20000;
-    const aiPending = new Map();
-    let aiRequestSeq = 0;
-
-    document.addEventListener('autospd-ai-result', event => {
-        let result;
-        try {
-            result = JSON.parse(event.detail);
-        } catch {
-            return;
-        }
-        const resolve = aiPending.get(result?.requestId);
-        if (!resolve) return;
-        aiPending.delete(result.requestId);
-        resolve(result);
-    });
-
-    function requestAiCategory(video, categories) {
-        const requestId = ++aiRequestSeq;
-        return new Promise(resolve => {
-            aiPending.set(requestId, resolve);
-            setTimeout(() => {
-                if (aiPending.delete(requestId)) resolve({ error: 'timeout' });
-            }, AI_TIMEOUT_MS);
-            document.dispatchEvent(new CustomEvent('autospd-ai-classify', {
-                detail: JSON.stringify({ requestId, video, categories })
-            }));
-        });
-    }
-
     function getVideoId() {
         const url = new URL(location.href);
         if (url.pathname === '/watch') return url.searchParams.get('v');
@@ -205,7 +174,9 @@
 
     function onRateChange(video) {
         if (!hasAppliedSpeed() || video.playbackRate === state.speed || isAdShowing()) return;
-        if (Date.now() < resetWindowUntil) {
+        // When an ad ends YouTube restores its remembered rate before the new source
+        // reports loadedmetadata, so a source still loading (readyState 0) is never the user
+        if (video.readyState === 0 || Date.now() < resetWindowUntil) {
             enforceSpeed(video);
             return;
         }
@@ -222,8 +193,9 @@
             resetWindowUntil = Date.now() + RESET_WINDOW_MS;
             enforceSpeed(video);
         };
-        video.addEventListener('loadedmetadata', onSourceLoad);
-        video.addEventListener('loadeddata', onSourceLoad);
+        for (const name of ['emptied', 'loadstart', 'loadedmetadata', 'loadeddata']) {
+            video.addEventListener(name, onSourceLoad);
+        }
         video.addEventListener('playing', () => enforceSpeed(video));
         video.addEventListener('ratechange', () => onRateChange(video));
     }
@@ -335,7 +307,10 @@
                 tags: (videoInfo.tags || []).slice(0, 15),
                 description: String(videoInfo.description || '').slice(0, 300)
             };
-            const answer = await requestAiCategory(summary, choices);
+            const answer = await classifyWithAi(summary, choices, {
+                stillWanted: () => state.videoId === videoId
+            });
+            if (answer.error === 'stale') return;
             if (answer.error || !answer.categoryId) {
                 if (state.videoId === videoId) state.aiStatus = answer.error || 'no-answer';
                 console.warn('[AutoSPD] AI classification unavailable:', answer.error);

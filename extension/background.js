@@ -104,7 +104,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Keep the message channel open for async responses
 });
 
+// Only the extension's own pages may change settings; content scripts run inside
+// YouTube's renderer and have no reason to
+const EXTENSION_PAGE_ONLY = new Set(['save-categories', 'reset-categories', 'save-settings']);
+
+function isExtensionPage(sender) {
+    return String(sender?.url || '').startsWith(chrome.runtime.getURL(''));
+}
+
 async function handleMessage(message, sender) {
+    if (EXTENSION_PAGE_ONLY.has(message.type) && !isExtensionPage(sender)) {
+        throw new Error(`Not allowed: ${message.type}`);
+    }
+
     switch (message.type) {
         case 'get-categories':
             const catData = await chrome.storage.sync.get('categories');
@@ -118,9 +130,12 @@ async function handleMessage(message, sender) {
             if (!Array.isArray(message.categories)) {
                 throw new Error('Categories must be an array');
             }
+            const { categories: previous } = await chrome.storage.sync.get('categories');
             await chrome.storage.sync.set({ categories: message.categories });
             // Cached AI labels were chosen from the old category list
-            await chrome.storage.local.set({ aiLabels: {} });
+            if (JSON.stringify(previous) !== JSON.stringify(message.categories)) {
+                await chrome.storage.local.set({ aiLabels: {} });
+            }
             return { success: true };
 
         case 'reset-categories':
@@ -130,7 +145,8 @@ async function handleMessage(message, sender) {
 
         case 'get-ai-label': {
             const { aiLabels = {} } = await chrome.storage.local.get('aiLabels');
-            return { categoryId: aiLabels[message.videoId] || null };
+            // The ID comes from the page URL, so ?v=constructor must not reach Object.prototype
+            return { categoryId: Object.hasOwn(aiLabels, String(message.videoId)) ? aiLabels[message.videoId] : null };
         }
 
         case 'save-ai-label':
@@ -337,7 +353,8 @@ async function matchVideoToCategory(videoInfo) {
 const MAX_AI_LABELS = 2000;
 
 async function saveAiLabel(videoId, categoryId) {
-    if (!videoId || !categoryId) return;
+    if (typeof videoId !== 'string' || typeof categoryId !== 'string' || !videoId || !categoryId) return;
+    if (videoId in Object.prototype) return;
     const { aiLabels = {} } = await chrome.storage.local.get('aiLabels');
     delete aiLabels[videoId];
     aiLabels[videoId] = categoryId;

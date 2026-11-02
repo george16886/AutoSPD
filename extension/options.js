@@ -2,7 +2,7 @@
  * AutoSPD - Category settings page
  */
 
-// Must match page-bridge.js so availability reflects the sessions it creates
+// Must match ai-classifier.js so availability reflects the sessions it creates
 const AI_LANGUAGES = {
     expectedInputs: [{ type: 'text', languages: ['en'] }],
     expectedOutputs: [{ type: 'text', languages: ['en'] }]
@@ -321,9 +321,7 @@ function initOptionsPage() {
             || replayError
             || validateYouTubeSpeeds(ytCategorySpeeds, ytNames)
             || validateChannelRules(channelRules)
-            || (classifyMode !== 'youtube'
-                ? validateCategories(categories, { requireMatchers: classifyMode === 'keywords' })
-                : null);
+            || validateCategories(categories, { requireMatchers: classifyMode === 'keywords' });
         if (error) {
             showMessage(error, true);
             return;

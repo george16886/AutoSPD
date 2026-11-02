@@ -7,7 +7,7 @@ const vm = require('node:vm');
 const { joinSources } = require('./i18n-mock.cjs');
 
 // The manifest's content scripts, in order, with Traditional Chinese messages
-const contentSource = joinSources('zh_TW', 'zh-TW', 'i18n.js', 'yt-categories.js', 'content.js');
+const contentSource = joinSources('zh_TW', 'zh-TW', 'i18n.js', 'yt-categories.js', 'ai-classifier.js', 'content.js');
 
 function createVideo() {
     const listeners = new Map();
@@ -96,18 +96,10 @@ function createContentScript({
             documentListeners.delete(name);
         },
         dispatchEvent(event) {
+            dispatchedEvents.push(event);
             // Stand-in for page-bridge.js answering from the main world
             if (event.type === 'autospd-set-rate') {
                 rateRequests.push(JSON.parse(event.detail));
-                return;
-            }
-            if (event.type === 'autospd-ai-classify') {
-                const request = JSON.parse(event.detail);
-                aiRequests.push(request);
-                // Answer asynchronously, like the model does
-                setImmediate(() => documentListeners.get('autospd-ai-result')?.({
-                    detail: JSON.stringify({ requestId: request.requestId, ...aiAnswer })
-                }));
                 return;
             }
             if (event.type === 'autospd-request-video-info') {
@@ -120,6 +112,7 @@ function createContentScript({
     const matchRequests = [];
     const rateRequests = [];
     const aiRequests = [];
+    const dispatchedEvents = [];
     const savedLabels = [];
     let matchOverride = null;
     const settings = { autoSpeed: true, notifications, hideCaptions, classifyMode };
@@ -162,9 +155,25 @@ function createContentScript({
             }
         }
     };
+    // Chrome's built-in model, answering with aiAnswer
+    const session = {
+        async clone() { return session; },
+        async prompt(text, options) {
+            aiRequests.push({ text, ids: [...options.responseConstraint.properties.category.enum] });
+            await new Promise(resolve => setTimeout(resolve, 5)); // the real model takes about a second
+            return JSON.stringify({ category: aiAnswer?.categoryId });
+        },
+        destroy() {}
+    };
+    const LanguageModel = {
+        async availability() { return aiAnswer?.error || 'available'; },
+        async create() { return session; }
+    };
     const context = {
         chrome,
         document,
+        LanguageModel,
+        AbortController,
         location: currentLocation,
         URL,
         CustomEvent: class {
@@ -193,6 +202,7 @@ function createContentScript({
         matchRequests,
         rateRequests,
         aiRequests,
+        dispatchedEvents,
         savedLabels,
         toasts,
         playerElement,
@@ -304,6 +314,32 @@ test('keeps a speed the user picks in the YouTube player as a manual override', 
     assert.equal(state.speed, 2);
 });
 
+test('a rate YouTube restores as an ad ends is not mistaken for the user choosing it', async () => {
+    const harness = createContentScript();
+    await new Promise(resolve => setImmediate(resolve));
+
+    // Seen on YouTube: rate restored while the new source has no metadata, long after the last load event
+    harness.video.readyState = 0;
+    harness.video.playbackRate = 1.75;
+    harness.video.fire('ratechange');
+
+    assert.equal(harness.video.playbackRate, 1.5);
+    assert.equal(getState(harness).mode, 'auto');
+});
+
+test('the reset window opens as soon as a source starts changing', async () => {
+    const harness = createContentScript();
+    await new Promise(resolve => setImmediate(resolve));
+
+    harness.video.fire('emptied');
+    harness.video.readyState = 4;
+    harness.video.playbackRate = 1.75;
+    harness.video.fire('ratechange');
+
+    assert.equal(harness.video.playbackRate, 1.5);
+    assert.equal(getState(harness).mode, 'auto');
+});
+
 test('leaves ads alone and reapplies the speed once the video resumes', async () => {
     const harness = createContentScript();
     await new Promise(resolve => setImmediate(resolve));
@@ -370,8 +406,7 @@ test('AI mode starts with the keyword match, then switches to the model pick', a
     assert.equal(harness.video.playbackRate, 1.75);
     assert.equal(getState(harness).categoryName, '案件 / 調查解說（AI）');
     assert.deepEqual(harness.savedLabels, [['test-video', 'investigation']]);
-    const offered = harness.aiRequests[0].categories.map(cat => cat.id);
-    assert.deepEqual(offered, ['stories', 'investigation', 'news']);
+    assert.deepEqual(harness.aiRequests[0].ids, ['stories', 'investigation', 'news', 'none']);
 });
 
 test('AI mode reuses a cached pick without asking the model again', async () => {
@@ -401,6 +436,14 @@ test('AI mode does not override a speed the user picked while waiting', async ()
 
     assert.equal(harness.video.playbackRate, 2);
     assert.equal(getState(harness).mode, 'manual');
+});
+
+test('AI requests stay out of the page: no events carry categories to its scripts', async () => {
+    const harness = createContentScript({ classifyMode: 'ai', aiAnswer: { categoryId: 'investigation' } });
+    await wait(20);
+
+    assert.equal(harness.aiRequests.length, 1);
+    assert.ok(!harness.dispatchedEvents.some(event => /命案|investigation/.test(String(event.detail))));
 });
 
 test('keyword mode never asks the model', async () => {

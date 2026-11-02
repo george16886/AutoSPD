@@ -352,14 +352,22 @@ test('AI mode: "none" means the default speed; unknown picks fall back to keywor
     assert.equal((await matchVideo({ title: '都市傳說故事' })).category.id, 'stories');
 });
 
-test('AI labels are cached per video and cleared when categories change', async () => {
+function loadMessageHandler() {
     const local = {};
+    const sync = {};
     const context = {
         console,
         chrome: {
-            runtime: { onInstalled: { addListener() {} }, onMessage: { addListener() {} } },
+            runtime: {
+                onInstalled: { addListener() {} },
+                onMessage: { addListener() {} },
+                getURL: path => `chrome-extension://autospd/${path}`
+            },
             storage: {
-                sync: { async set() {} },
+                sync: {
+                    async get(key) { return { [key]: sync[key] }; },
+                    async set(values) { Object.assign(sync, values); }
+                },
                 local: {
                     async get(key) { return { [key]: local[key] }; },
                     async set(values) { Object.assign(local, values); }
@@ -368,12 +376,53 @@ test('AI labels are cached per video and cleared when categories change', async 
         }
     };
     vm.runInNewContext(backgroundSource, context);
+    return { handle: context.handleMessage, local, sync };
+}
 
-    await context.handleMessage({ type: 'save-ai-label', videoId: 'v1', categoryId: 'investigation' });
-    assert.equal((await context.handleMessage({ type: 'get-ai-label', videoId: 'v1' })).categoryId, 'investigation');
+const SETTINGS_PAGE = { url: 'chrome-extension://autospd/options.html', tab: { id: 1 } };
+const YOUTUBE_TAB = { url: 'https://www.youtube.com/watch?v=abc', tab: { id: 2 } };
 
-    await context.handleMessage({ type: 'save-categories', categories: [] });
-    assert.equal((await context.handleMessage({ type: 'get-ai-label', videoId: 'v1' })).categoryId, null);
+test('AI labels are cached per video and cleared only when categories change', async () => {
+    const { handle } = loadMessageHandler();
+    const categories = [{ id: 'a', name: 'A' }];
+    await handle({ type: 'save-categories', categories }, SETTINGS_PAGE);
+
+    await handle({ type: 'save-ai-label', videoId: 'v1', categoryId: 'investigation' }, YOUTUBE_TAB);
+    assert.equal((await handle({ type: 'get-ai-label', videoId: 'v1' }, YOUTUBE_TAB)).categoryId, 'investigation');
+
+    await handle({ type: 'save-categories', categories: [{ id: 'a', name: 'A' }] }, SETTINGS_PAGE);
+    assert.equal((await handle({ type: 'get-ai-label', videoId: 'v1' }, YOUTUBE_TAB)).categoryId, 'investigation');
+
+    await handle({ type: 'save-categories', categories: [] }, SETTINGS_PAGE);
+    assert.equal((await handle({ type: 'get-ai-label', videoId: 'v1' }, YOUTUBE_TAB)).categoryId, null);
+});
+
+test('only extension pages can change settings', async () => {
+    const { handle, sync } = loadMessageHandler();
+
+    for (const message of [
+        { type: 'save-settings', settings: { autoSpeed: false } },
+        { type: 'save-categories', categories: [] },
+        { type: 'reset-categories' }
+    ]) {
+        await assert.rejects(handle(message, YOUTUBE_TAB), /Not allowed/);
+        await assert.rejects(handle(message, undefined), /Not allowed/);
+    }
+    assert.deepEqual(Object.keys(sync), []);
+
+    await handle({ type: 'save-settings', settings: { autoSpeed: false } }, SETTINGS_PAGE);
+    assert.equal(sync.settings.autoSpeed, false);
+});
+
+test('video IDs that name Object.prototype members are not treated as cached', async () => {
+    const { handle, local } = loadMessageHandler();
+
+    for (const videoId of ['__proto__', 'constructor', 'toString']) {
+        assert.equal((await handle({ type: 'get-ai-label', videoId }, YOUTUBE_TAB)).categoryId, null);
+        await handle({ type: 'save-ai-label', videoId, categoryId: 'x' }, YOUTUBE_TAB);
+        assert.equal((await handle({ type: 'get-ai-label', videoId }, YOUTUBE_TAB)).categoryId, null);
+    }
+    assert.equal(Object.keys(local.aiLabels || {}).length, 0);
 });
 
 function loadFixedMatcher(settings = {}) {
