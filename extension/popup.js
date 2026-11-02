@@ -11,6 +11,7 @@
     const removeChannelRule = document.getElementById('remove-channel-rule');
     let currentChannel = '';
     const manualSpeed = document.getElementById('manual-speed');
+    const manualSlider = document.getElementById('manual-slider');
     const videoTitle = document.getElementById('video-title');
     const videoStatus = document.getElementById('video-status');
     const message = document.getElementById('message');
@@ -65,7 +66,10 @@
             videoStatus.textContent = formatStatus(state);
             renderMeta(state);
             renderChannelRule(state.channelName, settings.channelRules);
-            if (Number.isFinite(state.speed)) manualSpeed.value = String(state.speed);
+            if (Number.isFinite(state.speed)) {
+                manualSpeed.value = String(state.speed);
+                manualSlider.value = String(state.speed);
+            }
         } catch (error) {
             videoTitle.textContent = t('playerUnreachable');
             videoStatus.textContent = t('reloadTab');
@@ -186,16 +190,51 @@
         }
     });
 
-    document.getElementById('apply-manual').addEventListener('click', async () => {
+    async function applyManualSpeed(speed) {
         try {
-            const speed = parseSpeed(manualSpeed);
             const result = await sendToTab({ type: 'set-manual-speed', speed });
             videoStatus.textContent = formatStatus(result.state);
-            manualSpeed.value = String(speed);
             showMessage(t('manualApplied', speed));
         } catch (error) {
             showMessage(error.message || t('manualFailed'), true);
         }
+    }
+
+    document.getElementById('apply-manual').addEventListener('click', () => {
+        try {
+            const speed = parseSpeed(manualSpeed);
+            manualSpeed.value = String(speed);
+            manualSlider.value = String(speed);
+            applyManualSpeed(speed);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    });
+
+    manualSpeed.addEventListener('input', () => {
+        manualSlider.value = manualSpeed.value;
+    });
+
+    // Dragging fires faster than the tab answers: send one at a time, always the latest
+    let sliderBusy = false;
+    let sliderLatest = null;
+
+    async function flushSlider() {
+        if (sliderBusy) return;
+        sliderBusy = true;
+        while (sliderLatest !== null) {
+            const speed = sliderLatest;
+            sliderLatest = null;
+            await applyManualSpeed(speed);
+        }
+        sliderBusy = false;
+    }
+
+    manualSlider.addEventListener('input', () => {
+        const speed = parseSpeed(manualSlider);
+        manualSpeed.value = String(speed);
+        sliderLatest = speed;
+        flushSlider();
     });
 
     document.getElementById('open-options').addEventListener('click', () => {

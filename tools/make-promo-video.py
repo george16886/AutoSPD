@@ -1,7 +1,7 @@
 """Render the Chrome Web Store promo videos, one per language: Traditional
 Chinese in store/promo-video.mp4, the others in store/en, zh_CN, jp and kr.
 
-About 40 seconds, 1920x1080, 30 fps, H.264, no audio track. The Web Store
+About 43 seconds, 1920x1080, 30 fps, H.264, no audio track. The Web Store
 takes a YouTube link, so upload the file to YouTube (unlisted is fine) and
 paste its URL into the listing.
 
@@ -16,7 +16,6 @@ listed in make-store-images.py. Run from the repository root:
 """
 
 import importlib.util
-import random
 import shutil
 import sys
 import tempfile
@@ -47,8 +46,9 @@ COPY = {
     "zh_TW": {
         "tagline": "AI 智慧播放速度 for YouTube",
         "problem": ("每支影片都要手動切速度？", "說書想快一點，聽歌要正常速度"),
-        "talk": ("案件解說", "AI 判斷內容，自動 1.5x", "AutoSPD：案件 / 調查解說（AI） · 1.5x"),
-        "music": ("音樂 MV", "音樂和直播維持 1x", "AutoSPD：音樂 / MV · 1x"),
+        "news": ("看新聞", "談話內容，自動 1.5x", "AutoSPD：新聞時事 · 1.5x"),
+        "music": ("聽音樂", "節奏不走樣，維持 1x", "AutoSPD：音樂 / MV · 1x"),
+        "travel": ("看旅遊影片", "風景照看，自動 1.25x", "AutoSPD：旅遊 Vlog · 1.25x"),
         "features": [
             ("三種分類方式", "關鍵字、YouTube 分類、本機 AI"),
             ("每種分類各自設速度", "YouTube 15 種分類都能調"),
@@ -62,8 +62,9 @@ COPY = {
     "en": {
         "tagline": "AI smart playback speed for YouTube",
         "problem": ("Changing speed by hand, every video?", "Faster for talk, normal for music"),
-        "talk": ("True crime explained", "AI reads the content: 1.5x", "AutoSPD: True crime / Investigations (AI) · 1.5x"),
-        "music": ("Music video", "Music and live stay at 1x", "AutoSPD: Music / MV · 1x"),
+        "news": ("Watching the news", "Mostly talk: automatically 1.5x", "AutoSPD: News · 1.5x"),
+        "music": ("Listening to music", "Keeps the beat: stays at 1x", "AutoSPD: Music / MV · 1x"),
+        "travel": ("Travel videos", "Still see the views: automatically 1.25x", "AutoSPD: Travel / Vlogs · 1.25x"),
         "features": [
             ("Three ways to classify", "Keywords, YouTube categories, on-device AI"),
             ("A speed for every category", "All 15 YouTube categories"),
@@ -77,8 +78,9 @@ COPY = {
     "zh_CN": {
         "tagline": "AI 智能播放速度 for YouTube",
         "problem": ("每个视频都要手动切速度？", "说书想快一点，听歌要正常速度"),
-        "talk": ("案件解说", "AI 判断内容，自动 1.5x", "AutoSPD：案件 / 调查解说（AI） · 1.5x"),
-        "music": ("音乐 MV", "音乐和直播保持 1x", "AutoSPD：音乐 / MV · 1x"),
+        "news": ("看新闻", "谈话内容，自动 1.5x", "AutoSPD：新闻时事 · 1.5x"),
+        "music": ("听音乐", "节奏不走样，保持 1x", "AutoSPD：音乐 / MV · 1x"),
+        "travel": ("看旅游视频", "风景照看，自动 1.25x", "AutoSPD：旅游 Vlog · 1.25x"),
         "features": [
             ("三种分类方式", "关键词、YouTube 分类、本地 AI"),
             ("每种分类各自设速度", "YouTube 15 种分类都能调"),
@@ -92,8 +94,9 @@ COPY = {
     "ja": {
         "tagline": "YouTube 向け AI スマート再生速度",
         "problem": ("動画のたびに手動で速度を変更？", "解説は速く、音楽は普通の速度で"),
-        "talk": ("事件解説", "AI が内容を判定して自動で 1.5x", "AutoSPD：事件・調査解説（AI） · 1.5x"),
-        "music": ("音楽 MV", "音楽とライブは 1x のまま", "AutoSPD：音楽 / MV · 1x"),
+        "news": ("ニュースを見る", "トーク中心なので自動で 1.5x", "AutoSPD：ニュース · 1.5x"),
+        "music": ("音楽を聴く", "リズムはそのまま 1x", "AutoSPD：音楽 / MV · 1x"),
+        "travel": ("旅行動画を見る", "景色も楽しめる 1.25x", "AutoSPD：旅行・Vlog · 1.25x"),
         "features": [
             ("3 つの分類方法", "キーワード、YouTube カテゴリ、端末内 AI"),
             ("カテゴリごとに速度を設定", "YouTube の全 15 カテゴリに対応"),
@@ -107,8 +110,9 @@ COPY = {
     "ko": {
         "tagline": "YouTube용 AI 스마트 재생 속도",
         "problem": ("영상마다 직접 속도를 바꾸시나요?", "해설은 빠르게, 음악은 보통 속도로"),
-        "talk": ("사건 해설", "AI가 내용을 판단해 자동 1.5x", "AutoSPD: 사건·탐사 (AI) · 1.5x"),
-        "music": ("음악 MV", "음악과 라이브는 1x 유지", "AutoSPD: 음악 / MV · 1x"),
+        "news": ("뉴스 볼 때", "말 위주라 자동 1.5x", "AutoSPD: 뉴스 · 1.5x"),
+        "music": ("음악 들을 때", "박자 그대로 1x 유지", "AutoSPD: 음악 / MV · 1x"),
+        "travel": ("여행 영상 볼 때", "풍경도 즐기는 자동 1.25x", "AutoSPD: 여행·브이로그 · 1.25x"),
         "features": [
             ("세 가지 분류 방식", "키워드, YouTube 카테고리, 기기 내 AI"),
             ("카테고리별 속도 설정", "YouTube 15개 카테고리 모두 지원"),
@@ -189,30 +193,238 @@ def center(frame, image, y, alpha=1.0, dy=0):
 
 PLAYER_W, PLAYER_H = 1200, 675
 PLAYER_X, PLAYER_Y = (W - PLAYER_W) // 2, 130
-random.seed(7)
-STARS = [(random.random(), random.random(), random.choice((5, 7, 9)), random.random()) for _ in range(70)]
+
+# Scenes are drawn on a small canvas and scaled up by a whole number, so they
+# read as pixel art. Everything moves with the video's own clock: at 1.5x the
+# legs and the background really do go 1.5 times as fast.
+PIXEL = 6
+SCENE_W, SCENE_H = PLAYER_W // PIXEL, PLAYER_H // PIXEL + 1
+GROUND = 84
+SCROLL = 58  # scene pixels per second at 1x
+STRIDES = 8  # sprite frames per second at 1x
+
+RUNNER_TOP = [
+    "....HHHHHH....",
+    "...HHHHHHHH...",
+    "...HHSSSSSS...",
+    "...HSSSSKSS...",
+    "...HSSSSSSS...",
+    "....SSSSSS....",
+    ".....TTTT.....",
+]
+RUNNER_FRAMES = [
+    # Stride: arms and legs apart
+    [
+        "....TTTTTT....",
+        "..SSTTTTTTSS..",
+        ".SS.TTTTTT.SS.",
+        ".S..TTTTTT..S.",
+        "....NNNNNN....",
+        "...NNNNNNNN...",
+        "..NNN...NNN...",
+        ".NNN.....NNN..",
+        "NNN.......NNN.",
+        "WW.........WWW",
+    ],
+    # Passing: back leg comes through
+    [
+        "....TTTTTT....",
+        "....TTTTSS....",
+        "....TTTTTSS...",
+        "....TTTTTT....",
+        "....NNNNNN....",
+        "....NNNNNN....",
+        ".....NNNNN....",
+        ".....NN.NNN...",
+        "....NNN..NN...",
+        "....WWW..WWW..",
+    ],
+    # Stride, other side
+    [
+        "....TTTTTT....",
+        "...STTTTTTSS..",
+        "..SSTTTTTT.SS.",
+        "..S.TTTTTT....",
+        "....NNNNNN....",
+        "...NNNNNNNN...",
+        "...NNN..NNN...",
+        "..NNN....NNN..",
+        ".NNN......NNN.",
+        ".WW........WWW",
+    ],
+    # In the air
+    [
+        "....TTTTTT....",
+        "....STTTTTS...",
+        "...SSTTTTSS...",
+        "....TTTTTT....",
+        "....NNNNNN....",
+        "...NNNNNNN....",
+        "...NNN.NNNN...",
+        "..NNN....NN...",
+        "..WW.....WWW..",
+        "..............",
+    ],
+]
+RUNNER_COLORS = {
+    ".": (0, 0, 0, 0), "H": (52, 36, 30, 255), "S": (245, 200, 160, 255), "K": (30, 24, 40, 255),
+    "T": (64, 232, 255, 255), "N": (58, 52, 120, 255), "W": (245, 243, 255, 255),
+    "G": (255, 90, 170, 255),  # headphones
+}
+# Band over the hair and a cup over the ear
+HEADPHONES = {(5, 0), (6, 0), (7, 0), (8, 0), (4, 0), (4, 1), (4, 2), (4, 3), (5, 3), (4, 4), (5, 4)}
 
 
-def draw_player(frame, *, palette, speed, clock, progress, toast=None, toast_alpha=0.0):
-    """A made-up video player. Pixel stars drift left at the playback speed."""
-    top, bottom = palette
-    player = Image.new("RGBA", (PLAYER_W, PLAYER_H))
-    draw = ImageDraw.Draw(player)
-    for y in range(0, PLAYER_H, 4):
-        k = y / PLAYER_H
-        color = tuple(int(top[i] + (bottom[i] - top[i]) * k) for i in range(3)) + (255,)
-        draw.rectangle([0, y, PLAYER_W, y + 4], fill=color)
-    for sx, sy, size, depth in STARS:
-        x = (sx * PLAYER_W - clock * 150 * (0.5 + depth)) % PLAYER_W
-        shade = int(120 + 120 * depth)
-        draw.rectangle([x, sy * (PLAYER_H - 110), x + size, sy * (PLAYER_H - 110) + size],
-                       fill=(shade, shade, 255, 255))
+@lru_cache(maxsize=None)
+def runner(frame, headphones):
+    rows = RUNNER_TOP + RUNNER_FRAMES[frame]
+    sprite = Image.new("RGBA", (14, len(rows)))
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            sprite.putpixel((x, y), RUNNER_COLORS[ch])
+    if headphones:
+        for x, y in HEADPHONES:
+            sprite.putpixel((x, y), RUNNER_COLORS["G"])
+    return sprite.resize((sprite.width * 2, sprite.height * 2), Image.NEAREST)
+
+
+PIXEL_FONT = {
+    "N": ["1001", "1101", "1011", "1001", "1001"], "E": ["111", "100", "110", "100", "111"],
+    "W": ["10001", "10001", "10101", "10101", "01010"], "S": ["111", "100", "111", "001", "111"],
+    "L": ["100", "100", "100", "100", "111"], "I": ["111", "010", "010", "010", "111"],
+    "V": ["10001", "10001", "01010", "01010", "00100"],
+}
+
+
+def pixel_word(draw, x, y, word, color):
+    for ch in word:
+        for dy, row in enumerate(PIXEL_FONT[ch]):
+            for dx, bit in enumerate(row):
+                if bit == "1":
+                    draw.point((x + dx, y + dy), fill=color)
+        x += len(PIXEL_FONT[ch][0]) + 1
+
+
+def wrapped(pos, distance, period):
+    """Left edges of a pattern scrolling left, covering the scene."""
+    start = -((distance % period))
+    return [start + i * period for i in range(SCENE_W // period + 2)]
+
+
+def road(draw, distance, base, dash):
+    draw.rectangle([0, GROUND, SCENE_W, SCENE_H], fill=base)
+    for x in wrapped(0, distance, 28):
+        draw.rectangle([x, GROUND + 5, x + 13, GROUND + 6], fill=dash)
+
+
+def scene_city(draw, clock):
+    distance = clock * SCROLL
+    draw.rectangle([0, 0, SCENE_W, GROUND], fill=(36, 34, 72))
+    draw.rectangle([0, 56, SCENE_W, GROUND], fill=(66, 52, 96))
+    heights = [34, 22, 44, 28, 38, 18, 30]
+    for i, x in enumerate(wrapped(0, distance * 0.3, 20)):
+        index = int((distance * 0.3) // 20 + i) % len(heights)
+        h = heights[index]
+        draw.rectangle([x, GROUND - h, x + 17, GROUND], fill=(24, 24, 52))
+        for wy in range(GROUND - h + 3, GROUND - 3, 6):
+            for wx in (x + 3, x + 10):
+                if (index + wy + wx // 7) % 3:
+                    draw.rectangle([wx, wy, wx + 2, wy + 2], fill=(250, 214, 110))
+    road(draw, distance, (40, 40, 56), (230, 228, 240))
+
+
+def scene_news(draw, clock):
+    distance = clock * SCROLL
+    draw.rectangle([0, 0, SCENE_W, GROUND], fill=(16, 40, 86))
+    # Studio screens slide past
+    for x in wrapped(0, distance * 0.35, 46):
+        draw.rectangle([x, 18, x + 38, 58], fill=(10, 26, 58))
+        draw.rectangle([x + 2, 20, x + 36, 56], fill=(30, 84, 150))
+        draw.ellipse([x + 9, 25, x + 29, 45], fill=(70, 150, 214))
+        draw.rectangle([x + 12, 30, x + 19, 36], fill=(120, 200, 140))
+        draw.rectangle([x + 21, 34, x + 26, 41], fill=(120, 200, 140))
+        draw.rectangle([x + 4, 49, x + 34, 53], fill=(214, 40, 60))
+    draw.rectangle([0, 62, SCENE_W, GROUND], fill=(24, 54, 108))
+    draw.rectangle([0, GROUND, SCENE_W, SCENE_H], fill=(214, 30, 54))
+    # Live sign, fixed to the screen like a broadcast's
+    draw.rectangle([SCENE_W - 26, 4, SCENE_W - 4, 12], fill=(214, 30, 54))
+    pixel_word(draw, SCENE_W - 24, 6, "LIVE", (255, 255, 255))
+    # Ticker: lines of "text" running past, under a NEWS tag
+    draw.rectangle([0, GROUND + 3, SCENE_W, GROUND + 9], fill=(245, 243, 255))
+    lengths = [14, 8, 19, 6, 11, 16]
+    for i, x in enumerate(wrapped(0, distance * 1.2, 22)):
+        length = lengths[int((distance * 1.2) // 22 + i) % len(lengths)]
+        draw.rectangle([x, GROUND + 5, x + min(length, 18), GROUND + 7], fill=(30, 30, 50))
+    draw.rectangle([0, GROUND + 1, 23, GROUND + 11], fill=(120, 16, 36))
+    pixel_word(draw, 3, GROUND + 4, "NEWS", (255, 255, 255))
+
+
+def scene_music(draw, clock):
+    distance = clock * SCROLL
+    draw.rectangle([0, 0, SCENE_W, GROUND], fill=(34, 14, 62))
+    # Equalizer bouncing to the beat
+    for i in range(0, SCENE_W, 8):
+        level = abs(((clock * 2.2 + i * 0.137) % 2) - 1)
+        level = 0.25 + 0.75 * level * abs(((i * 0.61) % 1) - 0.3)
+        h = int(10 + 52 * level)
+        for y in range(GROUND - h, GROUND, 4):
+            shade = (GROUND - y) / 62
+            color = (int(120 + 135 * shade), int(70 + 20 * shade), int(230 - 60 * shade))
+            draw.rectangle([i + 1, y, i + 5, y + 2], fill=color)
+    # Notes drifting past
+    for i, x in enumerate(wrapped(0, distance * 0.7, 50)):
+        y = 14 + (int((distance * 0.7) // 50 + i) * 11) % 24
+        draw.rectangle([x, y + 7, x + 3, y + 9], fill=(245, 243, 255))
+        draw.rectangle([x + 3, y, x + 3, y + 8], fill=(245, 243, 255))
+        draw.rectangle([x + 3, y, x + 7, y + 1], fill=(245, 243, 255))
+    road(draw, distance, (28, 16, 50), (255, 90, 170))
+
+
+def scene_travel(draw, clock):
+    distance = clock * SCROLL
+    draw.rectangle([0, 0, SCENE_W, 34], fill=(120, 200, 245))
+    draw.rectangle([0, 34, SCENE_W, GROUND], fill=(176, 226, 248))
+    draw.ellipse([SCENE_W - 46, 16, SCENE_W - 28, 34], fill=(255, 228, 120))
+    for i, x in enumerate(wrapped(0, distance * 0.08, 70)):
+        y = 22 + (int((distance * 0.08) // 70 + i) * 7) % 12
+        draw.rectangle([x, y + 2, x + 18, y + 5], fill=(255, 255, 255))
+        draw.rectangle([x + 4, y, x + 13, y + 2], fill=(255, 255, 255))
+    # Far peaks with snow, nearer hills, then trees going by quickly
+    for x in wrapped(0, distance * 0.15, 66):
+        draw.polygon([(x, 72), (x + 33, 30), (x + 66, 72)], fill=(96, 122, 170))
+        draw.polygon([(x + 25, 40), (x + 33, 30), (x + 41, 40)], fill=(245, 248, 255))
+    for x in wrapped(0, distance * 0.35, 48):
+        draw.polygon([(x, 78), (x + 24, 50), (x + 48, 78)], fill=(82, 160, 104))
+    draw.rectangle([0, 72, SCENE_W, GROUND], fill=(96, 180, 96))
+    for x in wrapped(0, distance, 37):
+        draw.rectangle([x + 5, 74, x + 7, GROUND], fill=(102, 66, 40))
+        draw.polygon([(x, 76), (x + 6, 60), (x + 12, 76)], fill=(36, 120, 70))
+    draw.rectangle([0, GROUND, SCENE_W, SCENE_H], fill=(214, 178, 124))
+    for x in wrapped(0, distance, 28):
+        draw.rectangle([x, GROUND + 5, x + 7, GROUND + 6], fill=(182, 146, 98))
+
+
+SCENES_ART = {"city": scene_city, "news": scene_news, "music": scene_music, "travel": scene_travel}
+
+
+def draw_scene(name, clock):
+    canvas = Image.new("RGBA", (SCENE_W, SCENE_H), (0, 0, 0, 255))
+    SCENES_ART[name](ImageDraw.Draw(canvas), clock)
+    sprite = runner(int(clock * STRIDES) % len(RUNNER_FRAMES), name == "music")
+    bob = 1 if int(clock * STRIDES) % 2 else 0
+    canvas.alpha_composite(sprite, (SCENE_W // 2 - sprite.width // 2, GROUND + 2 - sprite.height - bob))
+    return canvas.resize((SCENE_W * PIXEL, SCENE_H * PIXEL), Image.NEAREST).crop((0, 0, PLAYER_W, PLAYER_H))
+
+
+def draw_player(frame, *, scene, speed, clock, progress, toast=None, toast_alpha=0.0):
+    """A made-up video player showing a pixel runner in the given scene."""
+    player = draw_scene(scene, clock)
 
     # Controls on their own layer: drawing translucent fills straight onto the
     # player would replace its pixels instead of blending with them
     controls = Image.new("RGBA", (PLAYER_W, PLAYER_H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(controls)
-    draw.rectangle([0, PLAYER_H - 84, PLAYER_W, PLAYER_H], fill=(0, 0, 0, 165))
+    draw.rectangle([0, PLAYER_H - 84, PLAYER_W, PLAYER_H], fill=(0, 0, 0, 190))
     bar_y = PLAYER_H - 72
     draw.rectangle([28, bar_y, PLAYER_W - 28, bar_y + 8], fill=(255, 255, 255, 70))
     draw.rectangle([28, bar_y, 28 + (PLAYER_W - 56) * progress, bar_y + 8], fill=CYAN + (255,))
@@ -239,10 +451,6 @@ def draw_player(frame, *, palette, speed, clock, progress, toast=None, toast_alp
 
 # --- scenes: each takes the time since the scene started -------------------
 
-TALK_PALETTE = ((40, 52, 70), (16, 20, 30))
-MUSIC_PALETTE = ((70, 40, 90), (24, 14, 40))
-
-
 def scene_intro(t):
     frame = background().copy()
     grow = ramp(t, 0.1, 0.8)
@@ -257,30 +465,31 @@ def scene_intro(t):
 def scene_problem(t):
     frame = background().copy()
     center(frame, text(TEXT["problem"][0], HEADING), 24, ramp(t, 0.0, 0.5))
-    draw_player(frame, palette=TALK_PALETTE, speed=1, clock=t, progress=0.08 + t * 0.004)
+    draw_player(frame, scene="city", speed=1, clock=t, progress=0.08 + t * 0.01)
     center(frame, text(TEXT["problem"][1], CAPTION, SOFT), 860, ramp(t, 1.0, 0.5))
     return frame
 
 
-DEMO_SWITCH = 5.5  # seconds into the demo when the second video starts
+CLIP_SECONDS = 4.5
+# (copy key, scene art, speed the extension picks). Each clip starts at 1x, then
+# the toast appears and the speed changes, as it does on a real video.
+CLIPS = [("news", "news", 1.5), ("music", "music", 1.0), ("travel", "travel", 1.25)]
+SPEED_CHANGE_AT = 0.9
 
 
 def scene_demo(t):
     frame = background().copy()
-    if t < DEMO_SWITCH:
-        speed = 1 + 0.5 * ramp(t, 1.2, 0.8)
-        clock = 3.5 + t + 0.5 * max(0.0, t - 1.6)  # the video clock runs faster at 1.5x
-        draw_player(frame, palette=TALK_PALETTE, speed=round(speed * 4) / 4, clock=clock,
-                    progress=0.1 + t * 0.012 * speed, toast=TEXT["talk"][2],
-                    toast_alpha=ramp(t, 1.0, 0.3) * (1 - ramp(t, 4.8, 0.4)))
-        heading, caption, alpha = TEXT["talk"][0], TEXT["talk"][1], ramp(t, 1.4, 0.5)
-    else:
-        local = t - DEMO_SWITCH
-        draw_player(frame, palette=MUSIC_PALETTE, speed=1, clock=local, progress=0.02 + local * 0.01,
-                    toast=TEXT["music"][2], toast_alpha=ramp(local, 0.5, 0.3) * (1 - ramp(local, 4.6, 0.4)))
-        heading, caption, alpha = TEXT["music"][0], TEXT["music"][1], ramp(local, 0.8, 0.5)
+    index = min(int(t // CLIP_SECONDS), len(CLIPS) - 1)
+    local = t - index * CLIP_SECONDS
+    key, art, target = CLIPS[index]
+    speed = target if local >= SPEED_CHANGE_AT else 1.0
+    # The video's clock runs at the playback speed once it changes
+    clock = local + (target - 1) * max(0.0, local - SPEED_CHANGE_AT)
+    draw_player(frame, scene=art, speed=speed, clock=clock, progress=0.05 + clock * 0.03,
+                toast=TEXT[key][2], toast_alpha=ramp(local, SPEED_CHANGE_AT - 0.1, 0.25) * (1 - ramp(local, CLIP_SECONDS - 0.4, 0.3)))
+    heading, caption = TEXT[key][0], TEXT[key][1]
     center(frame, text(heading, HEADING), 24)
-    center(frame, text(caption, CAPTION, CYAN), 860, alpha)
+    center(frame, text(caption, CAPTION, CYAN), 860, ramp(local, SPEED_CHANGE_AT, 0.4))
     return frame
 
 
@@ -385,7 +594,7 @@ def scene_outro(t):
 SCENES = [
     (scene_intro, 3.5),
     (scene_problem, 4.0),
-    (scene_demo, 11.0),
+    (scene_demo, CLIP_SECONDS * len(CLIPS)),
     (scene_features, FEATURE_SECONDS * len(FEATURE_SHOTS)),
     (scene_privacy, 4.0),
     (scene_outro, 4.0),
@@ -418,13 +627,14 @@ def use_locale(locale):
     FONT = store_images.FONTS + fonts["regular"]
     text.cache_clear()
     load_shots()
-    lines = [(TEXT["problem"][0], HEADING), (TEXT["problem"][1], CAPTION), (TEXT["talk"][0], HEADING), (TEXT["talk"][1], CAPTION),
+    lines = [(TEXT["problem"][0], HEADING), (TEXT["problem"][1], CAPTION), (TEXT["news"][0], HEADING), (TEXT["news"][1], CAPTION), (TEXT["travel"][0], HEADING), (TEXT["travel"][1], CAPTION),
              (TEXT["music"][0], HEADING), (TEXT["music"][1], CAPTION), (TEXT["privacy"][0], 80), (TEXT["privacy"][1], CAPTION),
              (TEXT["privacy"][2], CAPTION), (TEXT["tagline"], CAPTION), (TEXT["outro"][0], 64), (TEXT["outro"][1], CAPTION)]
     lines += [(title, HEADING) for title, _ in TEXT["features"]] + [(line, 46) for _, line in TEXT["features"]]
     for content, size in lines:
         assert text(content, size).width <= W - 80, (locale, content)
-    assert text(TEXT["talk"][2], 40).width + 52 + 30 <= PLAYER_W, (locale, "toast")
+    for clip in ("news", "music", "travel"):
+        assert text(TEXT[clip][2], 40).width + 52 + 30 <= PLAYER_W, (locale, clip)
 
 
 def render_video(locale):
