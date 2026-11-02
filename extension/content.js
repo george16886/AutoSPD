@@ -21,6 +21,7 @@
     // ending) is YouTube restoring its own rate, not the user picking one
     const RESET_WINDOW_MS = 1500;
     const TOAST_DURATION_MS = 3000;
+    let pendingToast = null;
     const guardedVideos = new WeakSet();
     let resetWindowUntil = 0;
 
@@ -104,7 +105,13 @@
         return response;
     }
 
+    // During an ad the notice waits, and appears when the video itself starts playing
     function showToast(text) {
+        if (isAdShowing()) {
+            pendingToast = text;
+            return;
+        }
+        pendingToast = null;
         const settingsPromise = sendMessage({ type: 'get-settings' });
         settingsPromise.then(({ settings }) => {
             if (!settings.notifications) return;
@@ -196,7 +203,10 @@
         for (const name of ['emptied', 'loadstart', 'loadedmetadata', 'loadeddata']) {
             video.addEventListener(name, onSourceLoad);
         }
-        video.addEventListener('playing', () => enforceSpeed(video));
+        video.addEventListener('playing', () => {
+            enforceSpeed(video);
+            if (pendingToast && !isAdShowing()) showToast(pendingToast);
+        });
         video.addEventListener('ratechange', () => onRateChange(video));
     }
 
@@ -211,6 +221,7 @@
             state.ytCategory = '';
             state.channelName = '';
             state.hasPlayerInfo = false;
+            pendingToast = null;
             requestVersion += 1;
             return;
         }
@@ -240,6 +251,7 @@
         state.speed = null;
         state.aiStatus = '';
         state.mode = 'loading';
+        pendingToast = null;
 
         try {
             const { settings } = await sendMessage({ type: 'get-settings' });
@@ -335,7 +347,8 @@
             const video = getVideoElement();
             if (video && !isAdShowing()) setVideoSpeed(video, speed);
 
-            if (speedChanged && settings.notifications) {
+            // A notice still waiting for an ad to end should carry the model's pick
+            if ((speedChanged || pendingToast) && settings.notifications) {
                 showToast(t('toastSpeed', state.category?.name || t('uncategorized'), speed));
             }
         } catch (error) {

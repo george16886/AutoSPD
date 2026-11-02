@@ -38,12 +38,13 @@ function createContentScript({
     aiAnswer = null,
     aiLabels = {},
     notifications = false,
+    adShowing = false,
     withPlayer = false
 } = {}) {
     const video = createVideo();
     // Hidden watch-page player left in the DOM after navigating to Shorts
     const staleWatchVideo = createVideo();
-    const page = { adShowing: false, captionsOn, captionClicks: 0 };
+    const page = { adShowing, captionsOn, captionClicks: 0 };
     const captionsButton = {
         click() {
             page.captionClicks += 1;
@@ -570,4 +571,58 @@ test('without a player the toast falls back to the page corner', async () => {
 
     assert.notEqual(harness.toastElement.parentNode, harness.playerElement);
     assert.ok(!harness.toastElement.classes.has('autospd-toast-in-player'));
+});
+
+test('the speed notice waits for ads to end, however many there are', async () => {
+    const harness = createContentScript({ notifications: true, adShowing: true });
+    await wait(20);
+    assert.deepEqual(harness.toasts, []);
+
+    // A second ad in the same break starts playing
+    harness.video.fire('playing');
+    await wait(5);
+    assert.deepEqual(harness.toasts, []);
+
+    harness.page.adShowing = false;
+    harness.video.fire('playing');
+    await wait(5);
+    assert.deepEqual(harness.toasts, ['AutoSPD：說故事 · 1.5x']);
+
+    // Later plays, like resuming after a pause, do not repeat it
+    harness.video.fire('playing');
+    await wait(5);
+    assert.equal(harness.toasts.length, 1);
+});
+
+test('without an ad the speed notice appears right away', async () => {
+    const harness = createContentScript({ notifications: true });
+    await wait(20);
+
+    assert.deepEqual(harness.toasts, ['AutoSPD：說故事 · 1.5x']);
+});
+
+test('a notice waiting on an ad shows the AI pick, once', async () => {
+    const harness = createContentScript({ notifications: true, adShowing: true, classifyMode: 'ai', aiAnswer: { categoryId: 'news' } });
+    await wait(30);
+    assert.deepEqual(harness.toasts, []);
+
+    harness.page.adShowing = false;
+    harness.video.fire('playing');
+    await wait(5);
+    assert.deepEqual(harness.toasts, ['AutoSPD：新聞時事（AI） · 1.5x']);
+});
+
+test('a notice waiting on an ad is dropped when the viewer leaves the video', async () => {
+    const harness = createContentScript({ notifications: true, adShowing: true });
+    await wait(20);
+
+    harness.currentLocation.href = 'https://www.youtube.com/';
+    harness.currentLocation.pathname = '/';
+    harness.documentListeners.get('yt-navigate-finish')();
+    await wait(150);
+    harness.page.adShowing = false;
+    harness.video.fire('playing');
+    await wait(5);
+
+    assert.deepEqual(harness.toasts, []);
 });
